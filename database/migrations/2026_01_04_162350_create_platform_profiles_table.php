@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('platform_profiles', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('platform_id')->constrained()->cascadeOnDelete();
+            $table->string('handle', 100);
+            $table->integer('rating')->nullable();
+            $table->integer('total_solved')->default(0);
+            $table->string('profile_url')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->timestamp('last_synced_at')->nullable();
+            $table->timestamps();
+            $table->unique(['user_id', 'platform_id']);
+            $table->index('handle');
+            $table->index('platform_id');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('platform_profiles');
+    }
+};
