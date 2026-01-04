@@ -2,7 +2,24 @@
 
 namespace App\Platforms\Codeforces;
 
-class CodeforcesClient
+use App\Support\Http\BaseHttpClient;
+
+class CodeforcesClient extends BaseHttpClient
 {
-    // HTTP logic will be added later
+    private const BASE_URL = 'https://codeforces.com/api';
+
+    public function fetchUserInfo(string $handle): array
+    {
+        $response = $this->get(
+            self::BASE_URL . '/user.info?handles=' . urlencode($handle)
+        )->json();
+
+        if (($response['status'] ?? null) !== 'OK') {
+            throw new \RuntimeException(
+                $response['comment'] ?? 'Codeforces API error'
+            );
+        }
+
+        return $response['result'][0];
+    }
 }
