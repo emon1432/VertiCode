@@ -22,4 +22,19 @@ class CodeforcesClient extends BaseHttpClient
 
         return $response['result'][0];
     }
+
+    public function fetchSubmissions(string $handle): array
+    {
+        $response = $this->get(
+            self::BASE_URL . '/user.status?handle=' . urlencode($handle)
+        )->json();
+
+        if (($response['status'] ?? null) !== 'OK') {
+            throw new \RuntimeException(
+                $response['comment'] ?? 'Codeforces submissions API error'
+            );
+        }
+
+        return $response['result'];
+    }
 }

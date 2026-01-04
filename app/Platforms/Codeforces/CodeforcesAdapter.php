@@ -4,7 +4,10 @@ namespace App\Platforms\Codeforces;
 
 use App\Contracts\Platforms\PlatformAdapter;
 use App\DataTransferObjects\Platform\ProfileDTO;
+use App\DataTransferObjects\Platform\SubmissionDTO;
 use App\Enums\Platform;
+use App\Enums\Verdict;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
 class CodeforcesAdapter implements PlatformAdapter
@@ -38,6 +41,24 @@ class CodeforcesAdapter implements PlatformAdapter
 
     public function fetchSubmissions(string $handle): Collection
     {
-        throw new \RuntimeException('Not implemented');
+        $submissions = $this->client->fetchSubmissions($handle);
+
+        return collect($submissions)
+            ->filter(fn($sub) => ($sub['verdict'] ?? null) === 'OK')
+            ->map(function ($sub) {
+                $problem = $sub['problem'];
+
+                $problemId = ($problem['contestId'] ?? '0') . $problem['index'];
+
+                return new SubmissionDTO(
+                    problemId: $problemId,
+                    problemName: $problem['name'],
+                    difficulty: $problem['rating'] ?? null,
+                    verdict: Verdict::ACCEPTED,
+                    submittedAt: CarbonImmutable::createFromTimestamp(
+                        $sub['creationTimeSeconds']
+                    )
+                );
+            });
     }
 }
