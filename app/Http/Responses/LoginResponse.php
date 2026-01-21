@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Http\Responses;
+
+use App\Providers\RouteServiceProvider;
+use Illuminate\Support\Facades\Auth;
+use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
+
+class LoginResponse implements LoginResponseContract
+{
+    public function toResponse($request)
+    {
+        $user = Auth::user();
+        if ($user->role === 'user') {
+            $home = "/profile/{$user->id}";
+        } elseif ($user->role === 'admin') {
+            $home = '/dashboard';
+        }
+
+        return redirect()->intended($home);
+    }
+}

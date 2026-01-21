@@ -3,28 +3,31 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OthersController;
 use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\TrashController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    return redirect('/dashboard');
+    return view('web.welcome');
 })->name('home');
 
-Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified', 'user'])->group(function () {
+    Route::get('/profile/{id}', function () {
+        $user = Auth::user();
+        return view('user.profile', compact('user'));
+    })->name('profile');
+});
+
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified', 'admin'])->group(function () {
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
     });
     Route::resource('users', UserController::class);
-    Route::resource('trash', TrashController::class)->only('index');
-    Route::controller(TrashController::class)->group(function () {
-        Route::post('/trash/restore/{table}/{id}', 'restore')->name('trash.restore');
-        Route::delete('/trash/destroy/{table}/{id}', 'destroy')->name('trash.destroy');
-    });
     Route::resource('settings', SettingController::class)->only('index', 'update');
 });
 
 Route::controller(OthersController::class)->group(function () {
+    Route::middleware('guest')->get('/admin/login', 'login')->name('admin.login');
     Route::post('/test-mail', 'testMail')->name('test.mail');
     Route::get('/migrate', 'migrate')->name('migration');
     Route::get('/clear', 'clear')->name('clear');

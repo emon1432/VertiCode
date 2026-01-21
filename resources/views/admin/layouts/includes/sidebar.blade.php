@@ -43,21 +43,6 @@
                 </li>
             </ul>
         </li>
-
-
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ti tabler-shield-check"></i>
-                <div>{{ __('Administrator') }}</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="{{ route('trash.index') }}" class="menu-link">
-                        <div>{{ __('Trash') }}</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
         <li class="menu-item">
             <a href="{{ route('settings.index') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-settings"></i>

@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\Mail;
 
 class OthersController extends Controller
 {
+    public function login()
+    {
+        return view('auth.admin-login');
+    }
+
     public function testMail(Request $request)
     {
         $request->validate([

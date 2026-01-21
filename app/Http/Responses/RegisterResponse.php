@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Http\Responses;
+
+use App\Providers\RouteServiceProvider;
+use App\Models\User;
+use Laravel\Fortify\Contracts\RegisterResponse as RegisterResponseContract;
+use Illuminate\Support\Facades\Auth;
+
+class RegisterResponse implements RegisterResponseContract
+{
+    public function toResponse($request)
+    {
+        $user = User::findOrFail(Auth::id());
+        $home = $user->role === 'admin' ? '/dashboard' : "/profile/{$user->id}";
+
+        return redirect()->intended($home);
+    }
+}
