@@ -342,11 +342,11 @@
 
                             <div class="mb-3">
                                 <label for="email" class="form-label">
-                                    <i class="bi bi-envelope-fill text-muted"></i> Email Address
+                                    <i class="bi bi-person-fill text-muted"></i> Email or Username
                                 </label>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                <input type="text" class="form-control @error('email') is-invalid @enderror"
                                     id="email" name="email" value="{{ old('email') }}"
-                                    placeholder="Enter your email" required autofocus>
+                                    placeholder="Enter your email or username" required autofocus>
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
