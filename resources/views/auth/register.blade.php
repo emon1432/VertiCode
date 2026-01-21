@@ -259,6 +259,7 @@
             .register-left {
                 padding: 40px 30px;
             }
+
             .register-right {
                 padding: 40px 30px;
             }
@@ -281,7 +282,8 @@
                         </div>
 
                         <h2 class="mb-4" style="font-weight: 700;">Start Your Coding Journey Today</h2>
-                        <p class="mb-4" style="opacity: 0.95;">Join thousands of programmers tracking their progress across multiple competitive programming platforms.</p>
+                        <p class="mb-4" style="opacity: 0.95;">Join thousands of programmers tracking their progress
+                            across multiple competitive programming platforms.</p>
 
                         <div class="feature-item">
                             <div class="feature-icon">
@@ -289,7 +291,8 @@
                             </div>
                             <div>
                                 <h5 class="mb-1">Real-time Sync</h5>
-                                <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Automatically sync profiles from all major platforms</p>
+                                <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Automatically sync profiles
+                                    from all major platforms</p>
                             </div>
                         </div>
 
@@ -299,7 +302,8 @@
                             </div>
                             <div>
                                 <h5 class="mb-1">Track Progress</h5>
-                                <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Visualize your growth with detailed analytics</p>
+                                <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Visualize your growth with
+                                    detailed analytics</p>
                             </div>
                         </div>
 
@@ -309,7 +313,8 @@
                             </div>
                             <div>
                                 <h5 class="mb-1">Secure & Private</h5>
-                                <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Your data is encrypted and completely secure</p>
+                                <p class="mb-0" style="opacity: 0.9; font-size: 0.95rem;">Your data is encrypted and
+                                    completely secure</p>
                             </div>
                         </div>
                     </div>
@@ -320,10 +325,12 @@
                     <div class="register-right">
                         <div class="text-center d-lg-none mb-4">
                             <div class="d-inline-flex align-items-center gap-2">
-                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
+                                <div
+                                    style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
                                     <i class="bi bi-code-slash"></i>
                                 </div>
-                                <span style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">VertiCode</span>
+                                <span
+                                    style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">VertiCode</span>
                             </div>
                         </div>
 
@@ -340,7 +347,7 @@
                             </div>
                         @endif
 
-                        <form method="POST" action="{{ route('register') }}">
+                        <form method="POST" action="{{ route('register') }}" autocomplete="off">
                             @csrf
 
                             <div class="mb-3">
@@ -349,8 +356,20 @@
                                 </label>
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
                                     id="name" name="name" value="{{ old('name') }}"
-                                    placeholder="Enter your full name" required autofocus>
+                                    placeholder="Enter your full name" required>
                                 @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="bi bi-person-badge-fill text-muted"></i> Username
+                                </label>
+                                <input type="text" class="form-control @error('username') is-invalid @enderror"
+                                    minlength="4" maxlength="20" id="username" name="username"
+                                    value="{{ old('username') }}" placeholder="Choose a username" required>
+                                @error('username')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -372,9 +391,9 @@
                                     <i class="bi bi-lock-fill text-muted"></i> Password
                                 </label>
                                 <div class="input-group">
-                                    <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                        id="password" name="password"
-                                        placeholder="Create a strong password" required>
+                                    <input type="password"
+                                        class="form-control @error('password') is-invalid @enderror" id="password"
+                                        name="password" placeholder="Create a strong password" required>
                                     <span class="input-group-text" onclick="togglePassword('password', this)">
                                         <i class="bi bi-eye"></i>
                                     </span>
@@ -390,10 +409,10 @@
                                     <i class="bi bi-lock-fill text-muted"></i> Confirm Password
                                 </label>
                                 <div class="input-group">
-                                    <input type="password" class="form-control"
-                                        id="password_confirmation" name="password_confirmation"
-                                        placeholder="Confirm your password" required>
-                                    <span class="input-group-text" onclick="togglePassword('password_confirmation', this)">
+                                    <input type="password" class="form-control" id="password_confirmation"
+                                        name="password_confirmation" placeholder="Confirm your password" required>
+                                    <span class="input-group-text"
+                                        onclick="togglePassword('password_confirmation', this)">
                                         <i class="bi bi-eye"></i>
                                     </span>
                                 </div>

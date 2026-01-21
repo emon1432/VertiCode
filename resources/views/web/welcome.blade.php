@@ -286,7 +286,7 @@
                             @endif
                         @else
                             <a href="{{ route('register') }}" class="btn btn-primary-gradient btn-lg">
-                                <i class="bi bi-rocket-takeoff"></i> Start Free Today
+                                <i class="bi bi-rocket-takeoff"></i> Start Your Journey
                             </a>
                             <a href="{{ route('login') }}" class="btn btn-outline-light-custom btn-lg">
                                 <i class="bi bi-box-arrow-in-right"></i> Sign In

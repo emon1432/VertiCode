@@ -12,7 +12,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified', 'user'])->group(function () {
-    Route::get('/profile/{id}', function () {
+    Route::get('/profile/{username}', function ($username) {
         $user = Auth::user();
         return view('user.profile', compact('user'));
     })->name('profile');
