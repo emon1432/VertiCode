@@ -5,17 +5,24 @@ use App\Http\Controllers\Admin\OthersController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\User\DashboardController as UserDashboardController;
+use App\Http\Controllers\User\PlatformProfileController;
+use App\Http\Controllers\User\SyncController;
+use App\Http\Controllers\User\UserProfileController;
 
 Route::get('/', function () {
     return view('web.welcome');
 })->name('home');
 
-Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified', 'user'])->group(function () {
-    Route::get('/user/profile', function () {
-        $user = Auth::user();
-        return view('user.profile', compact('user'));
-    })->name('profile.show');
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified', 'user'])->prefix('user')->name('user.')->group(function () {
+    Route::controller(UserProfileController::class)->group(function () {
+        Route::get('/profile/{username}', 'show')->name('profile');
+        Route::get('/profile/{username}/edit', 'edit')->name('profile.edit');
+        Route::put('/profile/{username}', 'update')->name('profile.update');
+    });
+    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+    Route::resource('platform-profiles', PlatformProfileController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::post('/platform-profiles/{platformProfile}/sync', [SyncController::class, 'sync'])->name('platform-profiles.sync');
 });
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified', 'admin'])->group(function () {

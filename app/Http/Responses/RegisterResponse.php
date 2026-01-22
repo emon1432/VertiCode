@@ -12,7 +12,7 @@ class RegisterResponse implements RegisterResponseContract
     public function toResponse($request)
     {
         $user = User::findOrFail(Auth::id());
-        $home = $user->role === 'admin' ? '/dashboard' : "/user/profile";
+        $home = $user->role === 'admin' ? '/dashboard' : "/user/profile/{$user->username}";
 
         return redirect()->intended($home);
     }
