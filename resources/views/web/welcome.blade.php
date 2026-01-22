@@ -241,7 +241,7 @@
                                 </li>
                             @else
                                 <li class="nav-item ms-3">
-                                    <a href="{{ route('profile', auth()->id()) }}" class="btn btn-primary-gradient">
+                                    <a href="{{ route('profile.show') }}" class="btn btn-primary-gradient">
                                         <i class="bi bi-person-circle"></i> Profile
                                     </a>
                                 </li>
@@ -280,7 +280,7 @@
                                     <i class="bi bi-speedometer2"></i> Go to Dashboard
                                 </a>
                             @else
-                                <a href="{{ route('profile', auth()->id()) }}" class="btn btn-primary-gradient btn-lg">
+                                <a href="{{ route('profile.show') }}" class="btn btn-primary-gradient btn-lg">
                                     <i class="bi bi-rocket-takeoff"></i> View Profile
                                 </a>
                             @endif
@@ -490,7 +490,7 @@
                 </div>
                 <div class="col-lg-4 text-lg-end">
                     @auth
-                        <a href="{{ route('profile', auth()->id()) }}" class="btn btn-light btn-lg"
+                        <a href="{{ route('profile.show') }}" class="btn btn-light btn-lg"
                             style="border-radius: 50px; padding: 12px 40px; font-weight: 600;">
                             View Dashboard <i class="bi bi-arrow-right"></i>
                         </a>

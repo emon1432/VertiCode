@@ -79,7 +79,7 @@
                     </option>
                 </select>
             </div>
-            <div class="col-md-6 form-control-validation">
+            <div class="col-md-4 form-control-validation">
                 <label class="form-label" for="decimal_separator">{{ __('Decimal Separator') }}</label>
                 <select name="decimal_separator" id="decimal_separator" class="form-select">
                     <option value="." {{ ($values['decimal_separator'] ?? '') === '.' ? 'selected' : '' }}>Dot (.)
@@ -90,7 +90,7 @@
                         ( )</option>
                 </select>
             </div>
-            <div class="col-md-6 form-control-validation">
+            <div class="col-md-4 form-control-validation">
                 <label class="form-label" for="thousand_separator">{{ __('Thousand Separator') }}</label>
                 <select name="thousand_separator" id="thousand_separator" class="form-select">
                     <option value="." {{ ($values['thousand_separator'] ?? '') === '.' ? 'selected' : '' }}>Dot
@@ -102,7 +102,7 @@
                         ( )</option>
                 </select>
             </div>
-            <div class="col-md-6 form-control-validation">
+            <div class="col-md-4 form-control-validation">
                 <label class="form-label" for="decimal_precision">{{ __('Decimal Precision') }}</label>
                 <select name="decimal_precision" id="decimal_precision" class="form-select">
                     <option value="2" {{ ($values['decimal_precision'] ?? '') == 2 ? 'selected' : '' }}>2
