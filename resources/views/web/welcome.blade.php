@@ -241,9 +241,10 @@
                                 </li>
                             @else
                                 <li class="nav-item ms-3">
-                                    <a href="{{ route('user.profile', ['username' => auth()->user()->username]) }}"
+                                    <a href="{{ route('user.dashboard') }}"
                                         class="btn btn-primary-gradient">
-                                        <i class="bi bi-person-circle"></i> Profile
+                                        <i class="bi bi-speedometer2"></i>
+                                        Dashboard
                                     </a>
                                 </li>
                             @endif
@@ -281,9 +282,10 @@
                                     <i class="bi bi-speedometer2"></i> Go to Dashboard
                                 </a>
                             @else
-                                <a href="{{ route('user.profile', ['username' => auth()->user()->username]) }}"
+                                <a href="{{ route('user.dashboard') }}"
                                     class="btn btn-primary-gradient btn-lg">
-                                    <i class="bi bi-rocket-takeoff"></i> View Profile
+                                    <i class="bi bi-speedometer2"></i>
+                                    View Dashboard
                                 </a>
                             @endif
                         @else
@@ -492,7 +494,7 @@
                 </div>
                 <div class="col-lg-4 text-lg-end">
                     @auth
-                        <a href="{{ route('user.profile', ['username' => auth()->user()->username]) }}"
+                        <a href="{{ route('user.dashboard') }}"
                             class="btn btn-light btn-lg"
                             style="border-radius: 50px; padding: 12px 40px; font-weight: 600;">
                             View Dashboard <i class="bi bi-arrow-right"></i>

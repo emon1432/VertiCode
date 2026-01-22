@@ -21,4 +21,9 @@ class PlatformProfile extends Model
         'is_active' => 'boolean',
         'last_synced_at' => 'datetime',
     ];
+
+    public function platform()
+    {
+        return $this->belongsTo(Platform::class);
+    }
 }
