@@ -11,22 +11,22 @@ class LeetCodeClient extends BaseHttpClient
     public function fetchUserProfile(string $username): array
     {
         $query = <<<'GQL'
-query userPublicProfile($username: String!) {
-  matchedUser(username: $username) {
-    username
-    profile {
-      ranking
-      reputation
-    }
-    submitStatsGlobal {
-      acSubmissionNum {
-        difficulty
-        count
-      }
-    }
-  }
-}
-GQL;
+            query userPublicProfile($username: String!) {
+            matchedUser(username: $username) {
+                username
+                profile {
+                ranking
+                reputation
+                }
+                submitStatsGlobal {
+                acSubmissionNum {
+                    difficulty
+                    count
+                }
+                }
+            }
+            }
+            GQL;
 
         $payload = [
             'query' => $query,
@@ -55,5 +55,46 @@ GQL;
         }
 
         return $response['data']['matchedUser'];
+    }
+
+    public function fetchSolvedProblems(string $username): array
+    {
+        $query = <<<'GQL'
+                query userSolvedProblems($username: String!) {
+                userProfileUserQuestionProgress(username: $username) {
+                    numAcceptedQuestions
+                    questions {
+                    questionId
+                    title
+                    titleSlug
+                    difficulty
+                    }
+                }
+                }
+                GQL;
+
+        $payload = [
+            'query' => $query,
+            'variables' => [
+                'username' => $username,
+            ],
+        ];
+
+        $response = $this->post(
+            self::ENDPOINT,
+            $payload,
+            [
+                'Content-Type' => 'application/json',
+                'User-Agent' => 'VertiCode/1.0',
+            ]
+        )->json();
+
+        if (isset($response['errors'])) {
+            throw new \RuntimeException(
+                $response['errors'][0]['message'] ?? 'LeetCode GraphQL error'
+            );
+        }
+
+        return $response['data']['userProfileUserQuestionProgress'] ?? [];
     }
 }

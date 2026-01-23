@@ -4,7 +4,10 @@ namespace App\Platforms\LeetCode;
 
 use App\Contracts\Platforms\PlatformAdapter;
 use App\DataTransferObjects\Platform\ProfileDTO;
+use App\DataTransferObjects\Platform\SubmissionDTO;
 use App\Enums\Platform;
+use App\Enums\Verdict;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
 class LeetCodeAdapter implements PlatformAdapter
@@ -20,16 +23,29 @@ class LeetCodeAdapter implements PlatformAdapter
 
     public function supportsSubmissions(): bool
     {
-        return true;
+        return false;
     }
 
     public function fetchProfile(string $handle): ProfileDTO
     {
-        throw new \RuntimeException('Not implemented');
+        $data = $this->client->fetchUserProfile($handle);
+
+        $totalSolved = collect(
+            $data['submitStatsGlobal']['acSubmissionNum'] ?? []
+        )->sum('count');
+
+        return new ProfileDTO(
+            platform: Platform::LEETCODE,
+            handle: $data['username'],
+            rating: null, // LeetCode has no stable global rating
+            totalSolved: $totalSolved,
+            raw: $data
+        );
     }
 
     public function fetchSubmissions(string $handle): Collection
     {
-        throw new \RuntimeException('Not implemented');
+        // LeetCode public API does not expose per-problem submissions reliably
+        return collect();
     }
 }
