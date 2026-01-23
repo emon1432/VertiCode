@@ -33,9 +33,9 @@ class SettingsTableSeeder extends Seeder
                 'id' => 2,
                 'icon' => 'settings',
                 'key' => 'system_settings',
-                'value' => '{"app_name":"ProdInsight","app_url":"https:\\/\\/prodinsight.verticasoft.tech","app_locale":"en","app_timezone":"Asia\\/Dhaka","date_format":"d-m-Y","time_format":"h:i A","currency_id":"1","decimal_separator":".","thousand_separator":",","decimal_precision":"2","footer_text":"\\u00a9 2025 ProdInsight. All rights reserved.","copyright":"Copyright \\u00a9 2025 ProdInsight"}',
+                'value' => '{"app_name":"VertiCode","app_url":"https:\\/\\/verticode.verticasoft.tech","app_locale":"en","app_timezone":"Asia\\/Dhaka","date_format":"d-m-Y","time_format":"h:i A","decimal_separator":".","thousand_separator":",","decimal_precision":"2","footer_text":"\\u00a9 2025 ProdInsight. All rights reserved.","copyright":"Copyright \\u00a9 2025 ProdInsight"}',
                 'created_at' => '2025-04-19 05:17:43',
-                'updated_at' => '2025-12-08 10:58:13',
+                'updated_at' => '2026-01-22 12:27:25',
             ),
             2 => 
             array (

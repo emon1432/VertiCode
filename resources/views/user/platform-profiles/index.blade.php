@@ -70,12 +70,23 @@
                             <td>{{ $profile->rating ?? 'N/A' }}</td>
                             <td>{{ $profile->total_solved }}</td>
                             <td>
-                                <form method="POST" action="{{ route('user.platform-profiles.destroy', $profile) }}"
-                                    onsubmit="return confirm('Remove this platform?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-danger">Remove</button>
-                                </form>
+                                <div class="d-flex gap-1">
+                                    <form method="POST" action="{{ route('user.platform-profiles.sync', $profile) }}">
+                                        @csrf
+                                        <button class="btn btn-sm btn-warning">
+                                            Sync Now
+                                        </button>
+                                    </form>
+
+                                    <form method="POST" action="{{ route('user.platform-profiles.destroy', $profile) }}"
+                                        onsubmit="return confirm('Remove this platform?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-danger">
+                                            Remove
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

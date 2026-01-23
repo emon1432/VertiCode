@@ -1,6 +1,11 @@
 @extends('user.layouts.app')
 @section('title', 'Dashboard')
 @section('content')
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
 
     <div class="row mb-4">
         <div class="col-md-4">
