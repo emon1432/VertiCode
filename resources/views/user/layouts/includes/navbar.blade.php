@@ -8,6 +8,9 @@
                     <a class="nav-link" href="{{ route('user.dashboard') }}">Dashboard</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="{{ route('user.platform-profiles.index') }}">Platform Profiles</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link"
                         href="{{ route('user.profile', ['username' => auth()->user()->username]) }}">Account</a>
                 </li>
