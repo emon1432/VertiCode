@@ -49,6 +49,7 @@ class PlatformProfileController extends Controller
         $adapter = match ($platform->name) {
             'codeforces' => app(CodeforcesAdapter::class),
             'leetcode'   => app(LeetCodeAdapter::class),
+            'atcoder'    => app(\App\Platforms\AtCoder\AtCoderAdapter::class),
             default      => throw new \RuntimeException('Unsupported platform'),
         };
         PlatformProfile::updateOrCreate(

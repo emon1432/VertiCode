@@ -21,6 +21,7 @@ class SyncController extends Controller
         $adapterClass = match ($platformProfile->platform->name) {
             'codeforces' => CodeforcesAdapter::class,
             'leetcode'   => LeetCodeAdapter::class,
+            'atcoder'    => \App\Platforms\AtCoder\AtCoderAdapter::class,
             default      => abort(400, 'Unsupported platform'),
         };
 
