@@ -8,6 +8,7 @@ use App\Models\PlatformProfile;
 use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Platforms\LeetCode\LeetCodeAdapter;
 use App\Platforms\AtCoder\AtCoderAdapter;
+use App\Platforms\CodeChef\CodeChefAdapter;
 use Illuminate\Support\Facades\Auth;
 
 class SyncController extends Controller
@@ -26,6 +27,7 @@ class SyncController extends Controller
                 'codeforces' => CodeforcesAdapter::class,
                 'leetcode'   => LeetCodeAdapter::class,
                 'atcoder'    => AtCoderAdapter::class,
+                'codechef'   => CodeChefAdapter::class,
                 default      => null,
             };
 

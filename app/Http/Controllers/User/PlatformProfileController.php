@@ -5,6 +5,8 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Platform;
 use App\Models\PlatformProfile;
+use App\Platforms\AtCoder\AtCoderAdapter;
+use App\Platforms\CodeChef\CodeChefAdapter;
 use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Platforms\LeetCode\LeetCodeAdapter;
 use Illuminate\Http\Request;
@@ -49,7 +51,8 @@ class PlatformProfileController extends Controller
         $adapter = match ($platform->name) {
             'codeforces' => app(CodeforcesAdapter::class),
             'leetcode'   => app(LeetCodeAdapter::class),
-            'atcoder'    => app(\App\Platforms\AtCoder\AtCoderAdapter::class),
+            'atcoder'    => app(AtCoderAdapter::class),
+            'codechef'   => app(CodeChefAdapter::class),
             default      => throw new \RuntimeException('Unsupported platform'),
         };
         PlatformProfile::updateOrCreate(
@@ -80,6 +83,8 @@ class PlatformProfileController extends Controller
         $adapter = match ($platformProfile->platform->name) {
             'codeforces' => app(CodeforcesAdapter::class),
             'leetcode'   => app(LeetCodeAdapter::class),
+            'atcoder'    => app(AtCoderAdapter::class),
+            'codechef'   => app(CodeChefAdapter::class),
             default      => throw new \RuntimeException('Unsupported platform'),
         };
 

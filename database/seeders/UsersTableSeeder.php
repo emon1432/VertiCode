@@ -55,9 +55,9 @@ class UsersTableSeeder extends Seeder
                 'remember_token' => NULL,
                 'current_team_id' => NULL,
                 'profile_photo_path' => NULL,
-                'last_synced_at' => '2026-01-26 11:09:23',
+                'last_synced_at' => '2026-01-26 12:06:58',
                 'created_at' => NULL,
-                'updated_at' => '2026-01-26 11:09:23',
+                'updated_at' => '2026-01-26 12:06:58',
             ),
         ));
         

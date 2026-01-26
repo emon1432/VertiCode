@@ -49,6 +49,16 @@ class PlatformsTableSeeder extends Seeder
                 'created_at' => '2026-01-26 15:58:18',
                 'updated_at' => '2026-01-26 15:58:18',
             ),
+            3 => 
+            array (
+                'id' => 4,
+                'name' => 'codechef',
+                'display_name' => 'CodeChef',
+                'base_url' => 'https://www.codechef.com',
+                'is_active' => 1,
+                'created_at' => '2026-01-26 11:18:14',
+                'updated_at' => '2026-01-26 11:18:14',
+            ),
         ));
         
         
