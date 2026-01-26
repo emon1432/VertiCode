@@ -38,7 +38,23 @@
 
     <div class="card">
         <div class="card-header">
-            Connected Platforms
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="mb-0">Connected Platforms</h5>
+                </div>
+                <div class="col-md-6 text-end">
+                    <form method="POST" action="{{ route('user.sync') }}">
+                        @csrf
+                        @php
+                            $recent = $user->last_synced_at && $user->last_synced_at->gt(now()->subSeconds(60));
+                        @endphp
+
+                        <button class="btn btn-primary mb-3" {{ $recent ? 'disabled' : '' }}>
+                            {{ $recent ? 'Recently Synced' : 'Sync All Platforms' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
         <div class="card-body p-0">
             <table class="table table-bordered mb-0">
@@ -91,11 +107,13 @@
 
                             {{-- Last Sync --}}
                             <td>
-                                @if ($profile['last_synced_at'])
-                                    {{ \Carbon\Carbon::parse($profile['last_synced_at'])->diffForHumans() }}
+                                @if ($user->last_synced_at)
+                                    <span class="text-muted">
+                                        Last synced {{ $user->last_synced_at->diffForHumans() }}
+                                    </span>
                                 @else
                                     <span class="badge bg-warning text-dark">
-                                        Not synced yet
+                                        Never synced
                                     </span>
                                 @endif
                             </td>

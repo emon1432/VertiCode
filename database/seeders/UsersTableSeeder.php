@@ -35,6 +35,7 @@ class UsersTableSeeder extends Seeder
                 'remember_token' => NULL,
                 'current_team_id' => NULL,
                 'profile_photo_path' => NULL,
+                'last_synced_at' => NULL,
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
@@ -54,8 +55,9 @@ class UsersTableSeeder extends Seeder
                 'remember_token' => NULL,
                 'current_team_id' => NULL,
                 'profile_photo_path' => NULL,
+                'last_synced_at' => '2026-01-26 11:09:23',
                 'created_at' => NULL,
-                'updated_at' => NULL,
+                'updated_at' => '2026-01-26 11:09:23',
             ),
         ));
         

@@ -39,6 +39,16 @@ class PlatformsTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
+            2 => 
+            array (
+                'id' => 3,
+                'name' => 'atcoder',
+                'display_name' => 'AtCoder',
+                'base_url' => 'https://atcoder.jp',
+                'is_active' => 1,
+                'created_at' => '2026-01-26 15:58:18',
+                'updated_at' => '2026-01-26 15:58:18',
+            ),
         ));
         
         

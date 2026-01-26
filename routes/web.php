@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
+use App\Http\Controllers\User\GlobalSyncController;
 use App\Http\Controllers\User\PlatformProfileController;
 use App\Http\Controllers\User\SyncController;
 use App\Http\Controllers\User\UserProfileController;
@@ -22,7 +23,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
     });
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
     Route::resource('platform-profiles', PlatformProfileController::class)->only(['index', 'store', 'update', 'destroy']);
-    Route::post('/platform-profiles/{platformProfile}/sync', [SyncController::class, 'sync'])->name('platform-profiles.sync');
+    Route::post('/sync', [SyncController::class, 'sync'])->name('sync');
 });
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified', 'admin'])->group(function () {
