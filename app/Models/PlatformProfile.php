@@ -13,12 +13,15 @@ class PlatformProfile extends Model
         'rating',
         'total_solved',
         'profile_url',
+        'raw',
         'is_active',
         'last_synced_at',
     ];
 
+
     protected $casts = [
         'is_active' => 'boolean',
+        'raw' => 'array',
         'last_synced_at' => 'datetime',
     ];
 

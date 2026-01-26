@@ -21,6 +21,11 @@ class LeetCodeAdapter implements PlatformAdapter
         return Platform::LEETCODE->value;
     }
 
+    public function profileUrl(string $handle): string
+    {
+        return "https://leetcode.com/u/{$handle}/";
+    }
+
     public function supportsSubmissions(): bool
     {
         return false;

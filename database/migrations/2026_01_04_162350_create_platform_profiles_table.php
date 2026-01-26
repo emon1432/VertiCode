@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('handle', 100);
             $table->integer('rating')->nullable();
             $table->integer('total_solved')->default(0);
+            $table->json('raw')->nullable();
             $table->string('profile_url')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamp('last_synced_at')->nullable();

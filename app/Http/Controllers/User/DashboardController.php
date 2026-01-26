@@ -18,6 +18,25 @@ class DashboardController extends Controller
             ->where('is_active', true)
             ->get()
             ->map(function ($profile) {
+
+                $extra = [];
+
+                // LeetCode-specific breakdown
+                if (
+                    $profile->platform->name === 'leetcode' &&
+                    is_array($profile->raw)
+                ) {
+                    $stats = collect(
+                        $profile->raw['submitStatsGlobal']['acSubmissionNum'] ?? []
+                    )->keyBy('difficulty');
+
+                    $extra = [
+                        'easy'   => (int) ($stats['Easy']['count'] ?? 0),
+                        'medium' => (int) ($stats['Medium']['count'] ?? 0),
+                        'hard'   => (int) ($stats['Hard']['count'] ?? 0),
+                    ];
+                }
+
                 return [
                     'id' => $profile->id,
                     'platform' => $profile->platform->display_name,
@@ -28,6 +47,7 @@ class DashboardController extends Controller
                     'profile_url' => $profile->profile_url,
                     'last_synced_at' => $profile->last_synced_at,
                     'sync_status' => $profile->last_synced_at ? 'synced' : 'not_synced',
+                    'extra' => $extra,
                 ];
             });
 

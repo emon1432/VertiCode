@@ -16,31 +16,42 @@ class SyncPlatformProfileAction
 
         try {
             DB::transaction(function () use ($platformProfile, $adapter) {
+                // 1. Refresh to get latest data
+                $platformProfile->refresh();
 
-                // 1. Fetch profile
+                // prevent double sync within 60 seconds
+                if (
+                    $platformProfile->last_synced_at &&
+                    $platformProfile->last_synced_at->gt(now()->subSeconds(60))
+                ) {
+                    return;
+                }
+
+                // 2. Fetch profile
                 $profileDto = $adapter->fetchProfile($platformProfile->handle);
 
-                // 2. Fetch submissions (if supported)
-                $totalSolved = 0;
-
+                // 3. Determine total solved
                 if ($adapter->supportsSubmissions()) {
                     $submissions = $adapter->fetchSubmissions($platformProfile->handle);
 
-                    // Deduplicate by problemId
                     $totalSolved = $submissions
                         ->unique(fn($sub) => $sub->problemId)
                         ->count();
+                } else {
+                    // 🔥 IMPORTANT: trust profile DTO
+                    $totalSolved = $profileDto->totalSolved;
                 }
 
-                // 3. Update platform_profiles
+                // 4. Update platform_profiles (FIXED)
                 $platformProfile->update([
                     'rating' => $profileDto->rating,
                     'total_solved' => $totalSolved,
+                    'raw' => $profileDto->raw,            // 🔥 REQUIRED
                     'last_synced_at' => now(),
                 ]);
             });
 
-            // 4. Success log
+            // 5. Success log
             SyncLog::create([
                 'platform_profile_id' => $platformProfile->id,
                 'status' => 'success',
@@ -48,7 +59,7 @@ class SyncPlatformProfileAction
             ]);
         } catch (Throwable $e) {
 
-            // 5. Failure log
+            // 6. Failure log
             SyncLog::create([
                 'platform_profile_id' => $platformProfile->id,
                 'status' => 'failed',

@@ -16,15 +16,23 @@ class SyncPlatformProfileJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
-        public PlatformProfile $platformProfile,
+        public int $platformProfileId,
         public string $adapterClass
     ) {}
 
     public function handle(SyncPlatformProfileAction $action): void
     {
+        // 🔥 ALWAYS re-fetch fresh model with relations
+        $platformProfile = PlatformProfile::with('platform')
+            ->find($this->platformProfileId);
+
+        if (! $platformProfile || ! $platformProfile->is_active) {
+            return;
+        }
+
         /** @var PlatformAdapter $adapter */
         $adapter = app($this->adapterClass);
 
-        $action->execute($this->platformProfile, $adapter);
+        $action->execute($platformProfile, $adapter);
     }
 }

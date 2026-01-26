@@ -52,19 +52,55 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($platformProfiles as $profile)
+                    @foreach ($platformProfiles as $profile)
                         <tr>
-                            <td>{{ $profile['platform'] }}</td>
-                            <td>{{ $profile['handle'] }}</td>
-                            <td>{{ $profile['rating'] ?? 'N/A' }}</td>
-                            <td>{{ $profile['total_solved'] }}</td>
-                            <td>{{ $profile['last_synced_at'] ?? 'Never' }}</td>
+                            {{-- Platform --}}
+                            <td>
+                                <strong>{{ $profile['platform'] }}</strong>
+                            </td>
+
+                            {{-- Handle --}}
+                            <td>
+                                <a href="{{ $profile['profile_url'] }}" target="_blank" class="text-decoration-none">
+                                    {{ $profile['handle'] }}
+                                </a>
+                            </td>
+
+                            {{-- Rating --}}
+                            <td>
+                                @if ($profile['rating'])
+                                    {{ $profile['rating'] }}
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </td>
+
+                            {{-- Solved --}}
+                            <td>
+                                <strong>{{ $profile['total_solved'] }}</strong>
+
+                                {{-- LeetCode breakdown --}}
+                                @if ($profile['platform_key'] === 'leetcode')
+                                    <div class="small text-muted mt-1">
+                                        Easy: {{ $profile['extra']['easy'] ?? 0 }},
+                                        Medium: {{ $profile['extra']['medium'] ?? 0 }},
+                                        Hard: {{ $profile['extra']['hard'] ?? 0 }}
+                                    </div>
+                                @endif
+                            </td>
+
+                            {{-- Last Sync --}}
+                            <td>
+                                @if ($profile['last_synced_at'])
+                                    {{ \Carbon\Carbon::parse($profile['last_synced_at'])->diffForHumans() }}
+                                @else
+                                    <span class="badge bg-warning text-dark">
+                                        Not synced yet
+                                    </span>
+                                @endif
+                            </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center">No platforms connected yet.</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>

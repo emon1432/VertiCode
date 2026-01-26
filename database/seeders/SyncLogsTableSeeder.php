@@ -29,6 +29,16 @@ class SyncLogsTableSeeder extends Seeder
                 'duration_ms' => 1345,
                 'created_at' => '2026-01-23 13:31:15',
             ),
+            1 => 
+            array (
+                'id' => 2,
+                'platform_profile_id' => 2,
+                'status' => 'success',
+                'http_code' => NULL,
+                'error_message' => NULL,
+                'duration_ms' => 599,
+                'created_at' => '2026-01-26 13:40:23',
+            ),
         ));
         
         

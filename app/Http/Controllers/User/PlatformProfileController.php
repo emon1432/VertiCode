@@ -5,6 +5,8 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Platform;
 use App\Models\PlatformProfile;
+use App\Platforms\Codeforces\CodeforcesAdapter;
+use App\Platforms\LeetCode\LeetCodeAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -44,7 +46,11 @@ class PlatformProfileController extends Controller
         ]);
 
         $platform = Platform::where('name', $validated['platform'])->firstOrFail();
-
+        $adapter = match ($platform->name) {
+            'codeforces' => app(CodeforcesAdapter::class),
+            'leetcode'   => app(LeetCodeAdapter::class),
+            default      => throw new \RuntimeException('Unsupported platform'),
+        };
         PlatformProfile::updateOrCreate(
             [
                 'user_id' => $user->id,
@@ -52,9 +58,7 @@ class PlatformProfileController extends Controller
             ],
             [
                 'handle' => $validated['handle'],
-                'profile_url' => $platform->base_url
-                    ? $platform->base_url . '/profile/' . $validated['handle']
-                    : null,
+                'profile_url' => $adapter->profileUrl($validated['handle']),
                 'is_active' => true,
             ]
         );
@@ -72,11 +76,15 @@ class PlatformProfileController extends Controller
             'handle' => ['required', 'string', 'max:100'],
         ]);
 
+        $adapter = match ($platformProfile->platform->name) {
+            'codeforces' => app(CodeforcesAdapter::class),
+            'leetcode'   => app(LeetCodeAdapter::class),
+            default      => throw new \RuntimeException('Unsupported platform'),
+        };
+
         $platformProfile->update([
             'handle' => $validated['handle'],
-            'profile_url' => $platformProfile->platform->base_url
-                ? $platformProfile->platform->base_url . '/profile/' . $validated['handle']
-                : null,
+            'profile_url' => $adapter->profileUrl($validated['handle']),
         ]);
 
         return back()->with('success', 'Handle updated successfully.');

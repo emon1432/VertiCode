@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\SyncPlatformProfileJob;
 use App\Models\PlatformProfile;
 use App\Platforms\Codeforces\CodeforcesAdapter;
+use App\Platforms\LeetCode\LeetCodeAdapter;
 use Illuminate\Support\Facades\Auth;
 
 class SyncController extends Controller
@@ -17,11 +18,16 @@ class SyncController extends Controller
             abort(403);
         }
 
-        // Dispatch background sync job
+        $adapterClass = match ($platformProfile->platform->name) {
+            'codeforces' => CodeforcesAdapter::class,
+            'leetcode'   => LeetCodeAdapter::class,
+            default      => abort(400, 'Unsupported platform'),
+        };
+
         dispatch(
             new SyncPlatformProfileJob(
-                $platformProfile,
-                CodeforcesAdapter::class
+                $platformProfile->id,
+                $adapterClass
             )
         );
 

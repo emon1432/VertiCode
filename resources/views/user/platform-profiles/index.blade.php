@@ -71,12 +71,18 @@
                             <td>{{ $profile->total_solved }}</td>
                             <td>
                                 <div class="d-flex gap-1">
-                                    <form method="POST" action="{{ route('user.platform-profiles.sync', $profile) }}">
-                                        @csrf
-                                        <button class="btn btn-sm btn-warning">
-                                            Sync Now
+                                    @if ($profile->last_synced_at)
+                                        <button class="btn btn-sm btn-secondary" disabled>
+                                            Synced
                                         </button>
-                                    </form>
+                                    @else
+                                        <form method="POST" action="{{ route('user.platform-profiles.sync', $profile) }}">
+                                            @csrf
+                                            <button class="btn btn-sm btn-warning">
+                                                Sync Now
+                                            </button>
+                                        </form>
+                                    @endif
 
                                     <form method="POST" action="{{ route('user.platform-profiles.destroy', $profile) }}"
                                         onsubmit="return confirm('Remove this platform?')">

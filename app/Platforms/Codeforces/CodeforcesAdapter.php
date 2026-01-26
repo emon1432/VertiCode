@@ -21,6 +21,11 @@ class CodeforcesAdapter implements PlatformAdapter
         return Platform::CODEFORCES->value;
     }
 
+    public function profileUrl(string $handle): string
+    {
+        return "https://codeforces.com/profile/{$handle}";
+    }
+
     public function supportsSubmissions(): bool
     {
         return true;
