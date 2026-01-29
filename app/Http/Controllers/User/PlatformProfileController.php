@@ -9,6 +9,7 @@ use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Platforms\CodeChef\CodeChefAdapter;
 use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Platforms\LeetCode\LeetCodeAdapter;
+use App\Platforms\Spoj\SpojAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -53,6 +54,7 @@ class PlatformProfileController extends Controller
             'leetcode'   => app(LeetCodeAdapter::class),
             'atcoder'    => app(AtCoderAdapter::class),
             'codechef'   => app(CodeChefAdapter::class),
+            'spoj'       => app(SpojAdapter::class),
             default      => throw new \RuntimeException('Unsupported platform'),
         };
         PlatformProfile::updateOrCreate(
@@ -85,6 +87,7 @@ class PlatformProfileController extends Controller
             'leetcode'   => app(LeetCodeAdapter::class),
             'atcoder'    => app(AtCoderAdapter::class),
             'codechef'   => app(CodeChefAdapter::class),
+            'spoj'       => app(SpojAdapter::class),
             default      => throw new \RuntimeException('Unsupported platform'),
         };
 
