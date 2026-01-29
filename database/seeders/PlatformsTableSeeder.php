@@ -69,6 +69,16 @@ class PlatformsTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
+            5 =>
+            array(
+                'id' => 6,
+                'name' => 'hackerrank',
+                'display_name' => 'HackerRank',
+                'base_url' => 'https://www.hackerrank.com',
+                'is_active' => 1,
+                'created_at' => NULL,
+                'updated_at' => NULL,
+            ),
         ));
     }
 }
