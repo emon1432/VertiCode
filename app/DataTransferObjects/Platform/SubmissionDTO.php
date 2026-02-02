@@ -11,6 +11,7 @@ class SubmissionDTO
         public string $problemName,
         public ?int $difficulty,
         public Verdict $verdict,
-        public \DateTimeImmutable $submittedAt
+        public \DateTimeImmutable $submittedAt,
+        public array $raw = []
     ) {}
 }
