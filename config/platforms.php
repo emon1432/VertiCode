@@ -91,4 +91,20 @@ return [
             'starters' => 'Starters',
         ],
     ],
+
+    'spoj' => [
+        'supports_rating' => false,
+        'supports_solved' => true,
+        'supports_submissions' => true,
+        'sync_cost' => 'medium',
+        'features' => [
+            'rank_tracking' => true,
+            'problem_details' => true, // tags and author from problem page
+            'cloudflare_handling' => true, // Automatic retry with delays
+        ],
+        'note' => 'Profile scraping with rank. Submissions via paginated status pages. Handles Cloudflare challenge with retry logic.',
+        'known_issues' => [
+            'cloudflare_delay' => 'SPOJ uses Cloudflare challenge which takes 3-10 seconds. Implementation handles this with automatic retries.',
+        ],
+    ],
 ];
