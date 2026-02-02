@@ -46,4 +46,25 @@ return [
         ],
         'note' => 'GraphQL API: profile, difficulty breakdown, contest rating/history, badges, calendar, recent 20 submissions',
     ],
+
+    'atcoder' => [
+        'supports_rating' => true,
+        'supports_solved' => true,
+        'supports_submissions' => true,
+        'supports_rating_graph' => true,
+        'supports_contest_history' => true,
+        'sync_cost' => 'medium',
+        'features' => [
+            'highest_rating' => true,
+            'rank_tracking' => true,
+            'contest_participation' => true,
+            'editorial_links' => true,
+            'performance_rating' => true,
+            'submission_details' => true, // points, execution time, code length
+        ],
+        'note' => 'Profile and contest history work. Kenkoooo API for submissions may be rate limited (returns 403). Gracefully falls back to profile-based total_solved.',
+        'known_issues' => [
+            'kenkoooo_api_403' => 'Third-party Kenkoooo API may return 403 due to rate limits. Submissions will be skipped but profile sync continues.',
+        ],
+    ],
 ];
