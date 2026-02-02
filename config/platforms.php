@@ -26,4 +26,24 @@ return [
         ],
         'note' => 'Full functionality: rating, max rating, contest history, problem tags, submission details',
     ],
+
+    'leetcode' => [
+        'supports_rating' => true, // contest rating
+        'supports_solved' => true,
+        'supports_submissions' => false, // only recent 20 available
+        'supports_contest_history' => true,
+        'supports_badges' => true,
+        'supports_calendar' => true,
+        'sync_cost' => 'low',
+        'features' => [
+            'difficulty_breakdown' => true, // easy/medium/hard
+            'contest_rating' => true,
+            'contest_ranking' => true,
+            'badges' => true,
+            'recent_submissions' => true, // last 20 AC submissions
+            'submission_calendar' => true,
+            'streak_tracking' => true,
+        ],
+        'note' => 'GraphQL API: profile, difficulty breakdown, contest rating/history, badges, calendar, recent 20 submissions',
+    ],
 ];
