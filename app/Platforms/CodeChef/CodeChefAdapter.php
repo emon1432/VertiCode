@@ -25,24 +25,54 @@ class CodeChefAdapter implements PlatformAdapter
 
     public function supportsSubmissions(): bool
     {
-        return false; // ❗ CodeChef submissions are expensive to crawl
+        // CodeChef submissions require OAuth API which needs client credentials
+        // Submissions are also paginated and expensive to fetch
+        return false;
     }
 
     public function fetchProfile(string $handle): ProfileDTO
     {
-        $data = $this->client->fetchProfile($handle);
+        $profileData = $this->client->fetchProfile($handle);
+        $ratingGraph = $this->client->fetchRatingGraph($handle);
+
+        // Build comprehensive raw data
+        $rawData = [
+            'handle' => $profileData['handle'],
+            'rating' => $profileData['rating'],
+            'max_rating' => $profileData['max_rating'],
+            'stars' => $profileData['stars'],
+            'country_rank' => $profileData['country_rank'],
+            'global_rank' => $profileData['global_rank'],
+            'fully_solved' => $profileData['fully_solved'],
+            'partially_solved' => $profileData['partially_solved'],
+            'badges' => $profileData['badges'],
+            'rating_graph' => $ratingGraph,
+            'contest_categories' => [
+                'long' => count($ratingGraph['long'] ?? []),
+                'cookoff' => count($ratingGraph['cookoff'] ?? []),
+                'lunchtime' => count($ratingGraph['lunchtime'] ?? []),
+                'starters' => count($ratingGraph['starters'] ?? []),
+            ],
+        ];
 
         return new ProfileDTO(
             platform: Platform::CODECHEF,
-            handle: $handle,
-            rating: $data['rating'] ?: null,
-            totalSolved: $data['total_solved'] ?? 0,
-            raw: $data['raw'] ?? []
+            handle: $profileData['handle'],
+            rating: $profileData['rating'],
+            totalSolved: $profileData['total_solved'],
+            raw: $rawData
         );
     }
 
     public function fetchSubmissions(string $handle): Collection
     {
-        return collect(); // not supported
+        // CodeChef submissions require OAuth API access
+        // Would need to implement:
+        // 1. OAuth client credentials flow
+        // 2. Token management (1 hour TTL)
+        // 3. Paginated API requests
+        // 4. Rate limiting
+        // For now, returning empty collection and relying on profile total_solved
+        return collect();
     }
 }
