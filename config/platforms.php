@@ -2,8 +2,10 @@
 
 return [
     'hackerearth' => [
-        'supports_rating' => false,
-        'supports_solved' => false,
-        'note' => 'Public stats unavailable',
-    ],
+        'supports_rating' => true,
+        'supports_solved' => true,
+        'supports_submissions' => true,
+        'sync_cost' => 'high',
+        'note' => 'Rating works. Submissions endpoint has timeout issues (TODO: fix)',
+    ]
 ];
