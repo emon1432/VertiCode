@@ -103,6 +103,11 @@
                                         Hard: {{ $profile['extra']['hard'] ?? 0 }}
                                     </div>
                                 @endif
+                                @if ($profile['platform_key'] === 'hackerearth')
+                                    <div class="small text-muted mt-1">
+                                        Public problem statistics not available
+                                    </div>
+                                @endif
                             </td>
 
                             {{-- Last Sync --}}

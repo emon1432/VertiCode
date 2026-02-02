@@ -9,4 +9,5 @@ enum Platform: string
     case HACKERRANK = 'hackerrank';
     case ATCODER = 'atcoder';
     case LEETCODE = 'leetcode';
+    case HACKEREARTH = 'hackerearth';
 }

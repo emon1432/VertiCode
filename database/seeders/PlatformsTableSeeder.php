@@ -79,6 +79,17 @@ class PlatformsTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
+            6 =>
+            array(
+                'id' => 7,
+                'name' => 'hackerearth',
+                'display_name' => 'HackerEarth',
+                'base_url' => 'https://www.hackerearth.com',
+                'is_active' => 1,
+                'created_at' => NULL,
+                'updated_at' => NULL,
+            ),
+
         ));
     }
 }

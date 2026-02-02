@@ -9,6 +9,7 @@ use App\Platforms\Codeforces\CodeforcesAdapter;
 use App\Platforms\LeetCode\LeetCodeAdapter;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Platforms\CodeChef\CodeChefAdapter;
+use App\Platforms\HackerEarth\HackerEarthAdapter;
 use App\Platforms\HackerRank\HackerRankAdapter;
 use App\Platforms\Spoj\SpojAdapter;
 use Illuminate\Support\Facades\Auth;
@@ -32,6 +33,7 @@ class SyncController extends Controller
                 'codechef'   => CodeChefAdapter::class,
                 'spoj'       => SpojAdapter::class,
                 'hackerrank' => HackerRankAdapter::class,
+                'hackerearth'  => HackerEarthAdapter::class,
                 default      => abort(400, 'Unsupported platform'),
             };
 

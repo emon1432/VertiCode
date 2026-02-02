@@ -8,6 +8,7 @@ use App\Models\PlatformProfile;
 use App\Platforms\AtCoder\AtCoderAdapter;
 use App\Platforms\CodeChef\CodeChefAdapter;
 use App\Platforms\Codeforces\CodeforcesAdapter;
+use App\Platforms\HackerEarth\HackerEarthAdapter;
 use App\Platforms\HackerRank\HackerRankAdapter;
 use App\Platforms\LeetCode\LeetCodeAdapter;
 use App\Platforms\Spoj\SpojAdapter;
@@ -57,6 +58,7 @@ class PlatformProfileController extends Controller
             'codechef'   => app(CodeChefAdapter::class),
             'spoj'       => app(SpojAdapter::class),
             'hackerrank' => app(HackerRankAdapter::class),
+            'hackerearth'  => app(HackerEarthAdapter::class),
             default      => throw new \RuntimeException('Unsupported platform'),
         };
         PlatformProfile::updateOrCreate(
@@ -91,6 +93,7 @@ class PlatformProfileController extends Controller
             'codechef'   => app(CodeChefAdapter::class),
             'spoj'       => app(SpojAdapter::class),
             'hackerrank' => app(HackerRankAdapter::class),
+            'hackerearth'  => app(HackerEarthAdapter::class),
             default      => throw new \RuntimeException('Unsupported platform'),
         };
 
