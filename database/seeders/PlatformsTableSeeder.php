@@ -89,7 +89,16 @@ class PlatformsTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
-
+            7 =>
+            array(
+                'id' => 8,
+                'name' => 'uva',
+                'display_name' => 'UVa Online Judge',
+                'base_url' => 'https://uhunt.onlinejudge.org',
+                'is_active' => true,
+                'created_at' => NULL,
+                'updated_at' => NULL,
+            ),
         ));
     }
 }

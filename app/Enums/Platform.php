@@ -10,4 +10,6 @@ enum Platform: string
     case ATCODER = 'atcoder';
     case LEETCODE = 'leetcode';
     case HACKEREARTH = 'hackerearth';
+    case SPOJ = 'spoj';
+    case UVA = 'uva';
 }

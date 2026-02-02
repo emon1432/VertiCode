@@ -121,4 +121,15 @@ return [
         ],
         'note' => 'Uses HackerRank REST endpoints for rating graph and recent challenges.',
     ],
+
+    'uva' => [
+        'supports_rating' => false,
+        'supports_solved' => true,
+        'supports_submissions' => true,
+        'sync_cost' => 'low',
+        'features' => [
+            'rank_tracking' => true,
+        ],
+        'note' => 'Uses UHunt API for profile and submissions. Fast and reliable.',
+    ],
 ];
