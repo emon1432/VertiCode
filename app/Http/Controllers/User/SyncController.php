@@ -12,6 +12,8 @@ use App\Platforms\CodeChef\CodeChefAdapter;
 use App\Platforms\HackerEarth\HackerEarthAdapter;
 use App\Platforms\HackerRank\HackerRankAdapter;
 use App\Platforms\Spoj\SpojAdapter;
+use App\Platforms\Timus\TimusAdapter;
+use App\Platforms\Uva\UvaAdapter;
 use Illuminate\Support\Facades\Auth;
 
 class SyncController extends Controller
@@ -34,6 +36,8 @@ class SyncController extends Controller
                 'spoj'       => SpojAdapter::class,
                 'hackerrank' => HackerRankAdapter::class,
                 'hackerearth'  => HackerEarthAdapter::class,
+                'uva'         => UvaAdapter::class,
+                'timus'      => TimusAdapter::class,
                 default      => abort(400, 'Unsupported platform'),
             };
 

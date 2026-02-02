@@ -241,10 +241,10 @@
                                 </li>
                             @else
                                 <li class="nav-item ms-3">
-                                    <a href="{{ route('user.dashboard') }}"
+                                    <a href="{{ route('user.profile.show', ['username' => auth()->user()->username]) }}"
                                         class="btn btn-primary-gradient">
-                                        <i class="bi bi-speedometer2"></i>
-                                        Dashboard
+                                        <i class="bi bi-person-circle"></i>
+                                        Profile
                                     </a>
                                 </li>
                             @endif
@@ -282,10 +282,10 @@
                                     <i class="bi bi-speedometer2"></i> Go to Dashboard
                                 </a>
                             @else
-                                <a href="{{ route('user.dashboard') }}"
+                                <a href="{{ route('user.profile.show', ['username' => auth()->user()->username]) }}"
                                     class="btn btn-primary-gradient btn-lg">
-                                    <i class="bi bi-speedometer2"></i>
-                                    View Dashboard
+                                    <i class="bi bi-person-circle"></i>
+                                    View Profile
                                 </a>
                             @endif
                         @else
@@ -494,10 +494,10 @@
                 </div>
                 <div class="col-lg-4 text-lg-end">
                     @auth
-                        <a href="{{ route('user.dashboard') }}"
+                        <a href="{{ route('user.profile.show', ['username' => auth()->user()->username]) }}"
                             class="btn btn-light btn-lg"
                             style="border-radius: 50px; padding: 12px 40px; font-weight: 600;">
-                            View Dashboard <i class="bi bi-arrow-right"></i>
+                            View Profile <i class="bi bi-arrow-right"></i>
                         </a>
                     @else
                         <a href="{{ route('register') }}" class="btn btn-light btn-lg"

@@ -12,6 +12,8 @@ use App\Platforms\HackerEarth\HackerEarthAdapter;
 use App\Platforms\HackerRank\HackerRankAdapter;
 use App\Platforms\LeetCode\LeetCodeAdapter;
 use App\Platforms\Spoj\SpojAdapter;
+use App\Platforms\Timus\TimusAdapter;
+use App\Platforms\Uva\UvaAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -59,6 +61,8 @@ class PlatformProfileController extends Controller
             'spoj'       => app(SpojAdapter::class),
             'hackerrank' => app(HackerRankAdapter::class),
             'hackerearth'  => app(HackerEarthAdapter::class),
+            'uva'        => app(UvaAdapter::class),
+            'timus'      => app(TimusAdapter::class),
             default      => throw new \RuntimeException('Unsupported platform'),
         };
         PlatformProfile::updateOrCreate(
@@ -94,6 +98,8 @@ class PlatformProfileController extends Controller
             'spoj'       => app(SpojAdapter::class),
             'hackerrank' => app(HackerRankAdapter::class),
             'hackerearth'  => app(HackerEarthAdapter::class),
+            'uva'        => app(UvaAdapter::class),
+            'timus'      => app(TimusAdapter::class),
             default      => throw new \RuntimeException('Unsupported platform'),
         };
 

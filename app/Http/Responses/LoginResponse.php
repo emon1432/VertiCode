@@ -12,7 +12,7 @@ class LoginResponse implements LoginResponseContract
     {
         $user = Auth::user();
         if ($user->role === 'user') {
-            $home = "/user/dashboard";
+            $home = "/user/profile/{$user->username}";
         } elseif ($user->role === 'admin') {
             $home = '/dashboard';
         }

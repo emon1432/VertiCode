@@ -16,4 +16,9 @@ class Platform extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    public function platformProfiles()
+    {
+        return $this->hasMany(PlatformProfile::class);
+    }
 }

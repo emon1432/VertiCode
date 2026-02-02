@@ -18,6 +18,12 @@ return new class extends Migration
             $table->enum('role', ['admin', 'user'])->default('user');
             $table->string('email')->unique();
             $table->string('phone')->nullable();
+            $table->text('bio')->nullable();
+            $table->string('location')->nullable();
+            $table->string('website')->nullable();
+            $table->string('twitter')->nullable();
+            $table->string('github')->nullable();
+            $table->string('linkedin')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

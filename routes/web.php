@@ -5,8 +5,6 @@ use App\Http\Controllers\Admin\OthersController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\User\DashboardController as UserDashboardController;
-use App\Http\Controllers\User\GlobalSyncController;
 use App\Http\Controllers\User\PlatformProfileController;
 use App\Http\Controllers\User\SyncController;
 use App\Http\Controllers\User\UserProfileController;
@@ -15,16 +13,28 @@ Route::get('/', function () {
     return view('web.welcome');
 })->name('home');
 
-Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified', 'user'])->prefix('user')->name('user.')->group(function () {
-    Route::controller(UserProfileController::class)->group(function () {
-        Route::get('/profile/{username}', 'show')->name('profile');
-        Route::get('/profile/{username}/edit', 'edit')->name('profile.edit');
-        Route::put('/profile/{username}', 'update')->name('profile.update');
+// Public profile routes
+Route::get('/user/profile/{username}', [UserProfileController::class, 'show'])->name('user.profile.show');
+
+// Authenticated user routes
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified', 'user'])
+    ->prefix('user')
+    ->name('user.')
+    ->group(function () {
+        // User profile management
+        Route::prefix('profile/{username}')
+            ->name('profile.')
+            ->group(function () {
+                Route::get('/edit', [UserProfileController::class, 'edit'])->name('edit');
+                Route::put('/', [UserProfileController::class, 'update'])->name('update');
+            });
+
+        // Platform profiles
+        Route::resource('platform-profiles', PlatformProfileController::class)->only(['edit', 'update']);
+
+        // Sync functionality
+        Route::post('/sync', [SyncController::class, 'sync'])->name('sync');
     });
-    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
-    Route::resource('platform-profiles', PlatformProfileController::class)->only(['index', 'store', 'update', 'destroy']);
-    Route::post('/sync', [SyncController::class, 'sync'])->name('sync');
-});
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified', 'admin'])->group(function () {
     Route::controller(DashboardController::class)->group(function () {

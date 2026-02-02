@@ -31,6 +31,14 @@ class User extends Authenticatable
         'role',
         'email',
         'password',
+        'phone',
+        'bio',
+        'location',
+        'website',
+        'twitter',
+        'github',
+        'linkedin',
+        'profile_photo_path',
     ];
 
     /**
@@ -66,5 +74,10 @@ class User extends Authenticatable
             'last_synced_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function platformProfiles()
+    {
+        return $this->hasMany(PlatformProfile::class);
     }
 }
