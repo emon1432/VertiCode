@@ -107,4 +107,18 @@ return [
             'cloudflare_delay' => 'SPOJ uses Cloudflare challenge which takes 3-10 seconds. Implementation handles this with automatic retries.',
         ],
     ],
+
+    'hackerrank' => [
+        'supports_rating' => false,
+        'supports_solved' => true,
+        'supports_submissions' => true,
+        'supports_rating_graph' => true,
+        'sync_cost' => 'medium',
+        'features' => [
+            'rating_graph' => true,
+            'recent_submissions' => true,
+            'problem_details' => true, // tags/editorial/author
+        ],
+        'note' => 'Uses HackerRank REST endpoints for rating graph and recent challenges.',
+    ],
 ];
