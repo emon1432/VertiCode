@@ -12,4 +12,5 @@ enum Platform: string
     case HACKEREARTH = 'hackerearth';
     case SPOJ = 'spoj';
     case UVA = 'uva';
+    case TIMUS = 'timus';
 }

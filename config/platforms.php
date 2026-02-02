@@ -132,4 +132,15 @@ return [
         ],
         'note' => 'Uses UHunt API for profile and submissions. Fast and reliable.',
     ],
+
+    'timus' => [
+        'supports_rating' => false,
+        'supports_solved' => true,
+        'supports_submissions' => true,
+        'sync_cost' => 'low',
+        'features' => [
+            'rank_tracking' => true,
+        ],
+        'note' => 'Profile and submissions scraping. Simple and efficient.',
+    ],
 ];

@@ -99,6 +99,16 @@ class PlatformsTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
+            8 =>
+            array(
+                'id' => 9,
+                'name' => 'timus',
+                'display_name' => 'Timus Online Judge',
+                'base_url' => 'http://acm.timus.ru',
+                'is_active' => true,
+                'created_at' => NULL,
+                'updated_at' => NULL,
+            ),
         ));
     }
 }
