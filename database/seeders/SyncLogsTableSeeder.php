@@ -14,12 +14,11 @@ class SyncLogsTableSeeder extends Seeder
      */
     public function run()
     {
-
+        
 
         \DB::table('sync_logs')->delete();
-
-
-
-
+        
+        
+        
     }
 }

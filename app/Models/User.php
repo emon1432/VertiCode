@@ -20,32 +20,24 @@ class User extends Authenticatable
     use Notifiable;
     use TwoFactorAuthenticatable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'username',
-        'role',
         'email',
-        'password',
         'phone',
+        'date_of_birth',
+        'gender',
+        'country_id',
+        'institute_id',
         'bio',
-        'location',
         'website',
         'twitter',
         'github',
         'linkedin',
-        'profile_photo_path',
+        'image',
+        'last_synced_at',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -53,20 +45,6 @@ class User extends Authenticatable
         'two_factor_secret',
     ];
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array<int, string>
-     */
-    protected $appends = [
-        'profile_photo_url',
-    ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -79,5 +57,15 @@ class User extends Authenticatable
     public function platformProfiles()
     {
         return $this->hasMany(PlatformProfile::class);
+    }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
+    }
+
+    public function institute()
+    {
+        return $this->belongsTo(Institute::class);
     }
 }

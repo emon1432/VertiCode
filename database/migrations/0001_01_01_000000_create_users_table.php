@@ -18,8 +18,11 @@ return new class extends Migration
             $table->enum('role', ['admin', 'user'])->default('user');
             $table->string('email')->unique();
             $table->string('phone')->nullable();
+            $table->date('date_of_birth')->nullable();
+            $table->enum('gender', ['Male', 'Female', 'Other'])->nullable();
+            $table->foreignId('country_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('institute_id')->nullable()->constrained()->nullOnDelete();
             $table->text('bio')->nullable();
-            $table->string('location')->nullable();
             $table->string('website')->nullable();
             $table->string('twitter')->nullable();
             $table->string('github')->nullable();
@@ -28,7 +31,7 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
-            $table->string('profile_photo_path', 2048)->nullable();
+            $table->string('image')->nullable();
             $table->timestamp('last_synced_at')->nullable();
             $table->timestamps();
         });
