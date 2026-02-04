@@ -9,11 +9,6 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 @auth
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('user.profile.show', auth()->user()->username) }}">
-                            <i class="bi bi-person-circle"></i> Profile
-                        </a>
-                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                             data-bs-toggle="dropdown">
@@ -21,16 +16,16 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item"
-                                    href="{{ route('user.profile.show', auth()->user()->username) }}">My Profile</a></li>
+                                    href="{{ route('user.profile.show', auth()->user()->username) }}"><i class="bi bi-person-circle"></i> My Profile</a></li>
                             <li><a class="dropdown-item"
-                                    href="{{ route('user.profile.edit', auth()->user()->username) }}">Settings</a></li>
+                                    href="{{ route('user.profile.edit', auth()->user()->username) }}"><i class="bi bi-gear"></i> Settings</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit" class="dropdown-item">Logout</button>
+                                    <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right"></i> Logout</button>
                                 </form>
                             </li>
                         </ul>

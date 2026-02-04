@@ -2,8 +2,8 @@
 @section('title', $user->name . ' | Profile')
 @section('content')
     <div class="container-lg py-5">
-        @include('user.pages.profile.sections.profile-header')
-        @include('user.pages.profile.sections.stats')
-        @include('user.pages.profile.sections.platform-profiles')
+        @include('user.pages.profile.sections.show.profile-header')
+        @include('user.pages.profile.sections.show.stats')
+        @include('user.pages.profile.sections.show.platform-profiles')
     </div>
 @endsection

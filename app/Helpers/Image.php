@@ -48,3 +48,8 @@ function imageShow($image)
         return asset('uploads/default.jpg');
     }
 }
+
+function imageExists($image)
+{
+    return file_exists(public_path($image));
+}

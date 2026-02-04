@@ -100,7 +100,7 @@ body {
 .form-select {
     border-radius: 8px;
     border: 2px solid #e2e8f0;
-    padding: 10px 15px;
+    /* padding: 10px 15px; */
     font-size: 0.95rem;
     transition: all 0.3s ease;
 }
@@ -200,4 +200,34 @@ body {
 
 .badge.bg-success {
     animation: pulse 2s infinite;
+}
+
+.nav-link {
+    color: #4a5568 !important;
+    border-left: 3px solid transparent;
+    padding: 10px 12px !important;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--primary-color) !important;
+    background-color: #f8f9fa;
+}
+
+.nav-link.active {
+    color: var(--primary-color) !important;
+    border-left-color: var(--primary-color) !important;
+    background-color: #f8f9fa;
+}
+
+.border-2 {
+    border-width: 2px !important;
+}
+
+.border-dashed {
+    border-style: dashed !important;
+}
+
+.fw-600 {
+    font-weight: 600;
 }
