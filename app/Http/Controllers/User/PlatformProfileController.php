@@ -24,7 +24,7 @@ class PlatformProfileController extends Controller
     {
         $user = Auth::user();
 
-        $platforms = Platform::where('is_active', true)->get();
+        $platforms = Platform::active()->get();
 
         $profiles = PlatformProfile::with('platform')
             ->where('user_id', $user->id)
@@ -73,7 +73,7 @@ class PlatformProfileController extends Controller
             [
                 'handle' => $validated['handle'],
                 'profile_url' => $adapter->profileUrl($validated['handle']),
-                'is_active' => true,
+                'status' => 'Active',
             ]
         );
 

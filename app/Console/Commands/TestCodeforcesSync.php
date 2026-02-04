@@ -105,7 +105,7 @@ class TestCodeforcesSync extends Command
                     ],
                     [
                         'profile_url' => $adapter->profileUrl($handle),
-                        'is_active' => true,
+                        'status' => 'Active',
                     ]
                 );
 

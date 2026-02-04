@@ -14,103 +14,112 @@ class PlatformsTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('platforms')->delete();
-        
+
         \DB::table('platforms')->insert(array (
-            0 => 
+            0 =>
             array (
                 'id' => 1,
                 'name' => 'codeforces',
                 'display_name' => 'Codeforces',
                 'base_url' => 'https://codeforces.com',
-                'is_active' => 1,
+                'image' => NULL,
+                'status' => 'Active',
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
-            1 => 
+            1 =>
             array (
                 'id' => 2,
                 'name' => 'leetcode',
                 'display_name' => 'LeetCode',
                 'base_url' => 'https://leetcode.com',
-                'is_active' => 1,
+                'image' => NULL,
+                'status' => 'Active',
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
-            2 => 
+            2 =>
             array (
                 'id' => 3,
                 'name' => 'atcoder',
                 'display_name' => 'AtCoder',
                 'base_url' => 'https://atcoder.jp',
-                'is_active' => 1,
+                'image' => NULL,
+                'status' => 'Active',
                 'created_at' => '2026-01-26 15:58:18',
                 'updated_at' => '2026-01-26 15:58:18',
             ),
-            3 => 
+            3 =>
             array (
                 'id' => 4,
                 'name' => 'codechef',
                 'display_name' => 'CodeChef',
                 'base_url' => 'https://www.codechef.com',
-                'is_active' => 1,
+                'image' => NULL,
+                'status' => 'Active',
                 'created_at' => '2026-01-26 11:18:14',
                 'updated_at' => '2026-01-26 11:18:14',
             ),
-            4 => 
+            4 =>
             array (
                 'id' => 5,
                 'name' => 'spoj',
                 'display_name' => 'SPOJ',
                 'base_url' => 'https://www.spoj.com',
-                'is_active' => 1,
+                'image' => NULL,
+                'status' => 'Active',
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
-            5 => 
+            5 =>
             array (
                 'id' => 6,
                 'name' => 'hackerrank',
                 'display_name' => 'HackerRank',
                 'base_url' => 'https://www.hackerrank.com',
-                'is_active' => 1,
+                'image' => NULL,
+                'status' => 'Active',
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
-            6 => 
+            6 =>
             array (
                 'id' => 7,
                 'name' => 'hackerearth',
                 'display_name' => 'HackerEarth',
                 'base_url' => 'https://www.hackerearth.com',
-                'is_active' => 1,
+                'image' => NULL,
+                'status' => 'Active',
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
-            7 => 
+            7 =>
             array (
                 'id' => 8,
                 'name' => 'uva',
                 'display_name' => 'UVa Online Judge',
                 'base_url' => 'https://uhunt.onlinejudge.org',
-                'is_active' => 1,
+                'image' => NULL,
+                'status' => 'Active',
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
-            8 => 
+            8 =>
             array (
                 'id' => 9,
                 'name' => 'timus',
                 'display_name' => 'Timus Online Judge',
                 'base_url' => 'http://acm.timus.ru',
-                'is_active' => 1,
+                'image' => NULL,
+                'status' => 'Active',
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
         ));
-        
-        
+
+
     }
 }

@@ -14,13 +14,12 @@ class PlatformProfile extends Model
         'total_solved',
         'profile_url',
         'raw',
-        'is_active',
+        'status',
         'last_synced_at',
     ];
 
 
     protected $casts = [
-        'is_active' => 'boolean',
         'raw' => 'array',
         'last_synced_at' => 'datetime',
     ];
@@ -28,5 +27,10 @@ class PlatformProfile extends Model
     public function platform()
     {
         return $this->belongsTo(Platform::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'Active');
     }
 }

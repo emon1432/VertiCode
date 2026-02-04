@@ -26,7 +26,7 @@ class SyncPlatformProfileJob implements ShouldQueue
         $platformProfile = PlatformProfile::with('platform')
             ->find($this->platformProfileId);
 
-        if (! $platformProfile || ! $platformProfile->is_active) {
+        if (! $platformProfile || ! $platformProfile->status === 'Active') {
             return;
         }
 

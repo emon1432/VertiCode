@@ -10,15 +10,17 @@ class Platform extends Model
         'name',
         'display_name',
         'base_url',
-        'is_active',
-    ];
-
-    protected $casts = [
-        'is_active' => 'boolean',
+        'image',
+        'status',
     ];
 
     public function platformProfiles()
     {
         return $this->hasMany(PlatformProfile::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'Active');
     }
 }

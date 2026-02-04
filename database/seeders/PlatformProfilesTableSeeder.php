@@ -14,12 +14,12 @@ class PlatformProfilesTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('platform_profiles')->delete();
-        
+
         \DB::table('platform_profiles')->insert(array (
-            0 => 
+            0 =>
             array (
                 'id' => 1,
                 'user_id' => 2,
@@ -29,12 +29,12 @@ class PlatformProfilesTableSeeder extends Seeder
                 'total_solved' => 308,
                 'raw' => '{"lastName":"Emon","country":"Bangladesh","lastOnlineTimeSeconds":1769425444,"city":"Dhaka","rating":986,"friendOfCount":14,"titlePhoto":"https:\\/\\/userpic.codeforces.org\\/1251151\\/title\\/bb229b5b047bfc07.jpg","handle":"emon_mon","avatar":"https:\\/\\/userpic.codeforces.org\\/1251151\\/avatar\\/831bc82d1bd1a504.jpg","firstName":"Khairul Islam","contribution":0,"organization":"Institute of Science and Technology","rank":"newbie","maxRating":1389,"registrationTimeSeconds":1568830934,"maxRank":"pupil"}',
                 'profile_url' => 'https://codeforces.com/profile/emon_mon',
-                'is_active' => 1,
+                'status' => 'Active',
                 'last_synced_at' => '2026-01-26 12:07:04',
                 'created_at' => '2026-01-23 07:31:06',
                 'updated_at' => '2026-01-26 12:07:04',
             ),
-            1 => 
+            1 =>
             array (
                 'id' => 2,
                 'user_id' => 2,
@@ -44,12 +44,12 @@ class PlatformProfilesTableSeeder extends Seeder
                 'total_solved' => 99,
                 'raw' => '{"username":"emon1432","profile":{"ranking":1429089},"submitStatsGlobal":{"acSubmissionNum":[{"difficulty":"All","count":99},{"difficulty":"Easy","count":81},{"difficulty":"Medium","count":17},{"difficulty":"Hard","count":1}]}}',
                 'profile_url' => 'https://leetcode.com/u/emon1432/',
-                'is_active' => 1,
+                'status' => 'Active',
                 'last_synced_at' => '2026-01-26 12:07:05',
                 'created_at' => '2026-01-26 07:40:04',
                 'updated_at' => '2026-01-26 12:07:05',
             ),
-            2 => 
+            2 =>
             array (
                 'id' => 5,
                 'user_id' => 2,
@@ -59,12 +59,12 @@ class PlatformProfilesTableSeeder extends Seeder
                 'total_solved' => 0,
                 'raw' => '{"rating":null,"total_solved":0}',
                 'profile_url' => 'https://atcoder.jp/users/e_mon',
-                'is_active' => 1,
+                'status' => 'Active',
                 'last_synced_at' => '2026-01-26 12:07:06',
                 'created_at' => '2026-01-26 11:01:14',
                 'updated_at' => '2026-01-26 12:07:06',
             ),
-            3 => 
+            3 =>
             array (
                 'id' => 6,
                 'user_id' => 2,
@@ -74,13 +74,13 @@ class PlatformProfilesTableSeeder extends Seeder
                 'total_solved' => 58,
                 'raw' => '{"rating":0,"total_solved":58,"contest_badge":"Problem Solver - Bronze Badge, Daily Streak - Bronze Badge"}',
                 'profile_url' => 'https://www.codechef.com/users/e_mon',
-                'is_active' => 1,
+                'status' => 'Active',
                 'last_synced_at' => '2026-01-26 12:07:06',
                 'created_at' => '2026-01-26 12:05:21',
                 'updated_at' => '2026-01-26 12:07:06',
             ),
         ));
-        
-        
+
+
     }
 }

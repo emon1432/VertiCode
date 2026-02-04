@@ -15,13 +15,7 @@
         </div>
     </div>
     <div class="d-flex flex-column">
-        <h6 class="text-nowrap mb-0">{{ $name }}</h6>
-        @if (!empty($code) && !empty($barcode))
-            <small class="text-truncate d-none d-sm-block">{{ $code }} ({{ $barcode }})</small>
-        @elseif(!empty($code))
-            <small class="text-truncate d-none d-sm-block">{{ $code }}</small>
-        @elseif(!empty($barcode))
-            <small class="text-truncate d-none d-sm-block">{{ $barcode }}</small>
-        @endif
+        <h6 class="text-nowrap mb-0">{{ $displayName }}</h6>
+        <small class="text-truncate d-none d-sm-block">{{ '@' . $name }}</small>
     </div>
 </div>

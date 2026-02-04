@@ -13,7 +13,7 @@ Artisan::command('inspire', function () {
 
 
 Schedule::call(function () {
-    PlatformProfile::where('is_active', true)
+    PlatformProfile::active()
         ->chunkById(100, function ($profiles) {
             foreach ($profiles as $profile) {
                 dispatch(

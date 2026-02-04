@@ -6,20 +6,18 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class ItemInfo extends Component
+class PlatformInfo extends Component
 {
     public $name;
     public $image;
-    public $code;
-    public $barcode;
+    public $displayName;
     public $initials;
 
-    public function __construct($item)
+    public function __construct($platform)
     {
-        $this->name = $item->name ?? $item->title ?? ucwords(str_replace('_', ' ', $item->key ?? '')) ?? 'N/A';
-        $this->image = $item->image ?? null;
-        $this->code = $item->code ?? null;
-        $this->barcode = $item->barcode ?? null;
+        $this->displayName = $platform->display_name ?? $platform->title ?? ucwords(str_replace('_', ' ', $platform->key ?? '')) ?? 'N/A';
+        $this->image = $platform->image ?? null;
+        $this->name = $platform->name ?? null;
 
         if ($this->image) {
             if (file_exists(public_path($this->image))) {
@@ -27,7 +25,7 @@ class ItemInfo extends Component
             }
         }
         if (empty($this->initials)) {
-            $words = preg_split('/\s+/', trim($this->name)); // split by spaces
+            $words = preg_split('/\s+/', trim($this->displayName));
             $initials = '';
 
             foreach ($words as $word) {
@@ -41,11 +39,10 @@ class ItemInfo extends Component
 
     public function render(): View|Closure|string
     {
-        return view('components.item-info', [
+        return view('components.platform-info', [
             'name' => $this->name,
             'image' => $this->image,
-            'code' => $this->code,
-            'barcode' => $this->barcode,
+            'displayName' => $this->displayName,
             'initials' => $this->initials,
         ]);
     }

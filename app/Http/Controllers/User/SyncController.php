@@ -24,7 +24,7 @@ class SyncController extends Controller
 
         $profiles = PlatformProfile::with('platform')
             ->where('user_id', $user->id)
-            ->where('is_active', true)
+            ->active()
             ->get();
 
         foreach ($profiles as $profile) {

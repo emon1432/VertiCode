@@ -28,6 +28,15 @@
             </a>
         </li>
         <li class="menu-header small">
+            <span class="menu-header-text">{{ __('Platform Management') }}</span>
+        </li>
+        <li class="menu-item">
+            <a href="{{ route('platforms.index') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-device-laptop"></i>
+                <div>{{ __('Platforms') }}</div>
+            </a>
+        </li>
+        <li class="menu-header small">
             <span class="menu-header-text">{{ __('User Management') }}</span>
         </li>
         <li class="menu-item">

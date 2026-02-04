@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('total_solved')->default(0);
             $table->json('raw')->nullable();
             $table->string('profile_url')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->enum('status', ['Active', 'Inactive'])->default('Active');
             $table->timestamp('last_synced_at')->nullable();
             $table->timestamps();
             $table->unique(['user_id', 'platform_id']);
