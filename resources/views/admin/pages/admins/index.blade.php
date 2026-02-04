@@ -1,12 +1,18 @@
 @extends('admin.layouts.app')
-@section('title', __('Users'))
+@section('title', __('Admins List'))
 @section('content')
     <div class="card">
         <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">{{ __('Users') }}</h5>
+            <h5 class="card-title mb-0">{{ __('Admins') }}</h5>
+                <a class="btn add-new btn-primary" href="{{ route('admins.create') }}">
+                    <span class="d-flex align-items-center gap-2 text-white">
+                        <i class="icon-base ti tabler-plus icon-xs"></i>
+                        {{ __('Add New Record') }}
+                    </span>
+                </a>
         </div>
         <div class="card-datatable">
-            <table class="common-datatable table d-table" data-url="{{ route('users.index') }}"
+            <table class="common-datatable table d-table" data-url="{{ route('admins.index') }}"
                 data-columns='[
                 { "data": "name" },
                 { "data": "email" },

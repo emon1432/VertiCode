@@ -17,7 +17,7 @@
             <span class="fw-medium">{{ $user->name }}</span>
         </a>
         <small>
-                {{ ucfirst($user->role) }}
+            {{ '@' . $user->username }}
         </small>
     </div>
 </div>

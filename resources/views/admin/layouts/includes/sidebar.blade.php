@@ -28,20 +28,22 @@
             </a>
         </li>
         <li class="menu-header small">
+            <span class="menu-header-text">{{ __('User Management') }}</span>
+        </li>
+        <li class="menu-item">
+            <a href="{{ route('users.index') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-users"></i>
+                <div>{{ __('Users') }}</div>
+            </a>
+        </li>
+        <li class="menu-header small">
             <span class="menu-header-text">{{ __('System') }}</span>
         </li>
         <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ti tabler-users"></i>
-                <div>{{ __('User Management') }}</div>
+            <a href="{{ route('admins.index') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-shield-check"></i>
+                <div>{{ __('Admins') }}</div>
             </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="{{ route('users.index') }}" class="menu-link">
-                        <div>{{ __('User List') }}</div>
-                    </a>
-                </li>
-            </ul>
         </li>
         <li class="menu-item">
             <a href="{{ route('settings.index') }}" class="menu-link">
