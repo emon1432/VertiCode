@@ -1,6 +1,9 @@
 <?php
 
 return [
+    // Sync cooldown in minutes (default: 120 minutes = 2 hours)
+    'sync_cooldown_minutes' => env('SYNC_COOLDOWN_MINUTES', 120),
+
     'hackerearth' => [
         'supports_rating' => true,
         'supports_solved' => true,

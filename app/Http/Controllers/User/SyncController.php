@@ -20,12 +20,28 @@ class SyncController extends Controller
 {
     public function sync()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
+
+        // Check sync cooldown
+        $cooldownMinutes = config('platforms.sync_cooldown_minutes', 120);
+        if ($user->last_synced_at) {
+            $nextAvailableAt = $user->last_synced_at->addMinutes($cooldownMinutes);
+            if (now()->lt($nextAvailableAt)) {
+                $remainingMinutes = now()->diffInMinutes($nextAvailableAt, false);
+                $remainingText = $this->formatCooldownTime(abs($remainingMinutes));
+                return back()->with('error', "Please wait {$remainingText} before syncing again.");
+            }
+        }
 
         $profiles = PlatformProfile::with('platform')
             ->where('user_id', $user->id)
             ->active()
             ->get();
+
+        if ($profiles->isEmpty()) {
+            return back()->with('error', 'No connected platforms to sync yet.');
+        }
 
         foreach ($profiles as $profile) {
             $adapterClass = match ($profile->platform->name) {
@@ -52,14 +68,38 @@ class SyncController extends Controller
         }
 
         // 🔥 single source of truth for dashboard
-        Auth::user()->forceFill([
+        $user->update([
             'last_synced_at' => now(),
-        ])->save();
+        ]);
 
 
         return back()->with(
             'success',
             'All platforms are syncing. This may take a few moments.'
         );
+    }
+
+    /**
+     * Format cooldown time for user-friendly display
+     */
+    private function formatCooldownTime(int $minutes): string
+    {
+        if ($minutes < 1) {
+            return 'a few seconds';
+        }
+
+        if ($minutes < 60) {
+            return $minutes . ' minute' . ($minutes > 1 ? 's' : '');
+        }
+
+        $hours = floor($minutes / 60);
+        $remainingMinutes = $minutes % 60;
+
+        $text = $hours . ' hour' . ($hours > 1 ? 's' : '');
+        if ($remainingMinutes > 0) {
+            $text .= ' and ' . $remainingMinutes . ' minute' . ($remainingMinutes > 1 ? 's' : '');
+        }
+
+        return $text;
     }
 }

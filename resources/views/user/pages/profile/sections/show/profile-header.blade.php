@@ -84,9 +84,59 @@
                     <div class="d-flex gap-2">
                         @auth
                             @if (auth()->user()->id === $user->id)
-                                <a href="{{ route('user.profile.edit', $user->username) }}" class="btn btn-primary">
-                                    <i class="bi bi-pencil"></i> Edit Profile
-                                </a>
+                                @php
+                                    $hasActiveProfiles = $user->platformProfiles->where('status', 'Active')->isNotEmpty();
+                                    $cooldownMinutes = config('platforms.sync_cooldown_minutes', 120);
+                                    $canSync = true;
+                                    $cooldownMessage = '';
+
+                                    if ($user->last_synced_at) {
+                                        $nextAvailableAt = $user->last_synced_at->copy()->addMinutes($cooldownMinutes);
+                                        if (now()->lt($nextAvailableAt)) {
+                                            $canSync = false;
+                                            $remainingMinutes = now()->diffInMinutes($nextAvailableAt, false);
+
+                                            if ($remainingMinutes < 1) {
+                                                $cooldownMessage = 'Available in less than a minute';
+                                            } elseif ($remainingMinutes < 60) {
+                                                $cooldownMessage = 'Available in ' . ceil($remainingMinutes) . ' minute' . (ceil($remainingMinutes) > 1 ? 's' : '');
+                                            } else {
+                                                $hours = floor($remainingMinutes / 60);
+                                                $mins = $remainingMinutes % 60;
+                                                $cooldownMessage = 'Available in ' . $hours . ' hour' . ($hours > 1 ? 's' : '');
+                                                if ($mins > 0) {
+                                                    $cooldownMessage .= ' and ' . $mins . ' minute' . ($mins > 1 ? 's' : '');
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    $syncDisabled = !$hasActiveProfiles || !$canSync;
+                                @endphp
+                                <div class="d-flex gap-2 flex-wrap align-items-center">
+                                    <a href="{{ route('user.profile.edit', $user->username) }}" class="btn btn-primary">
+                                        <i class="bi bi-pencil"></i> Edit Profile
+                                    </a>
+                                    <form method="POST" action="{{ route('user.sync') }}" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-outline-primary"
+                                            {{ $syncDisabled ? 'disabled' : '' }}
+                                            title="{{ $cooldownMessage ? $cooldownMessage : 'Sync all connected platforms' }}">
+                                            <i class="bi bi-arrow-repeat"></i> Sync Profiles
+                                        </button>
+                                    </form>
+                                </div>
+                                <small class="text-muted d-block mt-2">
+                                    @if (!$hasActiveProfiles)
+                                        <i class="bi bi-info-circle"></i> Connect a platform to enable sync.
+                                    @elseif ($cooldownMessage)
+                                        <i class="bi bi-clock-history"></i> {{ $cooldownMessage }} (last synced {{ $user->last_synced_at->diffForHumans() }})
+                                    @elseif($user->last_synced_at)
+                                        <i class="bi bi-check-circle"></i> Last synced: {{ $user->last_synced_at->diffForHumans() }}
+                                    @else
+                                        <i class="bi bi-arrow-repeat"></i> Ready to sync
+                                    @endif
+                                </small>
                             @else
                                 <button class="btn btn-primary" onclick="alert('Message feature coming soon')">
                                     <i class="bi bi-chat-dots"></i> Message
