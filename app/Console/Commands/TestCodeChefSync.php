@@ -78,7 +78,11 @@ class TestCodeChefSync extends Command
                 $this->info('2. Running full sync...');
 
                 // Find user and platform
-                $user = User::first();
+                $user = User::whereHas('platformProfiles', function ($query) use ($handle) {
+                    $query->where('handle', $handle)->whereHas('platform', function ($q) {
+                        $q->where('name', 'codechef');
+                    });
+                })->first();
                 if (!$user) {
                     $this->error('   ✗ No user found in database');
                     return 1;
@@ -90,7 +94,7 @@ class TestCodeChefSync extends Command
                     return 1;
                 }
 
-                $platformProfile = PlatformProfile::firstOrCreate(
+                $platformProfile = PlatformProfile::updateOrCreate(
                     [
                         'user_id' => $user->id,
                         'platform_id' => $platform->id,

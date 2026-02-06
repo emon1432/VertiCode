@@ -14,12 +14,12 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('users')->delete();
-        
+
         \DB::table('users')->insert(array (
-            0 => 
+            0 =>
             array (
                 'id' => 1,
                 'name' => 'Emon Admin',
@@ -32,6 +32,8 @@ class UsersTableSeeder extends Seeder
                 'country_id' => NULL,
                 'institute_id' => NULL,
                 'bio' => NULL,
+                'facebook' => NULL,
+                'instagram' => NULL,
                 'website' => NULL,
                 'twitter' => NULL,
                 'github' => NULL,
@@ -48,19 +50,21 @@ class UsersTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
-            1 => 
+            1 =>
             array (
                 'id' => 2,
-                'name' => 'Emon User',
-                'username' => 'emonuser',
+                'name' => 'Khairul Islam Emon',
+                'username' => 'e_mon',
                 'role' => 'user',
-                'email' => 'user@verticasoft.com',
-                'phone' => NULL,
-                'date_of_birth' => NULL,
-                'gender' => NULL,
-                'country_id' => NULL,
-                'institute_id' => NULL,
-                'bio' => NULL,
+                'email' => 'e.mon143298@gmail.com',
+                'phone' => '01638849305',
+                'date_of_birth' => '1998-03-14',
+                'gender' => 'Male',
+                'country_id' => 19,
+                'institute_id' => 10200,
+                'bio' => 'Assalamu Alaikum',
+                'facebook' => NULL,
+                'instagram' => NULL,
                 'website' => NULL,
                 'twitter' => NULL,
                 'github' => NULL,
@@ -72,13 +76,13 @@ class UsersTableSeeder extends Seeder
                 'two_factor_confirmed_at' => NULL,
                 'remember_token' => NULL,
                 'current_team_id' => NULL,
-                'image' => NULL,
+                'image' => 'uploads/users/khairul-islam-emon1748759077683bf225059ea.jpg',
                 'last_synced_at' => '2026-01-26 12:06:58',
                 'created_at' => NULL,
-                'updated_at' => '2026-01-26 12:06:58',
+                'updated_at' => '2026-02-06 09:49:05',
             ),
         ));
-        
-        
+
+
     }
 }

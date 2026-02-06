@@ -3,39 +3,29 @@
 namespace App\Console\Commands;
 
 use App\Actions\SyncPlatformProfileAction;
+use App\Models\Platform;
 use App\Models\PlatformProfile;
+use App\Models\User;
 use App\Platforms\HackerEarth\HackerEarthAdapter;
 use Illuminate\Console\Command;
 
 class TestHackerEarthSync extends Command
 {
-    protected $signature = 'test:hackerearth {profile_id}';
-    protected $description = 'Test HackerEarth sync for a specific profile';
+    protected $signature = 'test:hackerearth {handle} {--sync : Run full sync}';
+    protected $description = 'Test HackerEarth sync for a specific handle';
 
     public function handle(SyncPlatformProfileAction $syncAction, HackerEarthAdapter $adapter): int
     {
-        $profileId = $this->argument('profile_id');
+        $handle = $this->argument('handle');
+        $runSync = $this->option('sync');
 
-        $profile = PlatformProfile::with('platform')->find($profileId);
-
-        if (!$profile) {
-            $this->error("Profile #{$profileId} not found");
-            return 1;
-        }
-
-        if ($profile->platform->name !== 'hackerearth') {
-            $this->error("Profile #{$profileId} is not a HackerEarth profile");
-            return 1;
-        }
-
-        $this->info("Testing HackerEarth sync for handle: {$profile->handle}");
-        $this->info("Profile URL: {$profile->profile_url}");
+        $this->info("Testing HackerEarth sync for handle: {$handle}");
         $this->newLine();
 
         // Test fetching profile
         $this->info("1. Fetching profile data...");
         try {
-            $profileDto = $adapter->fetchProfile($profile->handle);
+            $profileDto = $adapter->fetchProfile($handle);
             $this->line("   ✓ Handle: {$profileDto->handle}");
             $this->line("   ✓ Rating: " . ($profileDto->rating ?? 'null'));
             $this->line("   ✓ Total Solved (from DTO): {$profileDto->totalSolved}");
@@ -50,7 +40,7 @@ class TestHackerEarthSync extends Command
         // Test fetching submissions
         $this->info("2. Fetching submissions...");
         try {
-            $submissions = $adapter->fetchSubmissions($profile->handle);
+            $submissions = $adapter->fetchSubmissions($handle);
             $this->line("   ✓ Total submissions fetched: " . $submissions->count());
 
             $acceptedCount = $submissions->filter(fn($s) => $s->verdict->value === 'accepted')->count();
@@ -73,21 +63,47 @@ class TestHackerEarthSync extends Command
 
         $this->newLine();
 
-        // Ask if user wants to sync
-        if ($this->confirm('Do you want to run the full sync?', true)) {
+        if ($runSync) {
             $this->info("3. Running full sync...");
 
-            // Temporarily clear last_synced_at to bypass cooldown
-            $profile->update(['last_synced_at' => null]);
+            $user = User::whereHas('platformProfiles', function ($query) use ($handle) {
+                $query->where('handle', $handle)->whereHas('platform', function ($q) {
+                    $q->where('name', 'hackerearth');
+                });
+            })->first();
+            if (!$user) {
+                $this->error('   ✗ No user found in database');
+                return 1;
+            }
+
+            $platform = Platform::where('name', 'hackerearth')->first();
+            if (!$platform) {
+                $this->error('   ✗ HackerEarth platform not found in database');
+                return 1;
+            }
+
+            $platformProfile = PlatformProfile::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'platform_id' => $platform->id,
+                    'handle' => $handle,
+                ],
+                [
+                    'profile_url' => $adapter->profileUrl($handle),
+                ]
+            );
+
+            $platformProfile->last_synced_at = null;
+            $platformProfile->save();
 
             try {
-                $syncAction->execute($profile, $adapter);
-                $profile->refresh();
+                $syncAction->execute($platformProfile, $adapter);
+                $platformProfile->refresh();
 
                 $this->info("   ✓ Sync completed successfully!");
-                $this->line("   ✓ Rating: " . ($profile->rating ?? 'null'));
-                $this->line("   ✓ Total Solved: {$profile->total_solved}");
-                $this->line("   ✓ Last Synced: {$profile->last_synced_at}");
+                $this->line("   ✓ Rating: " . ($platformProfile->rating ?? 'null'));
+                $this->line("   ✓ Total Solved: {$platformProfile->total_solved}");
+                $this->line("   ✓ Last Synced: {$platformProfile->last_synced_at}");
             } catch (\Exception $e) {
                 $this->error("   ✗ Sync failed: {$e->getMessage()}");
                 return 1;

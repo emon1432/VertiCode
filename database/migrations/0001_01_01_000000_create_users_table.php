@@ -24,6 +24,8 @@ return new class extends Migration
             $table->foreignId('institute_id')->nullable()->constrained()->nullOnDelete();
             $table->text('bio')->nullable();
             $table->string('website')->nullable();
+            $table->string('facebook')->nullable();
+            $table->string('instagram')->nullable();
             $table->string('twitter')->nullable();
             $table->string('github')->nullable();
             $table->string('linkedin')->nullable();

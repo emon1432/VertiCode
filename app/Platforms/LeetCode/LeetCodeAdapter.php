@@ -20,6 +20,7 @@ class LeetCodeAdapter implements PlatformAdapter
 
     public function profileUrl(string $handle): string
     {
+        $this->client->fetchUserProfile($handle);
         return "https://leetcode.com/u/{$handle}/";
     }
 

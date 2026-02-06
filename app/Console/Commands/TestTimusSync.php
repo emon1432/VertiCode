@@ -60,7 +60,11 @@ class TestTimusSync extends Command
                 $this->newLine();
                 $this->info('3. Running full sync...');
 
-                $user = User::first();
+                $user = User::whereHas('platformProfiles', function ($query) use ($handle) {
+                    $query->where('handle', $handle)->whereHas('platform', function ($q) {
+                        $q->where('name', 'timus');
+                    });
+                })->first();
                 if (! $user) {
                     $this->error('   ✗ No user found in database');
                     return 1;
@@ -72,7 +76,7 @@ class TestTimusSync extends Command
                     return 1;
                 }
 
-                $platformProfile = PlatformProfile::firstOrCreate(
+                $platformProfile = PlatformProfile::updateOrCreate(
                     [
                         'user_id' => $user->id,
                         'platform_id' => $platform->id,

@@ -63,6 +63,12 @@ class UserProfileController extends Controller
             case 'profile-platform':
                 $this->platformPreferences($request, $user);
                 break;
+            case 'social-links':
+                $this->socialLinks($request, $user);
+                break;
+            default:
+                abort(400, 'Invalid section.');
+                break;
         }
 
         return redirect()
@@ -214,5 +220,24 @@ class UserProfileController extends Controller
                 );
             }
         }
+    }
+
+    protected function socialLinks(Request $request, User $user)
+    {
+        $request->validate([
+            'social_links.website' => 'nullable|string|max:255',
+            'social_links.facebook' => 'nullable|string|max:100',
+            'social_links.instagram' => 'nullable|string|max:100',
+            'social_links.twitter' => 'nullable|string|max:100',
+            'social_links.github' => 'nullable|string|max:100',
+            'social_links.linkedin' => 'nullable|string|max:100',
+        ]);
+        $user->website = $request->input('social_links.website');
+        $user->facebook = $request->input('social_links.facebook');
+        $user->instagram = $request->input('social_links.instagram');
+        $user->twitter = $request->input('social_links.twitter');
+        $user->github = $request->input('social_links.github');
+        $user->linkedin = $request->input('social_links.linkedin');
+        $user->save();
     }
 }

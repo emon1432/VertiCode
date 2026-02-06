@@ -24,6 +24,7 @@ class AtCoderAdapter implements PlatformAdapter
 
     public function profileUrl(string $handle): string
     {
+        $this->client->fetchProfile($handle);
         return "https://atcoder.jp/users/{$handle}";
     }
 

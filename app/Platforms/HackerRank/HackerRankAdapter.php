@@ -23,6 +23,7 @@ class HackerRankAdapter implements PlatformAdapter
 
     public function profileUrl(string $handle): string
     {
+        $this->client->fetchProfile($handle);
         return "https://www.hackerrank.com/profile/{$handle}";
     }
 

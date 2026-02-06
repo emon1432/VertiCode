@@ -38,7 +38,7 @@ class TestLeetCodeSync extends Command
             if (!empty($profile->raw['contest_rating'])) {
                 $this->line("   ✓ Contest Rating: " . round($profile->raw['contest_rating'], 2));
                 $this->line("   ✓ Contest Ranking: {$profile->raw['contest_global_ranking']} / " .
-                           ($profile->raw['contest_ranking']['totalParticipants'] ?? 'N/A'));
+                    ($profile->raw['contest_ranking']['totalParticipants'] ?? 'N/A'));
                 $this->line("   ✓ Contests Attended: {$profile->raw['attended_contests_count']}");
             }
 
@@ -96,7 +96,11 @@ class TestLeetCodeSync extends Command
                 $this->info('2. Running full sync...');
 
                 // Find user and platform
-                $user = User::first();
+                $user = User::whereHas('platformProfiles', function ($query) use ($handle) {
+                    $query->where('handle', $handle)->whereHas('platform', function ($q) {
+                        $q->where('name', 'leetcode');
+                    });
+                })->first();
                 if (!$user) {
                     $this->error('   ✗ No user found in database');
                     return 1;
@@ -108,7 +112,7 @@ class TestLeetCodeSync extends Command
                     return 1;
                 }
 
-                $platformProfile = PlatformProfile::firstOrCreate(
+                $platformProfile = PlatformProfile::updateOrCreate(
                     [
                         'user_id' => $user->id,
                         'platform_id' => $platform->id,
@@ -135,7 +139,6 @@ class TestLeetCodeSync extends Command
             $this->newLine();
             $this->info('✓ Test completed successfully');
             return 0;
-
         } catch (\Exception $e) {
             $this->error('✗ Test failed: ' . $e->getMessage());
             if ($this->output->isVerbose()) {

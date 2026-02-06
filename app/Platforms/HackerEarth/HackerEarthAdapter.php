@@ -22,6 +22,7 @@ class HackerEarthAdapter implements PlatformAdapter
 
     public function profileUrl(string $handle): string
     {
+        $this->client->fetchProfile($handle);
         return "https://www.hackerearth.com/@{$handle}/";
     }
 

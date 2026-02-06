@@ -32,9 +32,11 @@
                 @empty
                     <p class="text-muted">No platforms available. Please contact support.</p>
                 @endforelse
-                <div class="d-flex justify-content-center">
+                <div class="d-flex gap-2 pt-3">
+                    <a href="{{ route('user.profile.show', auth()->user()->username) }}"
+                        class="btn btn-outline-secondary">Cancel</a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save"></i> Save Changes
+                        <i class="bi bi-check-lg"></i> Save Changes
                     </button>
                 </div>
             </form>

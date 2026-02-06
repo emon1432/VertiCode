@@ -23,6 +23,7 @@ class TimusAdapter implements PlatformAdapter
 
     public function profileUrl(string $handle): string
     {
+        $this->client->fetchProfile($handle);
         return "http://acm.timus.ru/author.aspx?id=" . $handle;
     }
 

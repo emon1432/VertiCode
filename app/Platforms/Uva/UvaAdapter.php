@@ -23,7 +23,8 @@ class UvaAdapter implements PlatformAdapter
 
     public function profileUrl(string $handle): string
     {
-        return "https://uhunt.onlinejudge.org/id/{$handle}";
+        $userId = $this->client->getUserId($handle);
+        return "https://uhunt.onlinejudge.org/id/{$userId}";
     }
 
     public function supportsSubmissions(): bool

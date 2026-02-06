@@ -24,6 +24,7 @@ class CodeforcesAdapter implements PlatformAdapter
 
     public function profileUrl(string $handle): string
     {
+        $this->client->fetchUserInfo($handle);
         return "https://codeforces.com/profile/{$handle}";
     }
 

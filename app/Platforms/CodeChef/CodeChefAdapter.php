@@ -20,6 +20,7 @@ class CodeChefAdapter implements PlatformAdapter
 
     public function profileUrl(string $handle): string
     {
+        $this->client->fetchProfile($handle);
         return "https://www.codechef.com/users/{$handle}";
     }
 

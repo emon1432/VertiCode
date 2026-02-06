@@ -14,12 +14,12 @@ class PlatformsTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('platforms')->delete();
-        
+
         \DB::table('platforms')->insert(array (
-            0 => 
+            0 =>
             array (
                 'id' => 1,
                 'name' => 'codeforces',
@@ -31,7 +31,7 @@ class PlatformsTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => '2026-02-05 19:04:30',
             ),
-            1 => 
+            1 =>
             array (
                 'id' => 2,
                 'name' => 'leetcode',
@@ -43,7 +43,7 @@ class PlatformsTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => '2026-02-05 19:16:55',
             ),
-            2 => 
+            2 =>
             array (
                 'id' => 3,
                 'name' => 'atcoder',
@@ -55,7 +55,7 @@ class PlatformsTableSeeder extends Seeder
                 'created_at' => '2026-01-26 15:58:18',
                 'updated_at' => '2026-02-05 19:00:13',
             ),
-            3 => 
+            3 =>
             array (
                 'id' => 4,
                 'name' => 'codechef',
@@ -67,7 +67,7 @@ class PlatformsTableSeeder extends Seeder
                 'created_at' => '2026-01-26 11:18:14',
                 'updated_at' => '2026-02-05 19:01:50',
             ),
-            4 => 
+            4 =>
             array (
                 'id' => 5,
                 'name' => 'spoj',
@@ -79,7 +79,7 @@ class PlatformsTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => '2026-02-05 18:58:28',
             ),
-            5 => 
+            5 =>
             array (
                 'id' => 6,
                 'name' => 'hackerrank',
@@ -91,7 +91,7 @@ class PlatformsTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => '2026-02-05 19:09:14',
             ),
-            6 => 
+            6 =>
             array (
                 'id' => 7,
                 'name' => 'hackerearth',
@@ -103,19 +103,19 @@ class PlatformsTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => '2026-02-05 19:07:38',
             ),
-            7 => 
+            7 =>
             array (
                 'id' => 8,
                 'name' => 'uva',
                 'display_name' => 'UVa Online Judge',
                 'base_url' => 'https://uhunt.onlinejudge.org',
-                'profile_url' => 'https://onlinejudge.orgs',
+                'profile_url' => 'https://onlinejudge.org/',
                 'image' => 'uploads/platforms/uva17703192456984ed8dcaf83.png',
                 'status' => 'Active',
                 'created_at' => NULL,
                 'updated_at' => '2026-02-05 19:20:45',
             ),
-            8 => 
+            8 =>
             array (
                 'id' => 9,
                 'name' => 'timus',
@@ -128,7 +128,7 @@ class PlatformsTableSeeder extends Seeder
                 'updated_at' => '2026-02-05 19:18:58',
             ),
         ));
-        
-        
+
+
     }
 }

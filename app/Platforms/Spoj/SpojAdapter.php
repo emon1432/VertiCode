@@ -23,6 +23,7 @@ class SpojAdapter implements PlatformAdapter
 
     public function profileUrl(string $handle): string
     {
+        $this->client->fetchProfile($handle);
         return "https://www.spoj.com/users/{$handle}/";
     }
 
