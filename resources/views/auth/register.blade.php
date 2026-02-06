@@ -278,7 +278,11 @@
                             <div class="brand-logo-icon">
                                 <i class="bi bi-code-slash"></i>
                             </div>
-                            <div class="brand-logo-text">VertiCode</div>
+                            <div class="brand-logo-text">
+                                <a href="{{ route('home') }}" class="text-white text-decoration-none">
+                                    VertiCode
+                                </a>
+                            </div>
                         </div>
 
                         <h2 class="mb-4" style="font-weight: 700;">Start Your Coding Journey Today</h2>

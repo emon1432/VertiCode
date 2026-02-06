@@ -163,7 +163,7 @@ class UserProfileController extends Controller
             'gender' => 'nullable|in:Male,Female,Other',
             'country_id' => 'nullable|exists:countries,id',
             'institute_id' => 'nullable|exists:institutes,id',
-            'bio' => 'nullable|string|max:500',
+            'fav_quote' => 'nullable|string|max:500',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -181,7 +181,7 @@ class UserProfileController extends Controller
         $user->gender = $request->gender;
         $user->country_id = $request->country_id;
         $user->institute_id = $request->institute_id;
-        $user->bio = $request->bio;
+        $user->fav_quote = $request->fav_quote;
         if ($request->hasFile('image')) {
             $user->image = imageUploadManager($request->file('image'), $request->username, 'users');
         }

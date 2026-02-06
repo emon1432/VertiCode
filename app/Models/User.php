@@ -31,7 +31,7 @@ class User extends Authenticatable
         'gender',
         'country_id',
         'institute_id',
-        'bio',
+        'fav_quote',
         'website',
         'twitter',
         'github',

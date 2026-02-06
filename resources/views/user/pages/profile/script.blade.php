@@ -176,7 +176,7 @@
     }
 
     function updateCharacterCount(event) {
-        const characterCountSpan = document.getElementById('bio-character-count');
+        const characterCountSpan = document.getElementById('fav-quote-character-count');
         if (characterCountSpan) {
             characterCountSpan.textContent = event.target.value.length;
         }

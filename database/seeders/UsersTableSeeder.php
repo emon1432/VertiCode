@@ -14,12 +14,12 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('users')->delete();
-        
+
         \DB::table('users')->insert(array (
-            0 => 
+            0 =>
             array (
                 'id' => 1,
                 'name' => 'Emon Admin',
@@ -31,7 +31,7 @@ class UsersTableSeeder extends Seeder
                 'gender' => NULL,
                 'country_id' => NULL,
                 'institute_id' => NULL,
-                'bio' => NULL,
+                'fav_quote' => NULL,
                 'website' => NULL,
                 'facebook' => NULL,
                 'instagram' => NULL,
@@ -50,7 +50,7 @@ class UsersTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
-            1 => 
+            1 =>
             array (
                 'id' => 2,
                 'name' => 'Khairul Islam Emon',
@@ -62,7 +62,7 @@ class UsersTableSeeder extends Seeder
                 'gender' => 'Male',
                 'country_id' => 19,
                 'institute_id' => 10200,
-                'bio' => 'Assalamu Alaikum',
+                'fav_quote' => 'Assalamu Alaikum',
                 'website' => 'emonideas.com',
                 'facebook' => 'emon143298',
                 'instagram' => 'emon143298',
@@ -82,7 +82,7 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2026-02-06 11:55:00',
             ),
         ));
-        
-        
+
+
     }
 }

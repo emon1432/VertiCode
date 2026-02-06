@@ -22,7 +22,7 @@ return new class extends Migration
             $table->enum('gender', ['Male', 'Female', 'Other'])->nullable();
             $table->foreignId('country_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('institute_id')->nullable()->constrained()->nullOnDelete();
-            $table->text('bio')->nullable();
+            $table->text('fav_quote')->nullable();
             $table->string('website')->nullable();
             $table->string('facebook')->nullable();
             $table->string('instagram')->nullable();

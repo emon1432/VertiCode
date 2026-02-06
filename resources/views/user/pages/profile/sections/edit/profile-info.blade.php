@@ -193,16 +193,16 @@
                         @enderror
                     </div>
 
-                    <!-- Bio -->
+                    <!-- fav_quote -->
                     <div class="col-md-12">
-                        <label for="bio" class="form-label fw-600">Bio</label>
-                        <textarea id="bio" name="bio" rows="4" class="form-control @error('bio') is-invalid @enderror"
-                            maxlength="500" oninput="updateCharacterCount(event)" placeholder="Tell us about yourself...">{{ old('bio', auth()->user()->bio) }}</textarea>
+                        <label for="fav_quote" class="form-label fw-600">Favorite Quote</label>
+                        <textarea id="fav_quote" name="fav_quote" rows="4" class="form-control @error('fav_quote') is-invalid @enderror"
+                            maxlength="500" oninput="updateCharacterCount(event)" placeholder="Tell us about yourself...">{{ old('fav_quote', auth()->user()->fav_quote) }}</textarea>
                         <small class="text-muted d-block mt-2">
-                            <span id="bio-character-count">{{ strlen(old('bio', auth()->user()->bio)) }}</span>/500
+                            <span id="fav-quote-character-count">{{ strlen(old('fav_quote', auth()->user()->fav_quote)) }}</span>/500
                             characters
                         </small>
-                        @error('bio')
+                        @error('fav_quote')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
