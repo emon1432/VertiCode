@@ -124,6 +124,24 @@
                 }
             });
         });
+
+        $('#toggleCurrentPassword, #toggleNewPassword, #toggleConfirmPassword').on('click', function() {
+            const input = $(this).closest('.input-group').find('input');
+            const type = input.attr('type') === 'password' ? 'text' : 'password';
+            input.attr('type', type);
+            $(this).toggleClass('bi-eye-slash bi-eye');
+        });
+
+        @if (session('sub-section'))
+            const collapseId = "{{ session('sub-section') }}";
+            const collapseEl = document.getElementById(collapseId);
+
+            if (collapseEl && typeof bootstrap !== 'undefined') {
+                const collapse = new bootstrap.Collapse(collapseEl, {
+                    toggle: true
+                });
+            }
+        @endif
     });
 
     function previewProfileImage(event) {

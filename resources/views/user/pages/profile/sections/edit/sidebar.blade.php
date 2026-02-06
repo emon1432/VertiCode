@@ -12,7 +12,7 @@
                 <a href="#social-links" class="nav-link text-decoration-none" data-bs-toggle="pill">
                     <i class="bi bi-share"></i> Social Links
                 </a>
-                <a href="#security" class="nav-link text-decoration-none" data-bs-toggle="pill">
+                <a href="#profile-security" class="nav-link text-decoration-none" data-bs-toggle="pill">
                     <i class="bi bi-shield-lock"></i> Security
                 </a>
             </nav>

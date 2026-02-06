@@ -14,7 +14,7 @@
                     @include('user.pages.profile.sections.edit.profile-info')
                     @include('user.pages.profile.sections.edit.profile-platform')
                     @include('user.pages.profile.sections.edit.social-links')
-                    @include('user.pages.profile.sections.edit.security')
+                    @include('user.pages.profile.sections.edit.profile-security')
                 </div>
             </div>
         </div>
