@@ -12,7 +12,7 @@
                 @include('user.pages.profile.sections.edit.alert')
                 <div class="tab-content">
                     @include('user.pages.profile.sections.edit.profile-info')
-                    @include('user.pages.profile.sections.edit.profile-picture')
+                    @include('user.pages.profile.sections.edit.profile-platform')
                     @include('user.pages.profile.sections.edit.social-links')
                     @include('user.pages.profile.sections.edit.security')
                 </div>

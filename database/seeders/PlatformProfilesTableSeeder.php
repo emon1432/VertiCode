@@ -14,73 +14,148 @@ class PlatformProfilesTableSeeder extends Seeder
      */
     public function run()
     {
-
+        
 
         \DB::table('platform_profiles')->delete();
-
+        
         \DB::table('platform_profiles')->insert(array (
-            0 =>
+            0 => 
             array (
                 'id' => 1,
-                'user_id' => 2,
-                'platform_id' => 1,
-                'handle' => 'emon_mon',
-                'rating' => 986,
-                'total_solved' => 308,
-                'raw' => '{"lastName":"Emon","country":"Bangladesh","lastOnlineTimeSeconds":1769425444,"city":"Dhaka","rating":986,"friendOfCount":14,"titlePhoto":"https:\\/\\/userpic.codeforces.org\\/1251151\\/title\\/bb229b5b047bfc07.jpg","handle":"emon_mon","avatar":"https:\\/\\/userpic.codeforces.org\\/1251151\\/avatar\\/831bc82d1bd1a504.jpg","firstName":"Khairul Islam","contribution":0,"organization":"Institute of Science and Technology","rank":"newbie","maxRating":1389,"registrationTimeSeconds":1568830934,"maxRank":"pupil"}',
-                'profile_url' => 'https://codeforces.com/profile/emon_mon',
-                'status' => 'Active',
-                'last_synced_at' => '2026-01-26 12:07:04',
-                'created_at' => '2026-01-23 07:31:06',
-                'updated_at' => '2026-01-26 12:07:04',
-            ),
-            1 =>
-            array (
-                'id' => 2,
-                'user_id' => 2,
-                'platform_id' => 2,
-                'handle' => 'emon1432',
-                'rating' => NULL,
-                'total_solved' => 99,
-                'raw' => '{"username":"emon1432","profile":{"ranking":1429089},"submitStatsGlobal":{"acSubmissionNum":[{"difficulty":"All","count":99},{"difficulty":"Easy","count":81},{"difficulty":"Medium","count":17},{"difficulty":"Hard","count":1}]}}',
-                'profile_url' => 'https://leetcode.com/u/emon1432/',
-                'status' => 'Active',
-                'last_synced_at' => '2026-01-26 12:07:05',
-                'created_at' => '2026-01-26 07:40:04',
-                'updated_at' => '2026-01-26 12:07:05',
-            ),
-            2 =>
-            array (
-                'id' => 5,
                 'user_id' => 2,
                 'platform_id' => 3,
                 'handle' => 'e_mon',
                 'rating' => NULL,
                 'total_solved' => 0,
-                'raw' => '{"rating":null,"total_solved":0}',
+                'raw' => NULL,
                 'profile_url' => 'https://atcoder.jp/users/e_mon',
                 'status' => 'Active',
-                'last_synced_at' => '2026-01-26 12:07:06',
-                'created_at' => '2026-01-26 11:01:14',
-                'updated_at' => '2026-01-26 12:07:06',
+                'last_synced_at' => NULL,
+                'created_at' => '2026-02-06 08:13:20',
+                'updated_at' => '2026-02-06 08:13:20',
             ),
-            3 =>
+            1 => 
             array (
-                'id' => 6,
+                'id' => 2,
                 'user_id' => 2,
                 'platform_id' => 4,
                 'handle' => 'e_mon',
                 'rating' => NULL,
-                'total_solved' => 58,
-                'raw' => '{"rating":0,"total_solved":58,"contest_badge":"Problem Solver - Bronze Badge, Daily Streak - Bronze Badge"}',
+                'total_solved' => 0,
+                'raw' => NULL,
                 'profile_url' => 'https://www.codechef.com/users/e_mon',
                 'status' => 'Active',
-                'last_synced_at' => '2026-01-26 12:07:06',
-                'created_at' => '2026-01-26 12:05:21',
-                'updated_at' => '2026-01-26 12:07:06',
+                'last_synced_at' => NULL,
+                'created_at' => '2026-02-06 08:13:20',
+                'updated_at' => '2026-02-06 08:13:20',
+            ),
+            2 => 
+            array (
+                'id' => 3,
+                'user_id' => 2,
+                'platform_id' => 1,
+                'handle' => 'emon_mon',
+                'rating' => NULL,
+                'total_solved' => 0,
+                'raw' => NULL,
+                'profile_url' => 'https://codeforces.com/profile/emon_mon',
+                'status' => 'Active',
+                'last_synced_at' => NULL,
+                'created_at' => '2026-02-06 08:13:20',
+                'updated_at' => '2026-02-06 08:13:20',
+            ),
+            3 => 
+            array (
+                'id' => 4,
+                'user_id' => 2,
+                'platform_id' => 7,
+                'handle' => 'e_mon',
+                'rating' => NULL,
+                'total_solved' => 0,
+                'raw' => NULL,
+                'profile_url' => 'https://www.hackerearth.com/@e_mon/',
+                'status' => 'Active',
+                'last_synced_at' => NULL,
+                'created_at' => '2026-02-06 08:13:20',
+                'updated_at' => '2026-02-06 08:13:20',
+            ),
+            4 => 
+            array (
+                'id' => 5,
+                'user_id' => 2,
+                'platform_id' => 6,
+                'handle' => 'e_mon',
+                'rating' => NULL,
+                'total_solved' => 0,
+                'raw' => NULL,
+                'profile_url' => 'https://www.hackerrank.com/profile/e_mon',
+                'status' => 'Active',
+                'last_synced_at' => NULL,
+                'created_at' => '2026-02-06 08:13:20',
+                'updated_at' => '2026-02-06 08:13:20',
+            ),
+            5 => 
+            array (
+                'id' => 6,
+                'user_id' => 2,
+                'platform_id' => 2,
+                'handle' => 'emon1432',
+                'rating' => NULL,
+                'total_solved' => 0,
+                'raw' => NULL,
+                'profile_url' => 'https://leetcode.com/u/emon1432/',
+                'status' => 'Active',
+                'last_synced_at' => NULL,
+                'created_at' => '2026-02-06 08:13:20',
+                'updated_at' => '2026-02-06 08:13:20',
+            ),
+            6 => 
+            array (
+                'id' => 7,
+                'user_id' => 2,
+                'platform_id' => 5,
+                'handle' => 'e_mon',
+                'rating' => NULL,
+                'total_solved' => 0,
+                'raw' => NULL,
+                'profile_url' => 'https://www.spoj.com/users/e_mon/',
+                'status' => 'Active',
+                'last_synced_at' => NULL,
+                'created_at' => '2026-02-06 08:13:20',
+                'updated_at' => '2026-02-06 08:13:20',
+            ),
+            7 => 
+            array (
+                'id' => 8,
+                'user_id' => 2,
+                'platform_id' => 9,
+                'handle' => '405359',
+                'rating' => NULL,
+                'total_solved' => 0,
+                'raw' => NULL,
+                'profile_url' => 'http://acm.timus.ru/author.aspx?id=405359',
+                'status' => 'Active',
+                'last_synced_at' => NULL,
+                'created_at' => '2026-02-06 08:13:20',
+                'updated_at' => '2026-02-06 08:13:20',
+            ),
+            8 => 
+            array (
+                'id' => 9,
+                'user_id' => 2,
+                'platform_id' => 8,
+                'handle' => 'emon_mon',
+                'rating' => NULL,
+                'total_solved' => 0,
+                'raw' => NULL,
+                'profile_url' => 'https://uhunt.onlinejudge.org/id/emon_mon',
+                'status' => 'Active',
+                'last_synced_at' => NULL,
+                'created_at' => '2026-02-06 08:13:20',
+                'updated_at' => '2026-02-06 08:13:20',
             ),
         ));
-
-
+        
+        
     }
 }

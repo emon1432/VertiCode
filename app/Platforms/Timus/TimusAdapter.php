@@ -23,7 +23,7 @@ class TimusAdapter implements PlatformAdapter
 
     public function profileUrl(string $handle): string
     {
-        return "http://acm.timus.ru/status.aspx?author=" . urlencode($handle);
+        return "http://acm.timus.ru/author.aspx?id=" . $handle;
     }
 
     public function supportsSubmissions(): bool

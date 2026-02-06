@@ -5,7 +5,18 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Country;
 use App\Models\Institute;
+use App\Models\Platform;
+use App\Models\PlatformProfile;
 use App\Models\User;
+use App\Platforms\AtCoder\AtCoderAdapter;
+use App\Platforms\CodeChef\CodeChefAdapter;
+use App\Platforms\Codeforces\CodeforcesAdapter;
+use App\Platforms\HackerEarth\HackerEarthAdapter;
+use App\Platforms\HackerRank\HackerRankAdapter;
+use App\Platforms\LeetCode\LeetCodeAdapter;
+use App\Platforms\Spoj\SpojAdapter;
+use App\Platforms\Timus\TimusAdapter;
+use App\Platforms\Uva\UvaAdapter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -33,13 +44,12 @@ class UserProfileController extends Controller
 
         $countries = collect();
         $institutes = collect();
-
-        return view('user.pages.profile.edit', compact('user', 'countries', 'institutes'));
+        $platforms = Platform::with('platformProfiles')->orderBy('name')->get();
+        return view('user.pages.profile.edit', compact('user', 'countries', 'institutes', 'platforms'));
     }
 
     public function update(Request $request, $username)
     {
-        // dd($request->all(), $username, $request->section);
         $user = User::findOrFail(Auth::id());
 
         if ($user->username !== $username) {
@@ -48,32 +58,10 @@ class UserProfileController extends Controller
 
         switch ($request->section) {
             case 'profile-info':
-                $request->validate([
-                    'name' => 'required|string|max:255',
-                    'username' => 'required|string|max:255|unique:users,username,' . $user->id,
-                    'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-                    'phone' => 'nullable|string|max:20',
-                    'date_of_birth' => 'nullable|date',
-                    'gender' => 'nullable|in:Male,Female,Other',
-                    'country_id' => 'nullable|exists:countries,id',
-                    'institute_id' => 'nullable|exists:institutes,id',
-                    'bio' => 'nullable|string|max:500',
-                    'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                ]);
-
-                $user->name = $request->name;
-                $user->username = $request->username;
-                $user->email = $request->email;
-                $user->phone = $request->phone;
-                $user->date_of_birth = $request->date_of_birth;
-                $user->gender = $request->gender;
-                $user->country_id = $request->country_id;
-                $user->institute_id = $request->institute_id;
-                $user->bio = $request->bio;
-                if ($request->hasFile('image')) {
-                    $user->image = imageUploadManager($request->file('image'), $request->username, 'users');
-                }
-                $user->save();
+                $this->profileInfo($request, $user);
+                break;
+            case 'profile-platform':
+                $this->platformPreferences($request, $user);
                 break;
         }
 
@@ -148,6 +136,83 @@ class UserProfileController extends Controller
                     ]
                 ]);
                 break;
+        }
+    }
+
+    protected function profileInfo(Request $request, User $user)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|in:Male,Female,Other',
+            'country_id' => 'nullable|exists:countries,id',
+            'institute_id' => 'nullable|exists:institutes,id',
+            'bio' => 'nullable|string|max:500',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user->name = $request->name;
+        $user->username = $request->username;
+        $user->email = $request->email;
+        $user->phone = $request->phone;
+        $user->date_of_birth = $request->date_of_birth;
+        $user->gender = $request->gender;
+        $user->country_id = $request->country_id;
+        $user->institute_id = $request->institute_id;
+        $user->bio = $request->bio;
+        if ($request->hasFile('image')) {
+            $user->image = imageUploadManager($request->file('image'), $request->username, 'users');
+        }
+        $user->save();
+    }
+
+    protected function platformPreferences(Request $request, User $user)
+    {
+        $request->validate([
+            'platforms' => 'required|array',
+            'platforms.*' => 'nullable|string|max:100',
+            'section' => 'required|string|in:profile-platform',
+        ]);
+
+        $platformsInput = $request->input('platforms', []);
+
+        foreach ($platformsInput as $platformId => $handle) {
+            if (empty($handle)) {
+                PlatformProfile::where('user_id', $user->id)
+                    ->where('platform_id', $platformId)
+                    ->delete();
+                continue;
+            }
+            $platform = Platform::find($platformId);
+            if ($platform) {
+                $adapter = match ($platform->name) {
+                    'codeforces' => app(CodeforcesAdapter::class),
+                    'leetcode'   => app(LeetCodeAdapter::class),
+                    'atcoder'    => app(AtCoderAdapter::class),
+                    'codechef'   => app(CodeChefAdapter::class),
+                    'spoj'       => app(SpojAdapter::class),
+                    'hackerrank' => app(HackerRankAdapter::class),
+                    'hackerearth'  => app(HackerEarthAdapter::class),
+                    'uva'        => app(UvaAdapter::class),
+                    'timus'      => app(TimusAdapter::class),
+                    default      => throw new \RuntimeException('Unsupported platform'),
+                };
+
+                PlatformProfile::updateOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'platform_id' => $platform->id,
+                    ],
+                    [
+                        'handle' => $handle,
+                        'profile_url' => $adapter->profileUrl($handle),
+                        'status' => 'Active',
+                    ]
+                );
+            }
         }
     }
 }

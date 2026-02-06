@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name', 50)->unique();
             $table->string('display_name', 100);
             $table->string('base_url')->nullable();
+            $table->string('profile_url')->nullable();
             $table->string('image')->nullable();
             $table->enum('status', ['Active', 'Inactive'])->default('Active');
             $table->timestamps();

@@ -17,47 +17,13 @@ class TimusClient
 
     /**
      * Fetch user profile from Timus
-     * First tries to get ID from handle via status page, then fetches author profile page
+     * First gets user ID by handle, then fetches profile page and extracts stats
      */
     public function fetchProfile(string $handle): array
     {
         try {
-            // First, try to get user info from status page to verify existence
-            $statusUrl = self::BASE_URL . '/status.aspx?author=' . urlencode($handle) . '&count=1';
-
-            $response = Http::timeout(20)
-                ->withHeaders(self::HEADERS)
-                ->get($statusUrl);
-
-            if (!$response->ok()) {
-                throw new \RuntimeException('Timus request failed');
-            }
-
-            $html = $response->body();
-
-            // Check if user exists
-            if (stripos($html, 'status_filter') === false) {
-                throw new \RuntimeException('Timus user not found');
-            }
-
-            // Extract user ID from the author profile link in the page
-            // Look for pattern like: author.aspx?id=19306
-            $userId = null;
-            if (preg_match('/author\.aspx\?id=(\d+)/', $html, $matches)) {
-                $userId = $matches[1];
-            }
-
-            if (!$userId) {
-                // Fallback: use handle as ID if it's numeric
-                if (is_numeric($handle)) {
-                    $userId = $handle;
-                } else {
-                    throw new \RuntimeException('Could not determine user ID');
-                }
-            }
-
-            // Now fetch the author profile page which has all the stats
-            $profileUrl = self::BASE_URL . '/author.aspx?id=' . $userId;
+            // First, get user ID by handle
+            $profileUrl = self::BASE_URL . '/author.aspx?id=' . $handle;
 
             $profileResponse = Http::timeout(20)
                 ->withHeaders(self::HEADERS)
@@ -77,7 +43,7 @@ class TimusClient
             return [
                 'handle' => $handle,
                 'name' => $name,
-                'user_id' => $userId,
+                'user_id' => $handle,
                 'total_solved' => $totalSolved,
                 'rating' => $rating,
                 'profile_url' => $profileUrl,

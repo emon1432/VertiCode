@@ -6,8 +6,8 @@
                 <a href="#profile-info" class="nav-link text-decoration-none active" data-bs-toggle="pill">
                     <i class="bi bi-person"></i> Profile Information
                 </a>
-                <a href="#profile-picture" class="nav-link text-decoration-none" data-bs-toggle="pill">
-                    <i class="bi bi-image"></i> Profile Picture
+                <a href="#profile-platform" class="nav-link text-decoration-none" data-bs-toggle="pill">
+                    <i class="bi bi-laptop"></i> Platform Preferences
                 </a>
                 <a href="#social-links" class="nav-link text-decoration-none" data-bs-toggle="pill">
                     <i class="bi bi-share"></i> Social Links
