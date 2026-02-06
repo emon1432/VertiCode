@@ -193,4 +193,34 @@
             tab.show();
         }
     }
+
+    function logoutSession(sessionId) {
+        const sessionIdInput = document.getElementById('logout_session_id');
+        const logoutMessage = document.getElementById('logoutMessage');
+        const logoutPasswordInput = document.getElementById('logout_password');
+
+        if (sessionIdInput && logoutMessage && logoutPasswordInput) {
+            sessionIdInput.value = sessionId;
+            logoutMessage.textContent = 'Please enter your password to logout from this session.';
+            logoutPasswordInput.value = '';
+            new bootstrap.Modal(document.getElementById('logoutSessionModal')).show();
+        } else {
+            console.error('Modal elements not found');
+        }
+    }
+
+    function logoutAllSessions() {
+        const sessionIdInput = document.getElementById('logout_session_id');
+        const logoutMessage = document.getElementById('logoutMessage');
+        const logoutPasswordInput = document.getElementById('logout_password');
+
+        if (sessionIdInput && logoutMessage && logoutPasswordInput) {
+            sessionIdInput.value = '';
+            logoutMessage.textContent = 'Please enter your password to logout from all other sessions.';
+            logoutPasswordInput.value = '';
+            new bootstrap.Modal(document.getElementById('logoutSessionModal')).show();
+        } else {
+            console.error('Modal elements not found');
+        }
+    }
 </script>

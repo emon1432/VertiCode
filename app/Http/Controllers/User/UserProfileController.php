@@ -8,17 +8,10 @@ use App\Models\Institute;
 use App\Models\Platform;
 use App\Models\PlatformProfile;
 use App\Models\User;
-use App\Platforms\AtCoder\AtCoderAdapter;
-use App\Platforms\CodeChef\CodeChefAdapter;
-use App\Platforms\Codeforces\CodeforcesAdapter;
-use App\Platforms\HackerEarth\HackerEarthAdapter;
-use App\Platforms\HackerRank\HackerRankAdapter;
-use App\Platforms\LeetCode\LeetCodeAdapter;
-use App\Platforms\Spoj\SpojAdapter;
-use App\Platforms\Timus\TimusAdapter;
-use App\Platforms\Uva\UvaAdapter;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Detection\MobileDetect;
 
 class UserProfileController extends Controller
 {
@@ -45,7 +38,8 @@ class UserProfileController extends Controller
         $countries = collect();
         $institutes = collect();
         $platforms = Platform::with('platformProfiles')->orderBy('name')->get();
-        return view('user.pages.profile.edit', compact('user', 'countries', 'institutes', 'platforms'));
+        $sessions = $this->getActiveSessions($user);
+        return view('user.pages.profile.edit', compact('user', 'countries', 'institutes', 'platforms', 'sessions'));
     }
 
     public function update(Request $request, $username)
@@ -70,6 +64,9 @@ class UserProfileController extends Controller
                 switch ($request->input('sub-section')) {
                     case 'changePasswordCollapse':
                         $return = $this->changePassword($request, $user);
+                        break;
+                    case 'activeSessionsCollapse':
+                        $return = $this->logoutOtherSessions($request, $user);
                         break;
                     default:
                         abort(400, 'Invalid sub-section.');
@@ -303,5 +300,135 @@ class UserProfileController extends Controller
         return redirect(
             route('user.profile.edit', $user->username) . '#' . $request->section
         )->with('success', 'Password Update Successfully!');
+    }
+
+    protected function getActiveSessions(User $user)
+    {
+        if (config('session.driver') !== 'database') {
+            return collect();
+        }
+
+        return DB::table('sessions')
+            ->where('user_id', $user->id)
+            ->orderBy('last_activity', 'desc')
+            ->get()
+            ->map(function ($session) {
+                $detect = new MobileDetect();
+                $detect->setUserAgent($session->user_agent);
+
+                return (object) [
+                    'id' => $session->id,
+                    'ip_address' => $session->ip_address,
+                    'is_current_device' => $session->id === session()->getId(),
+                    'device' => $this->getDeviceInfo($detect, $session->user_agent),
+                    'browser' => $this->getBrowserInfo($session->user_agent),
+                    'last_active' => now()->createFromTimestamp($session->last_activity),
+                ];
+            });
+    }
+
+    protected function getDeviceInfo(MobileDetect $detect, $userAgent)
+    {
+        if ($detect->isTablet()) {
+            return [
+                'type' => 'tablet',
+                'icon' => 'bi-tablet',
+                'name' => 'Tablet'
+            ];
+        } elseif ($detect->isMobile()) {
+            return [
+                'type' => 'mobile',
+                'icon' => 'bi-phone',
+                'name' => 'Mobile Phone'
+            ];
+        }
+
+        // Desktop
+        $platform = $this->getPlatformInfo($userAgent);
+        return [
+            'type' => 'desktop',
+            'icon' => 'bi-laptop',
+            'name' => $platform . ' Computer'
+        ];
+    }
+
+    protected function getPlatformInfo($userAgent)
+    {
+        if (preg_match('/Windows/i', $userAgent)) {
+            return 'Windows';
+        } elseif (preg_match('/Mac OS X/i', $userAgent)) {
+            return 'macOS';
+        } elseif (preg_match('/Linux/i', $userAgent)) {
+            return 'Linux';
+        } elseif (preg_match('/Android/i', $userAgent)) {
+            return 'Android';
+        } elseif (preg_match('/iOS/i', $userAgent)) {
+            return 'iOS';
+        }
+        return 'Unknown';
+    }
+
+    protected function getBrowserInfo($userAgent)
+    {
+        if (preg_match('/Edg/i', $userAgent)) {
+            return 'Microsoft Edge';
+        } elseif (preg_match('/Chrome/i', $userAgent)) {
+            return 'Google Chrome';
+        } elseif (preg_match('/Firefox/i', $userAgent)) {
+            return 'Mozilla Firefox';
+        } elseif (preg_match('/Safari/i', $userAgent) && !preg_match('/Chrome/i', $userAgent)) {
+            return 'Safari';
+        } elseif (preg_match('/Opera|OPR/i', $userAgent)) {
+            return 'Opera';
+        } elseif (preg_match('/MSIE|Trident/i', $userAgent)) {
+            return 'Internet Explorer';
+        }
+        return 'Unknown Browser';
+    }
+
+    protected function logoutOtherSessions(Request $request, User $user)
+    {
+        $validate = validator($request->all(), [
+            'password' => 'required|string',
+            'session_id' => 'nullable|string',
+        ]);
+
+        if ($validate->fails()) {
+            return redirect(
+                route('user.profile.edit', $user->username) . '#' . $request->section
+            )->withErrors($validate)
+                ->withInput()
+                ->with('sub-section', $request->input('sub-section'));
+        }
+
+        if (!password_verify($request->password, $user->password)) {
+            return redirect(
+                route('user.profile.edit', $user->username) . '#' . $request->section
+            )->withErrors(['password' => 'Password is incorrect'])
+                ->withInput()
+                ->with('sub-section', $request->input('sub-section'));
+        }
+
+        if ($request->session_id) {
+            // Logout specific session
+            DB::table('sessions')
+                ->where('user_id', $user->id)
+                ->where('id', $request->session_id)
+                ->delete();
+
+            $message = 'Session logged out successfully!';
+        } else {
+            // Logout all other sessions
+            DB::table('sessions')
+                ->where('user_id', $user->id)
+                ->where('id', '!=', session()->getId())
+                ->delete();
+
+            $message = 'All other sessions logged out successfully!';
+        }
+
+        return redirect(
+            route('user.profile.edit', $user->username) . '#' . $request->section
+        )->with('success', $message);
     }
 }
