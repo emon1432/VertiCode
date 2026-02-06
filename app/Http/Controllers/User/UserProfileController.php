@@ -27,8 +27,8 @@ class UserProfileController extends Controller
         $user = User::where('username', $username)
             ->with('platformProfiles.platform')
             ->firstOrFail();
-
-        return view('user.pages.profile.show', compact('user'));
+        $platforms = Platform::with('platformProfiles')->orderBy('name')->get();
+        return view('user.pages.profile.show', compact('user', 'platforms'));
     }
 
     public function edit(Request $request, $username)

@@ -2,13 +2,23 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     $(document).ready(function() {
+        activateTabFromHash();
+
+        $('.nav-link[data-bs-toggle="pill"]').on('shown.bs.tab', function(e) {
+            const hash = e.target.getAttribute('href');
+            history.replaceState(null, '', hash);
+        });
+
+        $(window).on('hashchange', function() {
+            activateTabFromHash();
+        });
+
         $('.select2').select2();
-        // select2-search__field always focus
+
         $(document).on('select2:open', () => {
             document.querySelector('.select2-search__field').focus();
         });
 
-        // Initialize Select2 for country and institute selects with pagination
         $('.select2-ajax').select2({
             placeholder: 'Search and select...',
             allowClear: true,
@@ -66,7 +76,6 @@
             minimumInputLength: 0
         });
 
-        // Handle add institute form submission
         $('#addInstituteForm').on('submit', function(e) {
             e.preventDefault();
 
@@ -152,6 +161,18 @@
         const characterCountSpan = document.getElementById('bio-character-count');
         if (characterCountSpan) {
             characterCountSpan.textContent = event.target.value.length;
+        }
+    }
+
+    function activateTabFromHash() {
+        const hash = window.location.hash;
+        if (!hash) return;
+
+        const $trigger = $(`.nav-link[data-bs-toggle="pill"][href="${hash}"]`);
+
+        if ($trigger.length && typeof bootstrap !== 'undefined') {
+            const tab = new bootstrap.Tab($trigger[0]);
+            tab.show();
         }
     }
 </script>
