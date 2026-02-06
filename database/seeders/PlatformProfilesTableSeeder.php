@@ -31,8 +31,8 @@ class PlatformProfilesTableSeeder extends Seeder
                 'profile_url' => 'https://atcoder.jp/users/e_mon',
                 'status' => 'Active',
                 'last_synced_at' => NULL,
-                'created_at' => '2026-02-06 08:13:20',
-                'updated_at' => '2026-02-06 08:13:20',
+                'created_at' => '2026-02-06 11:27:33',
+                'updated_at' => '2026-02-06 11:27:33',
             ),
             1 => 
             array (
@@ -46,8 +46,8 @@ class PlatformProfilesTableSeeder extends Seeder
                 'profile_url' => 'https://www.codechef.com/users/e_mon',
                 'status' => 'Active',
                 'last_synced_at' => NULL,
-                'created_at' => '2026-02-06 08:13:20',
-                'updated_at' => '2026-02-06 08:13:20',
+                'created_at' => '2026-02-06 11:27:33',
+                'updated_at' => '2026-02-06 11:27:33',
             ),
             2 => 
             array (
@@ -61,8 +61,8 @@ class PlatformProfilesTableSeeder extends Seeder
                 'profile_url' => 'https://codeforces.com/profile/emon_mon',
                 'status' => 'Active',
                 'last_synced_at' => NULL,
-                'created_at' => '2026-02-06 08:13:20',
-                'updated_at' => '2026-02-06 08:13:20',
+                'created_at' => '2026-02-06 11:27:33',
+                'updated_at' => '2026-02-06 11:27:33',
             ),
             3 => 
             array (
@@ -73,11 +73,11 @@ class PlatformProfilesTableSeeder extends Seeder
                 'rating' => NULL,
                 'total_solved' => 0,
                 'raw' => NULL,
-                'profile_url' => 'https://www.hackerearth.com/@e_mon/',
+                'profile_url' => 'https://www.hackerearth.com/@e_mon',
                 'status' => 'Active',
                 'last_synced_at' => NULL,
-                'created_at' => '2026-02-06 08:13:20',
-                'updated_at' => '2026-02-06 08:13:20',
+                'created_at' => '2026-02-06 11:27:33',
+                'updated_at' => '2026-02-06 11:27:33',
             ),
             4 => 
             array (
@@ -91,8 +91,8 @@ class PlatformProfilesTableSeeder extends Seeder
                 'profile_url' => 'https://www.hackerrank.com/profile/e_mon',
                 'status' => 'Active',
                 'last_synced_at' => NULL,
-                'created_at' => '2026-02-06 08:13:20',
-                'updated_at' => '2026-02-06 08:13:20',
+                'created_at' => '2026-02-06 11:27:33',
+                'updated_at' => '2026-02-06 11:27:33',
             ),
             5 => 
             array (
@@ -103,11 +103,11 @@ class PlatformProfilesTableSeeder extends Seeder
                 'rating' => NULL,
                 'total_solved' => 0,
                 'raw' => NULL,
-                'profile_url' => 'https://leetcode.com/u/emon1432/',
+                'profile_url' => 'https://leetcode.com/u/emon1432',
                 'status' => 'Active',
                 'last_synced_at' => NULL,
-                'created_at' => '2026-02-06 08:13:20',
-                'updated_at' => '2026-02-06 08:13:20',
+                'created_at' => '2026-02-06 11:27:33',
+                'updated_at' => '2026-02-06 11:27:33',
             ),
             6 => 
             array (
@@ -118,11 +118,11 @@ class PlatformProfilesTableSeeder extends Seeder
                 'rating' => NULL,
                 'total_solved' => 0,
                 'raw' => NULL,
-                'profile_url' => 'https://www.spoj.com/users/e_mon/',
+                'profile_url' => 'https://www.spoj.com/users/e_mon',
                 'status' => 'Active',
                 'last_synced_at' => NULL,
-                'created_at' => '2026-02-06 08:13:20',
-                'updated_at' => '2026-02-06 08:13:20',
+                'created_at' => '2026-02-06 11:27:33',
+                'updated_at' => '2026-02-06 11:27:33',
             ),
             7 => 
             array (
@@ -133,26 +133,26 @@ class PlatformProfilesTableSeeder extends Seeder
                 'rating' => NULL,
                 'total_solved' => 0,
                 'raw' => NULL,
-                'profile_url' => 'http://acm.timus.ru/author.aspx?id=405359',
+                'profile_url' => 'https://acm.timus.ru/author.aspx?id=405359',
                 'status' => 'Active',
                 'last_synced_at' => NULL,
-                'created_at' => '2026-02-06 08:13:20',
-                'updated_at' => '2026-02-06 08:13:20',
+                'created_at' => '2026-02-06 11:27:33',
+                'updated_at' => '2026-02-06 11:27:33',
             ),
             8 => 
             array (
                 'id' => 9,
                 'user_id' => 2,
                 'platform_id' => 8,
-                'handle' => 'emon_mon',
+                'handle' => '1135924',
                 'rating' => NULL,
                 'total_solved' => 0,
                 'raw' => NULL,
-                'profile_url' => 'https://uhunt.onlinejudge.org/id/emon_mon',
+                'profile_url' => 'https://uhunt.onlinejudge.org/id/1135924',
                 'status' => 'Active',
                 'last_synced_at' => NULL,
-                'created_at' => '2026-02-06 08:13:20',
-                'updated_at' => '2026-02-06 08:13:20',
+                'created_at' => '2026-02-06 11:27:33',
+                'updated_at' => '2026-02-06 11:27:33',
             ),
         ));
         

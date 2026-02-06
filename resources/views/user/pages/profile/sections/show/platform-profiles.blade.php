@@ -88,9 +88,9 @@
                                         </a>
                                     @endif
                                     @if ($profile)
-                                        <a href="{{ $profile->profile_url }}" target="_blank"
-                                            title="Edit Platform Profiles" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-pencil-square me-1"></i>
+                                        <a href="{{ $profile->profile_url }}" target="_blank" title="View Profile"
+                                            class="btn btn-sm btn-primary">
+                                            <i class="bi bi-box-arrow-up-right me-1"></i>
                                         </a>
                                     @endif
                                 </td>

@@ -11,40 +11,18 @@ class UvaClient
     private const UVA_URL = 'https://uva.onlinejudge.org';
 
     /**
-     * Convert username to UVa ID
-     */
-    public function getUserId(string $handle): string
-    {
-        $response = Http::timeout(15)->get(self::UHUNT_API . '/uname2uid/' . urlencode($handle));
-
-        if (! $response->ok()) {
-            throw new \RuntimeException('UVa username lookup failed');
-        }
-
-        $userId = trim($response->body());
-
-        if ($userId === '0' || empty($userId)) {
-            throw new \RuntimeException('UVa user not found');
-        }
-
-        return $userId;
-    }
-
-    /**
      * Fetch user profile from UHunt
      */
     public function fetchProfile(string $handle): array
     {
-        $userId = $this->getUserId($handle);
-
         try {
-            $response = Http::timeout(15)->get(self::UHUNT_API . '/userstat/' . $userId);
+            $response = Http::timeout(15)->get(self::UHUNT_API . '/userstat/' . $handle);
 
             if (! $response->ok()) {
                 return [
                     'handle' => $handle,
                     'total_solved' => 0,
-                    'user_id' => $userId,
+                    'user_id' => $handle,
                 ];
             }
 
@@ -52,7 +30,7 @@ class UvaClient
 
             return [
                 'handle' => $handle,
-                'user_id' => $userId,
+                'user_id' => $handle,
                 'total_solved' => $data['solved'] ?? 0,
                 'submissions' => $data['subm'] ?? 0,
                 'rank' => $data['rank'] ?? null,
@@ -63,7 +41,7 @@ class UvaClient
             return [
                 'handle' => $handle,
                 'total_solved' => 0,
-                'user_id' => $userId,
+                'user_id' => $handle,
             ];
         }
     }
@@ -74,9 +52,7 @@ class UvaClient
     public function fetchSubmissions(string $handle): array
     {
         try {
-            $userId = $this->getUserId($handle);
-
-            $response = Http::timeout(30)->get(self::UHUNT_API . '/subs-user/' . $userId);
+            $response = Http::timeout(30)->get(self::UHUNT_API . '/subs-user/' . $handle);
 
             if (! $response->ok()) {
                 throw new \RuntimeException('Failed to fetch UVa submissions');

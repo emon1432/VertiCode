@@ -14,12 +14,12 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-
+        
 
         \DB::table('users')->delete();
-
+        
         \DB::table('users')->insert(array (
-            0 =>
+            0 => 
             array (
                 'id' => 1,
                 'name' => 'Emon Admin',
@@ -32,9 +32,9 @@ class UsersTableSeeder extends Seeder
                 'country_id' => NULL,
                 'institute_id' => NULL,
                 'bio' => NULL,
+                'website' => NULL,
                 'facebook' => NULL,
                 'instagram' => NULL,
-                'website' => NULL,
                 'twitter' => NULL,
                 'github' => NULL,
                 'linkedin' => NULL,
@@ -50,7 +50,7 @@ class UsersTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
-            1 =>
+            1 => 
             array (
                 'id' => 2,
                 'name' => 'Khairul Islam Emon',
@@ -63,12 +63,12 @@ class UsersTableSeeder extends Seeder
                 'country_id' => 19,
                 'institute_id' => 10200,
                 'bio' => 'Assalamu Alaikum',
-                'facebook' => NULL,
-                'instagram' => NULL,
-                'website' => NULL,
-                'twitter' => NULL,
-                'github' => NULL,
-                'linkedin' => NULL,
+                'website' => 'emonideas.com',
+                'facebook' => 'emon143298',
+                'instagram' => 'emon143298',
+                'twitter' => 'emon14321',
+                'github' => 'emon1432',
+                'linkedin' => 'khairul-islam-emon',
                 'email_verified_at' => NULL,
                 'password' => '$2y$12$atEjRCnSoCeKnbOCT6a.p.EWTQ7GzU97eInXEyEp0OHnVd6vH4Dnm',
                 'two_factor_secret' => NULL,
@@ -79,10 +79,10 @@ class UsersTableSeeder extends Seeder
                 'image' => 'uploads/users/khairul-islam-emon1748759077683bf225059ea.jpg',
                 'last_synced_at' => '2026-01-26 12:06:58',
                 'created_at' => NULL,
-                'updated_at' => '2026-02-06 09:49:05',
+                'updated_at' => '2026-02-06 11:55:00',
             ),
         ));
-
-
+        
+        
     }
 }
