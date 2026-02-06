@@ -8,6 +8,7 @@
         <div class="card-body">
             <div class="accordion" id="securityAccordion">
                 @include('user.pages.profile.sections.edit.security-section.change-password')
+                @include('user.pages.profile.sections.edit.security-section.forgot-password')
                 @include('user.pages.profile.sections.edit.security-section.two-factor-authentication')
                 @include('user.pages.profile.sections.edit.security-section.active-sessions')
             </div>

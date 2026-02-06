@@ -15,6 +15,13 @@
                 <a href="#profile-security" class="nav-link text-decoration-none" data-bs-toggle="pill">
                     <i class="bi bi-shield-lock"></i> Security
                 </a>
+                <a href="{{ route('logout') }}" class="nav-link text-decoration-none text-danger"
+                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
             </nav>
         </div>
     </div>
