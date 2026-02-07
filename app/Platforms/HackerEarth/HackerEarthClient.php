@@ -49,7 +49,7 @@ class HackerEarthClient
 
     public function fetchRatingGraph(string $handle): array
     {
-        $url = "{$this->baseUrl}/ratings/AJAX/rating-graph/{$handle}";
+        $url = "{$this->baseUrl}/ratings/AJAX/rating-graph/{$handle}/";
 
         $response = Http::withHeaders([
             'User-Agent' => $this->userAgent,
@@ -318,6 +318,10 @@ class HackerEarthClient
 
     protected function extractStatusText(Crawler $row): string
     {
+        if ($row->filter('td i[title]')->count()) {
+            return (string) $row->filter('td i[title]')->first()->attr('title');
+        }
+
         if ($row->filter('td span[title]')->count()) {
             return (string) $row->filter('td span[title]')->first()->attr('title');
         }

@@ -43,16 +43,19 @@ class TestHackerEarthSync extends Command
             $submissions = $adapter->fetchSubmissions($handle);
             $this->line("   ✓ Total submissions fetched: " . $submissions->count());
 
-            $acceptedCount = $submissions->filter(fn($s) => $s->verdict->value === 'accepted')->count();
-            $this->line("   ✓ Accepted submissions: {$acceptedCount}");
+            $verdictCounts = $submissions->countBy(fn($s) => $s->verdict->value);
+            foreach ($verdictCounts as $verdict => $count) {
+                $this->line("   ✓ {$verdict} submissions: {$count}");
+            }
 
             $uniqueProblems = $submissions->unique(fn($s) => $s->problemId)->count();
-            $this->line("   ✓ Unique problems solved: {$uniqueProblems}");
+            $this->line("   ✓ Unique problems: {$uniqueProblems}");
 
-            if ($submissions->isNotEmpty()) {
+            $acceptedSubmissions = $submissions->filter(fn($s) => $s->verdict->value === 'accepted');
+            if ($acceptedSubmissions->isNotEmpty()) {
                 $this->newLine();
-                $this->line("   First 5 submissions:");
-                foreach ($submissions->take(5) as $sub) {
+                $this->line("   First 5 accepted submissions:");
+                foreach ($acceptedSubmissions->take(5) as $sub) {
                     $this->line("   - [{$sub->verdict->value}] {$sub->problemName}");
                 }
             }

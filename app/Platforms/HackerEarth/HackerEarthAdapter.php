@@ -8,6 +8,7 @@ use App\DataTransferObjects\Platform\SubmissionDTO;
 use App\Enums\Platform;
 use App\Enums\Verdict;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class HackerEarthAdapter implements PlatformAdapter
 {
@@ -51,23 +52,31 @@ class HackerEarthAdapter implements PlatformAdapter
             $submissions = $this->client->fetchSubmissions($handle);
 
             return collect($submissions)
-                ->filter(fn($sub) => ($sub['verdict'] ?? null) === 'AC')
                 ->map(function ($sub) {
                     return new SubmissionDTO(
                         problemId: $sub['problem_id'],
                         problemName: $sub['problem_name'] ?: $sub['problem_id'],
                         difficulty: null,
-                        verdict: Verdict::ACCEPTED,
+                        verdict: $this->mapVerdict($sub['verdict'] ?? 'OTH'),
                         submittedAt: $sub['submitted_at']
                     );
                 });
         } catch (\Exception $e) {
-            // ⚠️ TODO: Fix timeout issue with HackerEarth submissions endpoint
-            // Currently failing with: cURL error 28 (Operation timed out)
-            \Log::warning("HackerEarth submissions fetch failed for {$handle}: " . $e->getMessage());
+            Log::warning("HackerEarth submissions fetch failed for {$handle}: " . $e->getMessage());
 
             // Return empty collection to prevent sync failure
             return collect();
         }
+    }
+
+    private function mapVerdict(string $code): Verdict
+    {
+        return match ($code) {
+            'AC' => Verdict::ACCEPTED,
+            'WA' => Verdict::WRONG,
+            'RE' => Verdict::RUNTIME,
+            'TLE' => Verdict::TLE,
+            default => Verdict::OTHER,
+        };
     }
 }
