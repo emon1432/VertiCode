@@ -20,4 +20,5 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
             });
 
         Route::post('/sync', [SyncController::class, 'sync'])->name('sync');
+        Route::get('/sync-status', [SyncController::class, 'getSyncStatus'])->name('sync.status');
     });
