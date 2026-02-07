@@ -38,7 +38,7 @@
                                         @if (!$session->is_current_device)
                                             <button type="button" class="btn btn-sm btn-outline-danger"
                                                 onclick="logoutSession('{{ $session->id }}')">
-                                                <i class="bi bi-box-arrow-right"></i> Logout {{ $session->id }}
+                                                <i class="bi bi-box-arrow-right"></i> Logout
                                             </button>
                                         @else
                                             <span class="text-muted">—</span>

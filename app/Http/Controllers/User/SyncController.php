@@ -25,9 +25,9 @@ class SyncController extends Controller
         $user = Auth::user();
 
         // Check sync cooldown
-        $cooldownMinutes = config('platforms.sync_cooldown_minutes', 120);
+        $cooldownMinutes = (int) config('platforms.sync_cooldown_minutes', 120);
         if ($user->last_synced_at) {
-            $nextAvailableAt = $user->last_synced_at->addMinutes($cooldownMinutes);
+            $nextAvailableAt = $user->last_synced_at->copy()->addMinutes($cooldownMinutes);
             if (now()->lt($nextAvailableAt)) {
                 $remainingMinutes = now()->diffInMinutes($nextAvailableAt, false);
                 $remainingText = $this->formatCooldownTime(abs($remainingMinutes));
@@ -54,6 +54,9 @@ class SyncController extends Controller
             }
             return back()->with('error', 'No connected platforms to sync yet.');
         }
+
+        // Generate unique sync session ID
+        $syncSessionId = uniqid('sync_', true);
 
         foreach ($profiles as $profile) {
             $adapterClass = match ($profile->platform->name) {
@@ -82,6 +85,7 @@ class SyncController extends Controller
         // 🔥 single source of truth for dashboard
         $user->update([
             'last_synced_at' => now(),
+            'sync_session_id' => $syncSessionId,
         ]);
 
         $message = 'All platforms are syncing. This may take a few moments.';
@@ -89,10 +93,14 @@ class SyncController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => $message,
-                'success' => true
+                'success' => true,
+                'syncSessionId' => $syncSessionId,
+                'totalProfiles' => $profiles->count(),
             ]);
         }
 
+        session(['sync_session_id' => $syncSessionId]);
+        session(['sync_total_profiles' => $profiles->count()]);
         return back()->with('success', $message);
 
     }
@@ -129,7 +137,7 @@ class SyncController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $cooldownMinutes = config('platforms.sync_cooldown_minutes', 120);
+        $cooldownMinutes = (int) config('platforms.sync_cooldown_minutes', 120);
         $canSync = true;
         $remainingSeconds = 0;
         $nextAvailableAt = null;
@@ -149,6 +157,59 @@ class SyncController extends Controller
             'hasActiveProfiles' => $hasActiveProfiles,
             'remainingSeconds' => max(0, $remainingSeconds),
             'nextAvailableAt' => $nextAvailableAt ? $nextAvailableAt->toIso8601String() : null,
+        ]);
+    }
+
+    /**
+     * Get real-time sync progress
+     */
+    public function getSyncProgress(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $syncSessionId = $request->input('syncSessionId') ?? session('sync_session_id');
+        $totalProfiles = $request->input('totalProfiles') ?? session('sync_total_profiles', 0);
+
+        if (!$syncSessionId || $totalProfiles === 0) {
+            return response()->json([
+                'syncing' => false,
+                'completed' => 0,
+                'total' => 0,
+                'progress' => 100,
+                'duration' => 0,
+            ]);
+        }
+
+        // Get sync logs since last_synced_at
+        $syncStartTime = $user->last_synced_at;
+
+        $syncLogs = \App\Models\SyncLog::whereHas('platformProfile', function($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
+        ->where('created_at', '>=', $syncStartTime)
+        ->get();
+
+        $completedCount = $syncLogs->count();
+        $successCount = $syncLogs->where('status', 'success')->count();
+        $failedCount = $syncLogs->where('status', 'failed')->count();
+        $totalDuration = $syncLogs->sum('duration_ms');
+
+        $progress = $totalProfiles > 0 ? round(($completedCount / $totalProfiles) * 100) : 0;
+        $syncing = $completedCount < $totalProfiles;
+
+        // Calculate elapsed time from sync start
+        $elapsedSeconds = $syncStartTime ? now()->diffInSeconds($syncStartTime) : 0;
+
+        return response()->json([
+            'syncing' => $syncing,
+            'completed' => $completedCount,
+            'total' => $totalProfiles,
+            'success' => $successCount,
+            'failed' => $failedCount,
+            'progress' => min($progress, 100),
+            'duration' => $totalDuration, // ms
+            'elapsedSeconds' => $elapsedSeconds,
         ]);
     }
 }
