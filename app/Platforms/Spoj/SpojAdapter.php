@@ -23,34 +23,61 @@ class SpojAdapter implements PlatformAdapter
 
     public function profileUrl(string $handle): string
     {
-        $this->client->fetchProfile($handle);
+        // Don't call fetchProfile here - it may fail due to Cloudflare
+        // Just return the URL format directly
         return "https://www.spoj.com/users/{$handle}/";
     }
 
     public function supportsSubmissions(): bool
     {
-        return true;
+        // Submissions parsing is unreliable due to complex HTML structure
+        // Use profile's total_solved instead (fetched via FlareSolverr)
+        return false;
     }
 
     public function fetchProfile(string $handle): ProfileDTO
     {
-        $profileData = $this->client->fetchProfile($handle);
+        try {
+            $profileData = $this->client->fetchProfile($handle);
 
-        // Build raw data
-        $rawData = [
-            'handle' => $profileData['handle'],
-            'rank' => $profileData['rank'],
-            'join_date' => $profileData['join_date'],
-            'problem_slugs_count' => count($profileData['problem_slugs'] ?? []),
-        ];
+            // Build raw data
+            $rawData = [
+                'handle' => $profileData['handle'],
+                'rank' => $profileData['rank'],
+                'join_date' => $profileData['join_date'],
+                'problem_slugs_count' => count($profileData['problem_slugs'] ?? []),
+            ];
 
-        return new ProfileDTO(
-            platform: Platform::SPOJ,
-            handle: $profileData['handle'],
-            rating: null, // SPOJ has no rating system
-            totalSolved: $profileData['total_solved'],
-            raw: $rawData
-        );
+            return new ProfileDTO(
+                platform: Platform::SPOJ,
+                handle: $profileData['handle'],
+                rating: null, // SPOJ has no rating system
+                totalSolved: $profileData['total_solved'],
+                raw: $rawData
+            );
+        } catch (\Exception $e) {
+            // Cloudflare protection blocking access
+            if (str_contains($e->getMessage(), 'Cloudflare') || str_contains($e->getMessage(), '403')) {
+                Log::warning("SPOJ profile fetch blocked by Cloudflare for {$handle}: {$e->getMessage()}");
+
+                // Return minimal profile to prevent sync failure
+                return new ProfileDTO(
+                    platform: Platform::SPOJ,
+                    handle: $handle,
+                    rating: null,
+                    totalSolved: 0,
+                    raw: [
+                        'handle' => $handle,
+                        'cloudflare_blocked' => true,
+                        'error' => 'SPOJ currently blocks automated requests. Sync unavailable.',
+                        'last_attempt' => now()->toIso8601String(),
+                    ]
+                );
+            }
+
+            // Re-throw other exceptions
+            throw $e;
+        }
     }
 
     public function fetchSubmissions(string $handle): Collection
@@ -78,10 +105,11 @@ class SpojAdapter implements PlatformAdapter
                     );
                 });
         } catch (\Exception $e) {
-            // If Cloudflare challenge fails after retries, use profile total_solved
-            if (str_contains($e->getMessage(), 'Cloudflare challenge')) {
-                Log::warning("SPOJ Cloudflare challenge failed for {$handle}. Using profile total_solved. Error: {$e->getMessage()}");
-                return collect();
+            // If Cloudflare blocks submissions, throw exception
+            // so sync action falls back to profile's total_solved
+            if (str_contains($e->getMessage(), 'Cloudflare') || str_contains($e->getMessage(), '403')) {
+                Log::warning("SPOJ submissions blocked by Cloudflare for {$handle}. Sync will use profile total_solved.");
+                throw new \RuntimeException("SPOJ submissions blocked by Cloudflare - using profile data instead");
             }
 
             Log::error("SPOJ fetchSubmissions failed for {$handle}: {$e->getMessage()}");

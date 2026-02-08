@@ -14,15 +14,12 @@ class SpojClient
     /**
      * Fetch user profile from SPOJ
      * Handles Cloudflare challenge by retrying with longer timeout
+     *
+     * ⚠️ Note: SPOJ uses aggressive Cloudflare protection that may block requests.
+     * This implementation attempts to bypass it but success is not guaranteed.
      */
     public function fetchProfile(string $handle): array
     {
-        if (! app()->environment('production')) {
-            throw new \RuntimeException(
-                'SPOJ sync is disabled outside production due to Cloudflare protection.'
-            );
-        }
-
         $url = self::BASE_URL . '/users/' . urlencode($handle) . '/';
 
         $html = $this->getWithCloudflareHandling($url);
@@ -36,13 +33,30 @@ class SpojClient
             throw new \RuntimeException('SPOJ user not found');
         }
 
-        // Extract problems solved
-        preg_match('/Problems\s+solved:\s*(\d+)/i', $html, $solvedMatch);
-        $totalSolved = (int) ($solvedMatch[1] ?? 0);
+        // Parse HTML with Crawler for reliable data extraction
+        $crawler = new Crawler($html);
 
-        // Extract rank
-        preg_match('/Rank:\s*(\d+)/i', $html, $rankMatch);
-        $rank = isset($rankMatch[1]) ? (int) $rankMatch[1] : null;
+        // Extract problems solved from <dt>Problems solved</dt><dd>727</dd> structure
+        $totalSolved = 0;
+        try {
+            $crawler->filter('dt')->each(function (Crawler $dt) use (&$totalSolved) {
+                $text = trim(strip_tags($dt->html())); // Remove HTML tags and &nbsp;
+                if (stripos($text, 'Problems solved') !== false) {
+                    $dd = $dt->nextAll()->filter('dd')->first();
+                    if ($dd->count() > 0) {
+                        $totalSolved = (int) trim($dd->text());
+                    }
+                }
+            });
+        } catch (\Exception $e) {
+            Log::warning("SPOJ: Failed to parse problems solved: {$e->getMessage()}");
+        }
+
+        // Extract rank - try both regex and DOM parsing
+        $rank = null;
+        if (preg_match('/Rank:\s*(\d+)/i', $html, $rankMatch)) {
+            $rank = (int) $rankMatch[1];
+        }
 
         // Extract join date
         $joinDate = null;
@@ -63,73 +77,98 @@ class SpojClient
     }
 
     /**
-     * Get content handling Cloudflare challenge
-     * Retries with delays if Cloudflare challenge is detected
+     * Get content with Cloudflare bypass support
+     *
+     * Tries FlareSolverr first (if available), falls back to direct HTTP
      */
-    private function getWithCloudflareHandling(string $url, int $maxRetries = 3): string
+    private function getWithCloudflareHandling(string $url, int $maxRetries = 1): string
     {
-        $headers = [
-            'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language' => 'en-US,en;q=0.9',
-            'Accept-Encoding' => 'gzip, deflate, br',
-            'Connection' => 'keep-alive',
-            'Upgrade-Insecure-Requests' => '1',
-            'Sec-Fetch-Dest' => 'document',
-            'Sec-Fetch-Mode' => 'navigate',
-            'Sec-Fetch-Site' => 'none',
-            'Cache-Control' => 'max-age=0',
-        ];
+        // Try FlareSolverr first if configured
+        $flareSolverrUrl = config('platforms.flaresolverr_url');
 
+        if ($flareSolverrUrl) {
+            try {
+                Log::info("SPOJ: Attempting FlareSolverr bypass for {$url}");
+                return $this->getViaFlareSolverr($url, $flareSolverrUrl);
+            } catch (\Exception $e) {
+                Log::warning("SPOJ: FlareSolverr failed ({$e->getMessage()}), falling back to direct HTTP");
+            }
+        }
+
+        // Fallback: Direct HTTP request (will likely be blocked)
         for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
             try {
-                $response = Http::withHeaders($headers)
-                    ->timeout(60)   // increased from 30s
-                    ->retry(2, 2000) // 2 retries, 2s backoff
-                    ->get($url);
+                $response = Http::withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language' => 'en-US,en;q=0.9',
+                ])
+                ->timeout(15)
+                ->get($url);
 
-                if (!$response->ok()) {
-                    if ($response->status() === 403) {
-                        throw new \RuntimeException('SPOJ returned 403 Forbidden');
-                    }
-                    throw new \RuntimeException('SPOJ request failed (HTTP ' . $response->status() . ')');
+                if (!$response->successful()) {
+                    throw new \RuntimeException('HTTP ' . $response->status() . ' - Cloudflare protection blocking access');
                 }
 
                 $html = $response->body();
 
-                // Check if we got Cloudflare challenge page
-                if (
-                    str_contains($html, 'Just a moment') ||
-                    str_contains($html, 'Checking your browser') ||
-                    str_contains($html, 'ray ID')
-                ) {
-
-                    if ($attempt < $maxRetries) {
-                        // Cloudflare challenge detected, wait and retry
-                        $waitTime = 5 + ($attempt * 2); // 7, 9, 11 seconds
-                        Log::info("SPOJ Cloudflare challenge detected, waiting {$waitTime} seconds before retry {$attempt}/{$maxRetries}");
-                        sleep($waitTime);
-                        continue;
-                    } else {
-                        throw new \RuntimeException(
-                            'SPOJ Cloudflare challenge could not be bypassed after ' . $maxRetries . ' attempts. ' .
-                                'This typically works after a few retries. Try again in a moment.'
-                        );
-                    }
+                // Check if Cloudflare challenge page
+                if (str_contains($html, 'Just a moment') || str_contains($html, '_cf_chl_opt')) {
+                    throw new \RuntimeException('Cloudflare challenge page detected - automated access blocked');
                 }
 
-                // Got valid content
                 return $html;
-            } catch (\Illuminate\Http\Client\RequestException $e) {
+
+            } catch (\Exception $e) {
                 if ($attempt >= $maxRetries) {
-                    throw $e;
+                    throw new \RuntimeException(
+                        'SPOJ profile unavailable: ' . $e->getMessage() . '. ' .
+                        'SPOJ uses Cloudflare protection that blocks automated requests. ' .
+                        ($flareSolverrUrl ? 'FlareSolverr also failed. ' : 'Install FlareSolverr to bypass. ') .
+                        'This is a known limitation.'
+                    );
                 }
-                // Wait before retry
-                sleep(3 + ($attempt * 2));
+                sleep(2);
             }
         }
 
-        throw new \RuntimeException('Failed to fetch SPOJ content after ' . $maxRetries . ' attempts');
+        throw new \RuntimeException('Failed to fetch SPOJ content');
+    }
+
+    /**
+     * Fetch content via FlareSolverr proxy
+     */
+    private function getViaFlareSolverr(string $url, string $flareSolverrUrl): string
+    {
+        $response = Http::timeout(60)->post($flareSolverrUrl . '/v1', [
+            'cmd' => 'request.get',
+            'url' => $url,
+            'maxTimeout' => 60000,
+        ]);
+
+        if (!$response->successful()) {
+            throw new \RuntimeException('FlareSolverr request failed: HTTP ' . $response->status());
+        }
+
+        $data = $response->json();
+
+        if (($data['status'] ?? '') !== 'ok') {
+            throw new \RuntimeException('FlareSolverr error: ' . ($data['message'] ?? 'Unknown error'));
+        }
+
+        $html = $data['solution']['response'] ?? '';
+
+        if (empty($html)) {
+            throw new \RuntimeException('FlareSolverr returned empty response');
+        }
+
+        // Verify we got actual content, not Cloudflare page
+        if (str_contains($html, 'Just a moment') || str_contains($html, '_cf_chl_opt')) {
+            throw new \RuntimeException('FlareSolverr still returned Cloudflare challenge page');
+        }
+
+        Log::info("SPOJ: Successfully fetched via FlareSolverr");
+        return $html;
     }
 
     /**

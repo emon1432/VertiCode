@@ -33,7 +33,12 @@ class TestSpojSync extends Command
             $this->line("   ✓ Rank: " . ($profile->raw['rank'] ?? 'Unranked'));
             $this->line("   ✓ Total Solved: {$profile->totalSolved}");
             $this->line("   ✓ Join Date: " . ($profile->raw['join_date'] ?? 'N/A'));
-            $this->line("   ✓ Problem Categories: {$profile->raw['problem_slugs_count']}");
+
+            if (isset($profile->raw['cloudflare_blocked'])) {
+                $this->warn("   ⚠ Cloudflare Protection: " . ($profile->raw['error'] ?? 'Access blocked'));
+            } else {
+                $this->line("   ✓ Problem Categories: " . ($profile->raw['problem_slugs_count'] ?? 0));
+            }
             $this->newLine();
 
             $this->info('2. Submissions:');

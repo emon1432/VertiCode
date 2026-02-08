@@ -4,6 +4,10 @@ return [
     // Sync cooldown in minutes (default: 120 minutes = 2 hours)
     'sync_cooldown_minutes' => env('SYNC_COOLDOWN_MINUTES', 120),
 
+    // FlareSolverr URL for bypassing Cloudflare (used by SPOJ)
+    // Run: docker run -d -p 8191:8191 --name=flaresolverr ghcr.io/flaresolverr/flaresolverr:latest
+    'flaresolverr_url' => env('FLARESOLVERR_URL', null),
+
     'hackerearth' => [
         'supports_rating' => true,
         'supports_solved' => true,

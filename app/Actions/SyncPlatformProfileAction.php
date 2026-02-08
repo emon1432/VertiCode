@@ -6,6 +6,7 @@ use App\Contracts\Platforms\PlatformAdapter;
 use App\Models\PlatformProfile;
 use App\Models\SyncLog;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class SyncPlatformProfileAction
@@ -32,11 +33,20 @@ class SyncPlatformProfileAction
 
                 // 3. Determine total solved
                 if ($adapter->supportsSubmissions()) {
-                    $submissions = $adapter->fetchSubmissions($platformProfile->handle);
+                    try {
+                        $submissions = $adapter->fetchSubmissions($platformProfile->handle);
 
-                    $totalSolved = $submissions
-                        ->unique(fn($sub) => $sub->problemId)
-                        ->count();
+                        $totalSolved = $submissions
+                            ->unique(fn($sub) => $sub->problemId)
+                            ->count();
+
+                        Log::info("Sync: Counted {$totalSolved} unique problems from " . $submissions->count() . " submissions for {$platformProfile->handle}");
+                    } catch (\Exception $e) {
+                        // If submissions fetch fails (e.g., Cloudflare blocks SPOJ),
+                        // fall back to profile's total_solved count
+                        Log::warning("Sync: Submissions fetch failed for {$platformProfile->handle}, using profile total_solved: {$profileDto->totalSolved}");
+                        $totalSolved = $profileDto->totalSolved;
+                    }
                 } else {
                     // 🔥 IMPORTANT: trust profile DTO
                     $totalSolved = $profileDto->totalSolved;
