@@ -16,7 +16,7 @@ class UvaClient
     public function fetchProfile(string $handle): array
     {
         try {
-            $response = Http::timeout(15)->get(self::UHUNT_API . '/userstat/' . $handle);
+            $response = Http::withoutVerifying()->timeout(15)->get(self::UHUNT_API . '/userstat/' . $handle);
 
             if (! $response->ok()) {
                 return [
@@ -52,7 +52,7 @@ class UvaClient
     public function fetchSubmissions(string $handle): array
     {
         try {
-            $response = Http::timeout(30)->get(self::UHUNT_API . '/subs-user/' . $handle);
+            $response = Http::withoutVerifying()->timeout(30)->get(self::UHUNT_API . '/subs-user/' . $handle);
 
             if (! $response->ok()) {
                 throw new \RuntimeException('Failed to fetch UVa submissions');
@@ -72,7 +72,7 @@ class UvaClient
     public function fetchProblems(): array
     {
         try {
-            $response = Http::timeout(30)->get(self::UHUNT_API . '/p');
+            $response = Http::withoutVerifying()->timeout(30)->get(self::UHUNT_API . '/p');
 
             if (! $response->ok()) {
                 return [];
