@@ -29,7 +29,8 @@ class TimusAdapter implements PlatformAdapter
 
     public function supportsSubmissions(): bool
     {
-        return true;
+        // TIMUS profile page provides authoritative solved count; pagination can miss older submissions.
+        return false;
     }
 
     public function fetchProfile(string $handle): ProfileDTO
