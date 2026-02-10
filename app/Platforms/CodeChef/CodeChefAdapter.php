@@ -2,12 +2,14 @@
 
 namespace App\Platforms\CodeChef;
 
+use App\Contracts\Platforms\ContestSyncAdapter;
 use App\Contracts\Platforms\PlatformAdapter;
+use App\Contracts\Platforms\ProblemSyncAdapter;
 use App\DataTransferObjects\Platform\ProfileDTO;
 use App\Enums\Platform;
 use Illuminate\Support\Collection;
 
-class CodeChefAdapter implements PlatformAdapter
+class CodeChefAdapter implements PlatformAdapter, ContestSyncAdapter, ProblemSyncAdapter
 {
     public function __construct(
         protected CodeChefClient $client
@@ -74,6 +76,26 @@ class CodeChefAdapter implements PlatformAdapter
         // 3. Paginated API requests
         // 4. Rate limiting
         // For now, returning empty collection and relying on profile total_solved
+        return collect();
+    }
+
+    public function supportsContests(): bool
+    {
+        return false;
+    }
+
+    public function fetchContests(int $limit = 100): Collection
+    {
+        return collect();
+    }
+
+    public function supportsProblems(): bool
+    {
+        return false;
+    }
+
+    public function fetchProblems(int $limit = 500, ?string $contestId = null): Collection
+    {
         return collect();
     }
 }

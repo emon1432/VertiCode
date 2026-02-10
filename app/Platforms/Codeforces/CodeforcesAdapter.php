@@ -2,16 +2,22 @@
 
 namespace App\Platforms\Codeforces;
 
+use App\Contracts\Platforms\ContestSyncAdapter;
 use App\Contracts\Platforms\PlatformAdapter;
+use App\Contracts\Platforms\ProblemSyncAdapter;
+use App\DataTransferObjects\Platform\ContestDTO;
+use App\DataTransferObjects\Platform\ProblemDTO;
 use App\DataTransferObjects\Platform\ProfileDTO;
 use App\DataTransferObjects\Platform\SubmissionDTO;
+use App\Enums\ContestType;
+use App\Enums\Difficulty;
 use App\Enums\Platform;
 use App\Enums\Verdict;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
-class CodeforcesAdapter implements PlatformAdapter
+class CodeforcesAdapter implements PlatformAdapter, ContestSyncAdapter, ProblemSyncAdapter
 {
     public function __construct(
         protected CodeforcesClient $client
@@ -138,5 +144,130 @@ class CodeforcesAdapter implements PlatformAdapter
 
         // Reverse to get chronological order (scraping returns newest first)
         return array_reverse($graphData);
+    }
+
+    public function supportsContests(): bool
+    {
+        return true;
+    }
+
+    public function fetchContests(int $limit = 100): Collection
+    {
+        try {
+            $contests = $this->client->fetchContestList();
+
+            return collect($contests)
+                ->take($limit)
+                ->map(function ($contest) {
+                    $contestId = (string) $contest['id'];
+                    $startTime = isset($contest['startTimeSeconds'])
+                        ? CarbonImmutable::createFromTimestamp($contest['startTimeSeconds'])
+                        : null;
+
+                    $durationSeconds = $contest['durationSeconds'] ?? null;
+                    $endTime = $startTime && $durationSeconds
+                        ? $startTime->addSeconds($durationSeconds)
+                        : null;
+
+                    // Determine contest type based on CF data
+                    $type = match($contest['type'] ?? 'CF') {
+                        'CF' => ContestType::CONTEST,
+                        'ICPC' => ContestType::CONTEST,
+                        'IOI' => ContestType::CONTEST,
+                        default => ContestType::PRACTICE,
+                    };
+
+                    return new ContestDTO(
+                        platform: Platform::CODEFORCES,
+                        platformContestId: $contestId,
+                        name: $contest['name'],
+                        slug: 'contest-' . $contestId,
+                        description: null,
+                        type: $type,
+                        phase: strtolower($contest['phase'] ?? 'finished'),
+                        durationSeconds: $durationSeconds,
+                        startTime: $startTime,
+                        endTime: $endTime,
+                        url: "https://codeforces.com/contest/{$contestId}",
+                        participantCount: null,
+                        isRated: str_contains($contest['name'], 'Rated') || ($contest['phase'] ?? '') === 'FINISHED',
+                        tags: [],
+                        raw: $contest
+                    );
+                });
+        } catch (\Exception $e) {
+            Log::error("Codeforces fetchContests failed: {$e->getMessage()}");
+            return collect();
+        }
+    }
+
+    public function supportsProblems(): bool
+    {
+        return true;
+    }
+
+    public function fetchProblems(int $limit = 500, ?string $contestId = null): Collection
+    {
+        try {
+            // Use the existing fetchProblemTags which already calls problemset.problems API
+            $problemTagsMap = $this->client->fetchProblemTags();
+
+            return collect($problemTagsMap)
+                ->map(function ($data, $problemId) use ($contestId) {
+                    // Extract contestId and index from problemId (e.g., "1000A" -> contest=1000, index="A")
+                    preg_match('/^(\d+)([A-Z]\d*)$/', $problemId, $matches);
+                    if (count($matches) < 3) {
+                        return null;
+                    }
+
+                    $cfContestId = $matches[1];
+                    $index = $matches[2];
+
+                    // Filter by contestId if specified
+                    if ($contestId && $cfContestId != $contestId) {
+                        return null;
+                    }
+
+                    // Map rating to difficulty
+                    $rating = $data['rating'] ?? null;
+                    $difficulty = match(true) {
+                        $rating === null => Difficulty::UNKNOWN,
+                        $rating < 1200 => Difficulty::EASY,
+                        $rating < 1800 => Difficulty::MEDIUM,
+                        default => Difficulty::HARD,
+                    };
+
+                    return new ProblemDTO(
+                        platform: Platform::CODEFORCES,
+                        platformProblemId: $problemId,
+                        name: $data['name'] ?? 'Problem ' . $index,
+                        slug: 'problem-' . $problemId,
+                        code: $index,
+                        description: null,
+                        difficulty: $difficulty,
+                        rating: $rating,
+                        points: null,
+                        accuracy: null,
+                        timeLimitMs: null,
+                        memoryLimitMb: null,
+                        totalSubmissions: 0,
+                        acceptedSubmissions: 0,
+                        solvedCount: 0,
+                        tags: $data['tags'] ?? [],
+                        topics: [],
+                        url: "https://codeforces.com/problemset/problem/{$cfContestId}/{$index}",
+                        editorialUrl: null,
+                        contestId: (string) $cfContestId,
+                        isPremium: false,
+                        raw: $data
+                    );
+                })
+                ->filter()
+                ->take($limit)
+                ->values();
+        } catch (\Exception $e) {
+            Log::error("Codeforces fetchProblems failed: {$e->getMessage()}");
+            return collect();
+        }
     }
 }

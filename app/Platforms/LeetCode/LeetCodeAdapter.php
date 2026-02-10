@@ -2,12 +2,14 @@
 
 namespace App\Platforms\LeetCode;
 
+use App\Contracts\Platforms\ContestSyncAdapter;
 use App\Contracts\Platforms\PlatformAdapter;
+use App\Contracts\Platforms\ProblemSyncAdapter;
 use App\DataTransferObjects\Platform\ProfileDTO;
 use App\Enums\Platform;
 use Illuminate\Support\Collection;
 
-class LeetCodeAdapter implements PlatformAdapter
+class LeetCodeAdapter implements PlatformAdapter, ContestSyncAdapter, ProblemSyncAdapter
 {
     public function __construct(
         protected LeetCodeClient $client
@@ -80,6 +82,32 @@ class LeetCodeAdapter implements PlatformAdapter
         // LeetCode API doesn't provide comprehensive submission history
         // Only recent 20 AC submissions are available, which is too limited
         // for tracking unique problems solved over time
+        return collect();
+    }
+
+    public function supportsContests(): bool
+    {
+        // LeetCode has contests but they don't provide a public API
+        // They have weekly/biweekly contests but no easy way to fetch them
+        return false;
+    }
+
+    public function fetchContests(int $limit = 100): Collection
+    {
+        // Not implemented - LeetCode doesn't provide contest API
+        return collect();
+    }
+
+    public function supportsProblems(): bool
+    {
+        // LeetCode has problems but GraphQL API access is limited
+        // We can try to implement basic problem fetching
+        return false;
+    }
+
+    public function fetchProblems(int $limit = 500, ?string $contestId = null): Collection
+    {
+        // Not implemented - would require scraping or GraphQL with authentication
         return collect();
     }
 }

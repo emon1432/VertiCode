@@ -2,7 +2,9 @@
 
 namespace App\Platforms\HackerRank;
 
+use App\Contracts\Platforms\ContestSyncAdapter;
 use App\Contracts\Platforms\PlatformAdapter;
+use App\Contracts\Platforms\ProblemSyncAdapter;
 use App\DataTransferObjects\Platform\ProfileDTO;
 use App\DataTransferObjects\Platform\SubmissionDTO;
 use App\Enums\Platform;
@@ -10,7 +12,7 @@ use App\Enums\Verdict;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
-class HackerRankAdapter implements PlatformAdapter
+class HackerRankAdapter implements PlatformAdapter, ContestSyncAdapter, ProblemSyncAdapter
 {
     public function __construct(
         protected HackerRankClient $client
@@ -75,5 +77,25 @@ class HackerRankAdapter implements PlatformAdapter
                 ]
             );
         });
+    }
+
+    public function supportsContests(): bool
+    {
+        return false;
+    }
+
+    public function fetchContests(int $limit = 100): Collection
+    {
+        return collect();
+    }
+
+    public function supportsProblems(): bool
+    {
+        return false;
+    }
+
+    public function fetchProblems(int $limit = 500, ?string $contestId = null): Collection
+    {
+        return collect();
     }
 }

@@ -19,6 +19,10 @@ return new class extends Migration
             $table->string('profile_url')->nullable();
             $table->string('image')->nullable();
             $table->enum('status', ['Active', 'Inactive'])->default('Active');
+            $table->dateTime('last_contest_sync_at')->nullable()->comment('Last time contests were synced');
+            $table->dateTime('last_problem_sync_at')->nullable()->comment('Last time problems were synced');
+            $table->integer('contest_sync_count')->default(0)->comment('Total contests synced');
+            $table->integer('problem_sync_count')->default(0)->comment('Total problems synced');
             $table->timestamps();
         });
     }

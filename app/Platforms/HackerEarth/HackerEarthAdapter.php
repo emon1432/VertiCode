@@ -2,7 +2,9 @@
 
 namespace App\Platforms\HackerEarth;
 
+use App\Contracts\Platforms\ContestSyncAdapter;
 use App\Contracts\Platforms\PlatformAdapter;
+use App\Contracts\Platforms\ProblemSyncAdapter;
 use App\DataTransferObjects\Platform\ProfileDTO;
 use App\DataTransferObjects\Platform\SubmissionDTO;
 use App\Enums\Platform;
@@ -10,7 +12,7 @@ use App\Enums\Verdict;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
-class HackerEarthAdapter implements PlatformAdapter
+class HackerEarthAdapter implements PlatformAdapter, ContestSyncAdapter, ProblemSyncAdapter
 {
     public function __construct(
         protected HackerEarthClient $client
@@ -78,5 +80,25 @@ class HackerEarthAdapter implements PlatformAdapter
             'TLE' => Verdict::TLE,
             default => Verdict::OTHER,
         };
+    }
+
+    public function supportsContests(): bool
+    {
+        return false;
+    }
+
+    public function fetchContests(int $limit = 100): Collection
+    {
+        return collect();
+    }
+
+    public function supportsProblems(): bool
+    {
+        return false;
+    }
+
+    public function fetchProblems(int $limit = 500, ?string $contestId = null): Collection
+    {
+        return collect();
     }
 }

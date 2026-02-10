@@ -2,7 +2,9 @@
 
 namespace App\Platforms\Spoj;
 
+use App\Contracts\Platforms\ContestSyncAdapter;
 use App\Contracts\Platforms\PlatformAdapter;
+use App\Contracts\Platforms\ProblemSyncAdapter;
 use App\DataTransferObjects\Platform\ProfileDTO;
 use App\DataTransferObjects\Platform\SubmissionDTO;
 use App\Enums\Platform;
@@ -10,7 +12,7 @@ use App\Enums\Verdict;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
-class SpojAdapter implements PlatformAdapter
+class SpojAdapter implements PlatformAdapter, ContestSyncAdapter, ProblemSyncAdapter
 {
     public function __construct(
         protected SpojClient $client
@@ -115,5 +117,25 @@ class SpojAdapter implements PlatformAdapter
             Log::error("SPOJ fetchSubmissions failed for {$handle}: {$e->getMessage()}");
             throw $e;
         }
+    }
+
+    public function supportsContests(): bool
+    {
+        return false;
+    }
+
+    public function fetchContests(int $limit = 100): Collection
+    {
+        return collect();
+    }
+
+    public function supportsProblems(): bool
+    {
+        return false;
+    }
+
+    public function fetchProblems(int $limit = 500, ?string $contestId = null): Collection
+    {
+        return collect();
     }
 }

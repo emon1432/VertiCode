@@ -2,7 +2,9 @@
 
 namespace App\Platforms\AtCoder;
 
+use App\Contracts\Platforms\ContestSyncAdapter;
 use App\Contracts\Platforms\PlatformAdapter;
+use App\Contracts\Platforms\ProblemSyncAdapter;
 use App\DataTransferObjects\Platform\ProfileDTO;
 use App\DataTransferObjects\Platform\SubmissionDTO;
 use App\Enums\Platform;
@@ -11,7 +13,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
-class AtCoderAdapter implements PlatformAdapter
+class AtCoderAdapter implements PlatformAdapter, ContestSyncAdapter, ProblemSyncAdapter
 {
     public function __construct(
         protected AtCoderClient $client
@@ -131,5 +133,25 @@ class AtCoderAdapter implements PlatformAdapter
 
         // Reverse to get chronological order (scraping returns newest first)
         return array_reverse($graphData);
+    }
+
+    public function supportsContests(): bool
+    {
+        return false;
+    }
+
+    public function fetchContests(int $limit = 100): Collection
+    {
+        return collect();
+    }
+
+    public function supportsProblems(): bool
+    {
+        return false;
+    }
+
+    public function fetchProblems(int $limit = 500, ?string $contestId = null): Collection
+    {
+        return collect();
     }
 }
