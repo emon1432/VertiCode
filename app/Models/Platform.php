@@ -17,8 +17,6 @@ class Platform extends Model
         'status',
         'last_contest_sync_at',
         'last_problem_sync_at',
-        'contest_sync_count',
-        'problem_sync_count',
     ];
 
     /**
@@ -86,7 +84,6 @@ class Platform extends Model
     {
         $this->update([
             'last_contest_sync_at' => now(),
-            'contest_sync_count' => $this->contest_sync_count + $count,
         ]);
     }
 
@@ -97,7 +94,6 @@ class Platform extends Model
     {
         $this->update([
             'last_problem_sync_at' => now(),
-            'problem_sync_count' => $this->problem_sync_count + $count,
         ]);
     }
 }

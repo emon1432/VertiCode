@@ -22,7 +22,7 @@ class SyncPlatformProblemsAction
         }
 
         try {
-            $problems = $adapter->fetchProblems(500, $contestId);
+            $problems = $adapter->fetchProblems(200, $contestId);
             $synced = 0;
             $errors = [];
 

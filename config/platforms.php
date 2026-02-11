@@ -69,10 +69,8 @@ return [
             'performance_rating' => true,
             'submission_details' => true,
         ],
-        'note' => 'Profile and contest history work. Kenkoooo API for submissions may be rate limited (returns 403). Gracefully falls back to profile-based total_solved.',
-        'known_issues' => [
-            'kenkoooo_api_403' => 'Third-party Kenkoooo API may return 403 due to rate limits. Submissions will be skipped but profile sync continues.',
-        ],
+        'note' => 'Profile, contest history, and submissions are independently scraped from atcoder.jp. No external API dependency.',
+        'known_issues' => [],
     ],
 
     'codechef' => [

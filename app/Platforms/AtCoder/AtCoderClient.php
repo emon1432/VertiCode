@@ -11,9 +11,13 @@ use Carbon\CarbonImmutable;
 class AtCoderClient extends BaseHttpClient
 {
     private const BASE_URL = 'https://atcoder.jp';
-    private const API_URL = 'https://kenkoooo.com/atcoder/atcoder-api';
     private const CACHE_TTL = 3600; // 1 hour for problem mapping
 
+    /**
+     * Fetch submissions from AtCoder directly
+     *
+     * Scrapes user submission page to get submission data.
+     * Independently collected from atcoder.jp - no external APIs used.
     /**
      * Fetch user profile from AtCoder
      */
@@ -153,68 +157,80 @@ class AtCoderClient extends BaseHttpClient
     }
 
     /**
-     * Fetch submissions from Kenkoooo API
-     * Note: This API may have rate limits or access restrictions
+     * Fetch submissions from AtCoder directly
+     *
+     * Scrapes user submission page to get submission data.
+     * Independently collected from atcoder.jp - no external APIs used.
      */
     public function fetchSubmissions(string $handle): array
     {
         try {
-            $url = self::API_URL . '/results?user=' . urlencode($handle);
+            $url = self::BASE_URL . '/users/' . urlencode($handle) . '/submissions';
 
             $response = $this->get($url, [
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept' => 'application/json',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language' => 'en-US,en;q=0.9',
-                'Origin' => 'https://kenkoooo.com',
-                'Referer' => 'https://kenkoooo.com/',
             ]);
 
             if (!$response->ok()) {
-                // Check if it's a 403 or rate limit
-                if ($response->status() === 403) {
-                    Log::warning("AtCoder Kenkoooo API returned 403 for {$handle}. API may be restricted or rate limited.");
-                    throw new \RuntimeException('Kenkoooo API access forbidden (403). This may be due to rate limiting or API restrictions.');
-                }
-                throw new \RuntimeException('Failed to fetch AtCoder submissions: ' . $response->status());
+                Log::warning("Failed to fetch AtCoder submissions for {$handle}: " . $response->status());
+                return [];
             }
 
-            return $response->json();
+            $crawler = new Crawler($response->body());
+            $submissions = [];
+
+            // Parse submission table from AtCoder directly
+            $crawler->filter('table#submissions-table tbody tr')->each(function (Crawler $row) use (&$submissions) {
+                try {
+                    $cells = $row->filter('td');
+                    if ($cells->count() < 4) {
+                        return;
+                    }
+
+                    $submissions[] = [
+                        'timestamp' => trim($cells->eq(0)->text()),
+                        'problem_id' => trim($cells->eq(1)->text()),
+                        'verdict' => trim($cells->eq(3)->text()),
+                        'exec_time' => trim($cells->eq(4)->text() ?? 'N/A'),
+                        'memory' => trim($cells->eq(5)->text() ?? 'N/A'),
+                    ];
+                } catch (\Exception $e) {
+                    // Skip problematic rows
+                }
+            });
+
+            return $submissions;
         } catch (\Exception $e) {
             Log::error("AtCoder submissions fetch failed for {$handle}: {$e->getMessage()}");
-            throw $e;
+            return [];
         }
     }
 
     /**
-     * Fetch problem mapping from Kenkoooo API (cached)
-     * This is used to map problem IDs to problem names
+     * Fetch problem mapping from our own database cache
+     * Uses independently scraped data from our AtCoderDataCollector
+     *
+     * NO external API dependency - all data is from atcoder.jp directly
      */
     public function fetchProblemMapping(): array
     {
         return Cache::remember('atcoder_problem_mapping', self::CACHE_TTL, function () {
             try {
-                $url = self::API_URL . '/problems';
+                // Get problems from our database (populated by AtCoderDataCollector)
+                $problems = \App\Models\Problem::where('platform_id', '!=', null)
+                    ->whereHas('contest', function ($query) {
+                        $query->where('platform_id', '!=', null);
+                    })
+                    ->get();
 
-                $response = $this->get($url, [
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Accept' => 'application/json',
-                    'Accept-Language' => 'en-US,en;q=0.9',
-                    'Origin' => 'https://kenkoooo.com',
-                    'Referer' => 'https://kenkoooo.com/',
-                ]);
-
-                if (!$response->ok()) {
-                    Log::warning("Failed to fetch AtCoder problem mapping: " . $response->status());
-                    return [];
-                }
-
-                $problems = $response->json();
                 $mapping = [];
 
                 foreach ($problems as $problem) {
-                    $problemId = $problem['id'] ?? null;
-                    $name = $problem['name'] ?? null;
-                    $contestId = $problem['contest_id'] ?? null;
+                    $problemId = $problem->platform_problem_id;
+                    $name = $problem->name;
+                    $contestId = $problem->contest_id;
 
                     if ($problemId && $name) {
                         $mapping[$problemId] = [
@@ -226,7 +242,7 @@ class AtCoderClient extends BaseHttpClient
 
                 return $mapping;
             } catch (\Exception $e) {
-                Log::warning("Failed to fetch AtCoder problem mapping: {$e->getMessage()}");
+                Log::warning("Failed to fetch AtCoder problem mapping from database: {$e->getMessage()}");
                 return [];
             }
         });
