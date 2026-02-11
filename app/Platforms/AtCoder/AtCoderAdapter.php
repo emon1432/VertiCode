@@ -3,12 +3,17 @@
 namespace App\Platforms\AtCoder;
 
 use App\Contracts\Platforms\ContestSyncAdapter;
+use App\Contracts\Platforms\PlatformAdapter;
 use App\Contracts\Platforms\ProblemSyncAdapter;
 use App\DataTransferObjects\Platform\ContestDTO;
 use App\DataTransferObjects\Platform\ProblemDTO;
+use App\DataTransferObjects\Platform\ProfileDTO;
+use App\DataTransferObjects\Platform\SubmissionDTO;
 use App\Enums\ContestType;
 use App\Enums\Difficulty;
 use App\Enums\Platform;
+use App\Enums\Verdict;
+use Carbon\Carbon;
 use App\Services\Platforms\AtCoderDataCollector;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
@@ -47,16 +52,92 @@ use Illuminate\Support\Facades\Log;
  * - Rate-limited respectful scraping
  * - Graceful fallback to cached data
  */
-class AtCoderAdapter implements ContestSyncAdapter, ProblemSyncAdapter
+class AtCoderAdapter implements ContestSyncAdapter, ProblemSyncAdapter, PlatformAdapter
 {
     private AtCoderDataCollector $collector;
+    private AtCoderClient $client;
 
     /**
-     * Constructor - Initialize data collector.
+     * Constructor - Initialize data collector and client.
      */
     public function __construct()
     {
         $this->collector = new AtCoderDataCollector();
+        $this->client = new AtCoderClient();
+    }
+
+    /**
+     * Get the platform identifier.
+     */
+    public function platform(): string
+    {
+        return Platform::ATCODER->value;
+    }
+
+    /**
+     * Get the platform profile URL for a given handle.
+     */
+    public function profileUrl(string $handle): string
+    {
+        return "https://atcoder.jp/users/{$handle}";
+    }
+
+    /**
+     * Check if adapter supports fetching user submissions.
+     */
+    public function supportsSubmissions(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Fetch user profile from AtCoder.
+     */
+    public function fetchProfile(string $handle): ProfileDTO
+    {
+        try {
+            $profileData = $this->client->fetchProfile($handle);
+
+            return new ProfileDTO(
+                platform: Platform::ATCODER,
+                handle: $profileData['handle'],
+                rating: $profileData['rating'],
+                totalSolved: $profileData['total_solved'],
+                raw: $profileData
+            );
+        } catch (\Exception $e) {
+            Log::error("Failed to fetch AtCoder profile for {$handle}", ['error' => $e->getMessage()]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Fetch user submissions from AtCoder.
+     */
+    public function fetchSubmissions(string $handle): Collection
+    {
+        try {
+            $submissions = $this->client->fetchSubmissions($handle);
+
+            return collect($submissions)
+                ->filter(fn($sub) => ($sub['verdict'] ?? null) === 'AC')
+                ->map(function ($sub) {
+                    // Parse problem_id (e.g., 'abc123_a')
+                    $problemId = $sub['problem_id'] ?? 'unknown';
+
+                    return new SubmissionDTO(
+                        problemId: $problemId,
+                        problemName: $problemId,
+                        difficulty: null,
+                        verdict: Verdict::ACCEPTED,
+                        submittedAt: new \DateTimeImmutable($sub['timestamp'] ?? 'now'),
+                        raw: $sub
+                    );
+                });
+        } catch (\Exception $e) {
+            Log::error("Failed to fetch AtCoder submissions for {$handle}", ['error' => $e->getMessage()]);
+            return collect();
+        }
     }
 
     /**
