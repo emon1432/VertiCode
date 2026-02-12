@@ -13,15 +13,20 @@ use App\Enums\ContestType;
 use App\Enums\Difficulty;
 use App\Enums\Platform;
 use App\Enums\Verdict;
+use App\Services\Platforms\CodeforcesDataCollector;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 class CodeforcesAdapter implements PlatformAdapter, ContestSyncAdapter, ProblemSyncAdapter
 {
+    private CodeforcesDataCollector $collector;
+
     public function __construct(
         protected CodeforcesClient $client
-    ) {}
+    ) {
+        $this->collector = new CodeforcesDataCollector();
+    }
 
     public function platform(): string
     {
@@ -154,10 +159,16 @@ class CodeforcesAdapter implements PlatformAdapter, ContestSyncAdapter, ProblemS
     public function fetchContests(int $limit = 100): Collection
     {
         try {
-            $contests = $this->client->fetchContestList();
+            Log::info("Codeforces: Fetching contests with limit: $limit");
 
-            return collect($contests)
-                ->take($limit)
+            $contests = $this->collector->collectContests($limit);
+
+            if ($contests->isEmpty()) {
+                Log::warning("Codeforces: No contests available from collector");
+                return collect();
+            }
+
+            return $contests
                 ->map(function ($contest) {
                     $contestId = (string) $contest['id'];
                     $startTime = isset($contest['startTimeSeconds'])
@@ -194,7 +205,9 @@ class CodeforcesAdapter implements PlatformAdapter, ContestSyncAdapter, ProblemS
                         tags: [],
                         raw: $contest
                     );
-                });
+                })
+                ->filter()
+                ->tap(fn($collection) => Log::info("Codeforces: Processed {$collection->count()} contests for sync"));
         } catch (\Exception $e) {
             Log::error("Codeforces fetchContests failed: {$e->getMessage()}");
             return collect();
@@ -206,30 +219,26 @@ class CodeforcesAdapter implements PlatformAdapter, ContestSyncAdapter, ProblemS
         return true;
     }
 
-    public function fetchProblems(int $limit = 500, ?string $contestId = null): Collection
+    public function fetchProblems(int $limit = 200, ?string $contestId = null): Collection
     {
         try {
-            // Use the existing fetchProblemTags which already calls problemset.problems API
-            $problemTagsMap = $this->client->fetchProblemTags();
+            Log::info("Codeforces: Fetching problems with limit: $limit", ['contestId' => $contestId]);
 
-            return collect($problemTagsMap)
-                ->map(function ($data, $problemId) use ($contestId) {
-                    // Extract contestId and index from problemId (e.g., "1000A" -> contest=1000, index="A")
-                    preg_match('/^(\d+)([A-Z]\d*)$/', $problemId, $matches);
-                    if (count($matches) < 3) {
-                        return null;
-                    }
+            $problems = $this->collector->collectProblems($limit);
 
-                    $cfContestId = $matches[1];
-                    $index = $matches[2];
+            if ($problems->isEmpty()) {
+                Log::warning("Codeforces: No problems available from collector");
+                return collect();
+            }
 
-                    // Filter by contestId if specified
-                    if ($contestId && $cfContestId != $contestId) {
-                        return null;
-                    }
+            $filtered = $problems
+                ->filter(fn($problem) => !$contestId || $problem['contestId'] == $contestId)
+                ->map(function ($problem) {
+                    $cfContestId = $problem['contestId'];
+                    $index = $problem['index'];
 
                     // Map rating to difficulty
-                    $rating = $data['rating'] ?? null;
+                    $rating = $problem['rating'] ?? null;
                     $difficulty = match(true) {
                         $rating === null => Difficulty::UNKNOWN,
                         $rating < 1200 => Difficulty::EASY,
@@ -239,9 +248,9 @@ class CodeforcesAdapter implements PlatformAdapter, ContestSyncAdapter, ProblemS
 
                     return new ProblemDTO(
                         platform: Platform::CODEFORCES,
-                        platformProblemId: $problemId,
-                        name: $data['name'] ?? 'Problem ' . $index,
-                        slug: 'problem-' . $problemId,
+                        platformProblemId: $problem['id'],
+                        name: $problem['name'],
+                        slug: 'problem-' . $problem['id'],
                         code: $index,
                         description: null,
                         difficulty: $difficulty,
@@ -252,19 +261,20 @@ class CodeforcesAdapter implements PlatformAdapter, ContestSyncAdapter, ProblemS
                         memoryLimitMb: null,
                         totalSubmissions: 0,
                         acceptedSubmissions: 0,
-                        solvedCount: 0,
-                        tags: $data['tags'] ?? [],
+                        solvedCount: $problem['solvedCount'] ?? 0,
+                        tags: $problem['tags'] ?? [],
                         topics: [],
                         url: "https://codeforces.com/problemset/problem/{$cfContestId}/{$index}",
                         editorialUrl: null,
                         contestId: (string) $cfContestId,
                         isPremium: false,
-                        raw: $data
+                        raw: $problem
                     );
                 })
-                ->filter()
-                ->take($limit)
-                ->values();
+                ->take($limit);
+
+            Log::info("Codeforces: Processed {$filtered->count()} problems for sync");
+            return $filtered;
         } catch (\Exception $e) {
             Log::error("Codeforces fetchProblems failed: {$e->getMessage()}");
             return collect();

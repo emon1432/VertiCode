@@ -14,12 +14,12 @@ class PlatformsTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('platforms')->delete();
-        
+
         \DB::table('platforms')->insert(array (
-            0 => 
+            0 =>
             array (
                 'id' => 1,
                 'name' => 'codeforces',
@@ -31,9 +31,9 @@ class PlatformsTableSeeder extends Seeder
                 'last_contest_sync_at' => NULL,
                 'last_problem_sync_at' => NULL,
                 'created_at' => NULL,
-                'updated_at' => '2026-02-05 19:04:30',
+                'updated_at' => NULL,
             ),
-            1 => 
+            1 =>
             array (
                 'id' => 2,
                 'name' => 'leetcode',
@@ -45,9 +45,9 @@ class PlatformsTableSeeder extends Seeder
                 'last_contest_sync_at' => NULL,
                 'last_problem_sync_at' => NULL,
                 'created_at' => NULL,
-                'updated_at' => '2026-02-05 19:16:55',
+                'updated_at' => NULL,
             ),
-            2 => 
+            2 =>
             array (
                 'id' => 3,
                 'name' => 'atcoder',
@@ -56,12 +56,12 @@ class PlatformsTableSeeder extends Seeder
                 'profile_url' => 'https://atcoder.jp/users/',
                 'image' => 'uploads/platforms/atcoder17703180136984e8bd3090f.png',
                 'status' => 'Active',
-                'last_contest_sync_at' => '2026-02-11 18:24:10',
-                'last_problem_sync_at' => '2026-02-11 18:24:34',
-                'created_at' => '2026-01-26 15:58:18',
-                'updated_at' => '2026-02-11 18:24:34',
+                'last_contest_sync_at' => NULL,
+                'last_problem_sync_at' => NULL,
+                'created_at' => NULL,
+                'updated_at' => NULL,
             ),
-            3 => 
+            3 =>
             array (
                 'id' => 4,
                 'name' => 'codechef',
@@ -72,10 +72,10 @@ class PlatformsTableSeeder extends Seeder
                 'status' => 'Active',
                 'last_contest_sync_at' => NULL,
                 'last_problem_sync_at' => NULL,
-                'created_at' => '2026-01-26 11:18:14',
-                'updated_at' => '2026-02-05 19:01:50',
+                'created_at' => NULL,
+                'updated_at' => NULL,
             ),
-            4 => 
+            4 =>
             array (
                 'id' => 5,
                 'name' => 'spoj',
@@ -87,9 +87,9 @@ class PlatformsTableSeeder extends Seeder
                 'last_contest_sync_at' => NULL,
                 'last_problem_sync_at' => NULL,
                 'created_at' => NULL,
-                'updated_at' => '2026-02-05 18:58:28',
+                'updated_at' => NULL,
             ),
-            5 => 
+            5 =>
             array (
                 'id' => 6,
                 'name' => 'hackerrank',
@@ -101,9 +101,9 @@ class PlatformsTableSeeder extends Seeder
                 'last_contest_sync_at' => NULL,
                 'last_problem_sync_at' => NULL,
                 'created_at' => NULL,
-                'updated_at' => '2026-02-05 19:09:14',
+                'updated_at' => NULL,
             ),
-            6 => 
+            6 =>
             array (
                 'id' => 7,
                 'name' => 'hackerearth',
@@ -115,9 +115,9 @@ class PlatformsTableSeeder extends Seeder
                 'last_contest_sync_at' => NULL,
                 'last_problem_sync_at' => NULL,
                 'created_at' => NULL,
-                'updated_at' => '2026-02-05 19:07:38',
+                'updated_at' => NULL,
             ),
-            7 => 
+            7 =>
             array (
                 'id' => 8,
                 'name' => 'uva',
@@ -129,9 +129,9 @@ class PlatformsTableSeeder extends Seeder
                 'last_contest_sync_at' => NULL,
                 'last_problem_sync_at' => NULL,
                 'created_at' => NULL,
-                'updated_at' => '2026-02-05 19:20:45',
+                'updated_at' => NULL,
             ),
-            8 => 
+            8 =>
             array (
                 'id' => 9,
                 'name' => 'timus',
@@ -143,10 +143,10 @@ class PlatformsTableSeeder extends Seeder
                 'last_contest_sync_at' => NULL,
                 'last_problem_sync_at' => NULL,
                 'created_at' => NULL,
-                'updated_at' => '2026-02-05 19:18:58',
+                'updated_at' => NULL,
             ),
         ));
-        
-        
+
+
     }
 }
