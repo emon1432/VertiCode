@@ -29,8 +29,9 @@ class HackerEarthAdapter implements PlatformAdapter
 
     public function supportsSubmissions(): bool
     {
-        // ⚠️ Currently has timeout issues, but keeping for future fix
-        return true;
+        // Use browser-rendered profile metrics for total solved.
+        // Disabling submission crawl avoids timeout for power users.
+        return false;
     }
 
     public function fetchProfile(string $handle): ProfileDTO
@@ -41,7 +42,7 @@ class HackerEarthAdapter implements PlatformAdapter
             platform: Platform::HACKEREARTH,
             handle: $handle,
             rating: $data['rating'] ?? null,
-            totalSolved: 0, // computed from submissions (currently 0 due to timeout)
+            totalSolved: (int) ($data['total_solved'] ?? 0),
             raw: $data
         );
     }

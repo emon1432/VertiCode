@@ -37,33 +37,11 @@ class TestHackerEarthSync extends Command
 
         $this->newLine();
 
-        // Test fetching submissions
-        $this->info("2. Fetching submissions...");
-        try {
-            $submissions = $adapter->fetchSubmissions($handle);
-            $this->line("   ✓ Total submissions fetched: " . $submissions->count());
-
-            $verdictCounts = $submissions->countBy(fn($s) => $s->verdict->value);
-            foreach ($verdictCounts as $verdict => $count) {
-                $this->line("   ✓ {$verdict} submissions: {$count}");
-            }
-
-            $uniqueProblems = $submissions->unique(fn($s) => $s->problemId)->count();
-            $this->line("   ✓ Unique problems: {$uniqueProblems}");
-
-            $acceptedSubmissions = $submissions->filter(fn($s) => $s->verdict->value === 'accepted');
-            if ($acceptedSubmissions->isNotEmpty()) {
-                $this->newLine();
-                $this->line("   First 5 accepted submissions:");
-                foreach ($acceptedSubmissions->take(5) as $sub) {
-                    $this->line("   - [{$sub->verdict->value}] {$sub->problemName}");
-                }
-            }
-        } catch (\Exception $e) {
-            $this->error("   ✗ Failed to fetch submissions: {$e->getMessage()}");
-            return 1;
-        }
-
+        $this->info("2. Using rendered profile metrics (Playwright fallback)");
+        $metrics = $profileDto->raw['profile_metrics'] ?? [];
+        $this->line("   ✓ Problem Solved: " . ((int) ($metrics['problem_solved'] ?? $profileDto->totalSolved)));
+        $this->line("   ✓ Solutions Submitted: " . ((int) ($metrics['solutions_submitted'] ?? 0)));
+        $this->line("   ✓ Contest Rating: " . ((int) ($metrics['contest_rating'] ?? 0)));
         $this->newLine();
 
         if ($runSync) {

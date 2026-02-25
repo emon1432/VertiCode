@@ -5,6 +5,8 @@ namespace App\Platforms\HackerEarth;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\Process\Process;
 use Symfony\Component\DomCrawler\Crawler;
 
 class HackerEarthClient
@@ -39,12 +41,79 @@ class HackerEarthClient
         }
 
         $ratingGraph = $this->fetchRatingGraph($handle);
+        $profileMetrics = $this->fetchProfileMetricsWithBrowser($handle);
+
+        $totalSolved = (int) ($profileMetrics['problem_solved'] ?? 0);
+        $contestRating = $profileMetrics['contest_rating'] ?? null;
+        $rating = is_numeric($contestRating)
+            ? (int) $contestRating
+            : $this->extractLatestRating($ratingGraph);
 
         return [
             'handle' => $handle,
-            'rating' => $this->extractLatestRating($ratingGraph),
+            'rating' => $rating,
+            'total_solved' => $totalSolved,
             'rating_graph' => $ratingGraph,
+            'profile_metrics' => $profileMetrics,
         ];
+    }
+
+    protected function fetchProfileMetricsWithBrowser(string $handle): array
+    {
+        $enabled = (bool) config('platforms.hackerearth.playwright.enabled', true);
+        if (! $enabled) {
+            return [];
+        }
+
+        $scriptPath = base_path('public/web/js/hackerearth-profile-metrics.mjs');
+        if (! file_exists($scriptPath)) {
+            Log::warning("HackerEarth Playwright script not found at {$scriptPath}");
+            return [];
+        }
+
+        $timeoutMs = (int) config('platforms.hackerearth.playwright.timeout_ms', 25000);
+        $browser = (string) config('platforms.hackerearth.playwright.browser', 'chromium');
+
+        try {
+            $process = new Process([
+                'node',
+                $scriptPath,
+                $handle,
+                (string) $timeoutMs,
+                $browser,
+            ], base_path());
+
+            $process->setTimeout(max(30, (int) ceil($timeoutMs / 1000) + 15));
+            $process->run();
+
+            if (! $process->isSuccessful()) {
+                Log::warning("HackerEarth Playwright process failed for {$handle}: " . $process->getErrorOutput());
+                return [];
+            }
+
+            $rawOutput = trim($process->getOutput());
+            if ($rawOutput === '') {
+                return [];
+            }
+
+            $payload = json_decode($rawOutput, true);
+            if (! is_array($payload)) {
+                Log::warning("HackerEarth Playwright output is not valid JSON for {$handle}");
+                return [];
+            }
+
+            if (($payload['ok'] ?? false) !== true) {
+                Log::warning("HackerEarth Playwright returned not-ok for {$handle}: " . ($payload['error'] ?? 'unknown error'));
+                return [];
+            }
+
+            $metrics = $payload['metrics'] ?? [];
+
+            return is_array($metrics) ? $metrics : [];
+        } catch (\Throwable $e) {
+            Log::warning("HackerEarth Playwright fetch failed for {$handle}: {$e->getMessage()}");
+            return [];
+        }
     }
 
     public function fetchRatingGraph(string $handle): array

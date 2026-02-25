@@ -13,7 +13,12 @@ return [
         'supports_solved' => true,
         'supports_submissions' => true,
         'sync_cost' => 'high',
-        'note' => 'Rating works. Submissions endpoint has timeout issues (TODO: fix)',
+        'playwright' => [
+            'enabled' => env('HACKEREARTH_PLAYWRIGHT_ENABLED', true),
+            'timeout_ms' => env('HACKEREARTH_PLAYWRIGHT_TIMEOUT_MS', 25000),
+            'browser' => env('HACKEREARTH_PLAYWRIGHT_BROWSER', 'chromium'),
+        ],
+        'note' => 'Uses Playwright fallback for Next.js-rendered profile metrics (problem_solved).',
     ],
 
     'codeforces' => [
