@@ -60,9 +60,10 @@ return [
     ],
 
     'atcoder' => [
+        'api_url' => env('ATCODER_API_URL', 'https://kenkoooo.com/atcoder/atcoder-api'),
         'supports_rating' => true,
         'supports_solved' => true,
-        'supports_submissions' => true,
+        'supports_submissions' => false,
         'supports_rating_graph' => true,
         'supports_contest_history' => true,
         'sync_cost' => 'medium',
@@ -72,11 +73,11 @@ return [
             'contest_participation' => true,
             'editorial_links' => true,
             'performance_rating' => true,
-            'submission_details' => true,
+            'submission_details' => false,
         ],
-        'note' => 'Profile and contest history work. Kenkoooo API for submissions may be rate limited (returns 403). Gracefully falls back to profile-based total_solved.',
+        'note' => 'Uses only Kenkoooo v3/user/ac_rank and v2/user_info for solved count. Submission syncing is disabled.',
         'known_issues' => [
-            'kenkoooo_api_403' => 'Third-party Kenkoooo API may return 403 due to rate limits. Submissions will be skipped but profile sync continues.',
+            'kenkoooo_api_403' => 'Kenkoooo API may return 403 from some networks/environments, resulting in solved count fallback to 0.',
         ],
     ],
 

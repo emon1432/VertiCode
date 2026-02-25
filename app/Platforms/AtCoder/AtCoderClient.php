@@ -3,16 +3,15 @@
 namespace App\Platforms\AtCoder;
 
 use App\Support\Http\BaseHttpClient;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 use Carbon\CarbonImmutable;
+use HeadlessChromium\BrowserFactory;
 
 class AtCoderClient extends BaseHttpClient
 {
     private const BASE_URL = 'https://atcoder.jp';
-    private const API_URL = 'https://kenkoooo.com/atcoder/atcoder-api';
-    private const CACHE_TTL = 3600; // 1 hour for problem mapping
+    private const DEFAULT_API_URL = 'https://kenkoooo.com/atcoder/atcoder-api';
 
     /**
      * Fetch user profile from AtCoder
@@ -64,6 +63,13 @@ class AtCoderClient extends BaseHttpClient
                 $rated = is_numeric($value) ? (int) $value : 0;
             }
         });
+
+        if ($solved === 0) {
+            $fallbackSolved = $this->fetchAcceptedCount($handle);
+            if ($fallbackSolved !== null) {
+                $solved = $fallbackSolved;
+            }
+        }
 
         return [
             'handle' => $handle,
@@ -153,83 +159,114 @@ class AtCoderClient extends BaseHttpClient
     }
 
     /**
-     * Fetch submissions from Kenkoooo API
-     * Note: This API may have rate limits or access restrictions
+     * Not used for AtCoder sync.
+     * Total solved comes only from v3/user/ac_rank and v2/user_info.
      */
     public function fetchSubmissions(string $handle): array
     {
-        try {
-            $url = self::API_URL . '/results?user=' . urlencode($handle);
-
-            $response = $this->get($url, [
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept' => 'application/json',
-                'Accept-Language' => 'en-US,en;q=0.9',
-                'Origin' => 'https://kenkoooo.com',
-                'Referer' => 'https://kenkoooo.com/',
-            ]);
-
-            if (!$response->ok()) {
-                // Check if it's a 403 or rate limit
-                if ($response->status() === 403) {
-                    Log::warning("AtCoder Kenkoooo API returned 403 for {$handle}. API may be restricted or rate limited.");
-                    throw new \RuntimeException('Kenkoooo API access forbidden (403). This may be due to rate limiting or API restrictions.');
-                }
-                throw new \RuntimeException('Failed to fetch AtCoder submissions: ' . $response->status());
-            }
-
-            return $response->json();
-        } catch (\Exception $e) {
-            Log::error("AtCoder submissions fetch failed for {$handle}: {$e->getMessage()}");
-            throw $e;
-        }
+        return [];
     }
 
     /**
-     * Fetch problem mapping from Kenkoooo API (cached)
-     * This is used to map problem IDs to problem names
+     * Not used for AtCoder sync.
      */
     public function fetchProblemMapping(): array
     {
-        return Cache::remember('atcoder_problem_mapping', self::CACHE_TTL, function () {
-            try {
-                $url = self::API_URL . '/problems';
+        return [];
+    }
 
-                $response = $this->get($url, [
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Accept' => 'application/json',
-                    'Accept-Language' => 'en-US,en;q=0.9',
-                    'Origin' => 'https://kenkoooo.com',
-                    'Referer' => 'https://kenkoooo.com/',
-                ]);
-
-                if (!$response->ok()) {
-                    Log::warning("Failed to fetch AtCoder problem mapping: " . $response->status());
-                    return [];
+    /**
+     * Fetch accepted count from Kenkoooo API.
+     * Primary: v3/user/ac_rank, Fallback: v2/user_info.
+     */
+    public function fetchAcceptedCount(string $handle): ?int
+    {
+        try {
+            $v3Url = $this->atcoderApiUrl() . '/v3/user/ac_rank?user=' . urlencode($handle);
+            $payload = $this->fetchKenkooooJson($v3Url);
+            if (is_array($payload)) {
+                $count = $payload['count'] ?? null;
+                if (is_numeric($count)) {
+                    return (int) $count;
                 }
-
-                $problems = $response->json();
-                $mapping = [];
-
-                foreach ($problems as $problem) {
-                    $problemId = $problem['id'] ?? null;
-                    $name = $problem['name'] ?? null;
-                    $contestId = $problem['contest_id'] ?? null;
-
-                    if ($problemId && $name) {
-                        $mapping[$problemId] = [
-                            'name' => $name,
-                            'contest_id' => $contestId,
-                        ];
-                    }
-                }
-
-                return $mapping;
-            } catch (\Exception $e) {
-                Log::warning("Failed to fetch AtCoder problem mapping: {$e->getMessage()}");
-                return [];
             }
-        });
+        } catch (\Exception $e) {
+            Log::warning("AtCoder ac_rank lookup failed for {$handle}: {$e->getMessage()}");
+        }
+
+        try {
+            $v2Url = $this->atcoderApiUrl() . '/v2/user_info?user=' . urlencode($handle);
+            $payload = $this->fetchKenkooooJson($v2Url);
+            if (is_array($payload)) {
+                $count = $payload['accepted_count'] ?? null;
+                if (is_numeric($count)) {
+                    return (int) $count;
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning("AtCoder v2 user_info fallback failed for {$handle}: {$e->getMessage()}");
+        }
+
+        return null;
+    }
+
+    private function kenkooooJsonHeaders(): array
+    {
+        return [
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept' => 'application/json',
+            'Accept-Language' => 'en-US,en;q=0.9',
+            'Origin' => 'https://kenkoooo.com',
+            'Referer' => 'https://kenkoooo.com/atcoder/',
+        ];
+    }
+
+    private function fetchKenkooooJson(string $url): ?array
+    {
+        try {
+            $response = $this->get($url, $this->kenkooooJsonHeaders());
+            $json = $response->json();
+            return is_array($json) ? $json : null;
+        } catch (\Throwable $e) {
+            if (!str_contains($e->getMessage(), '403')) {
+                throw $e;
+            }
+
+            return $this->fetchKenkooooJsonViaBrowser($url);
+        }
+    }
+
+    private function fetchKenkooooJsonViaBrowser(string $url): ?array
+    {
+        try {
+            $factory = new BrowserFactory('/usr/bin/google-chrome');
+            $browser = $factory->createBrowser();
+            $page = $browser->createPage();
+
+            try {
+                $page->navigate($url)->waitForNavigation();
+                usleep(500000);
+                $html = $page->getHtml();
+            } finally {
+                $browser->close();
+            }
+
+            if (preg_match('/<pre[^>]*>(.*?)<\/pre>/is', $html, $matches)) {
+                $payload = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $decoded = json_decode($payload, true);
+                return is_array($decoded) ? $decoded : null;
+            }
+
+            return null;
+        } catch (\Throwable $e) {
+            Log::warning("AtCoder browser fallback failed for URL {$url}: {$e->getMessage()}");
+            return null;
+        }
+    }
+
+    private function atcoderApiUrl(): string
+    {
+        return rtrim((string) config('platforms.atcoder.api_url', self::DEFAULT_API_URL), '/');
     }
 
     /**
