@@ -2,54 +2,50 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\SyncPlatformContestsAction;
+use App\Actions\SyncPlatformProblemsAction;
 use App\Models\Platform;
-use App\Platforms\Codeforces\CodeforcesAdapter;
+use App\Platforms\CodeChef\CodeChefAdapter;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class SyncCodeforcesContests extends Command
+class SyncCodeChefProblems extends Command
 {
-    /**
-     * The name and signature of the console command.
-     */
-    protected $signature = 'sync:codeforces-contests
-                            {--limit=100 : Maximum number of contests to sync}
+    protected $signature = 'sync:codechef-problems
+                            {--limit=200 : Maximum number of problems to sync}
+                            {--contest= : Specific contest ID to sync problems for}
                             {--force : Force sync even if recently synced}';
 
-    /**
-     * The console command description.
-     */
-    protected $description = 'Sync Codeforces contests to the database';
+    protected $description = 'Sync CodeChef problems to the database';
 
-    /**
-     * Execute the console command.
-     */
-    public function handle(SyncPlatformContestsAction $action, CodeforcesAdapter $adapter): int
+    public function handle(SyncPlatformProblemsAction $action, CodeChefAdapter $adapter): int
     {
         $this->info('═════════════════════════════════════════════');
-        $this->info('   Codeforces Contests Sync');
+        $this->info('   CodeChef Problems Sync');
         $this->info('═════════════════════════════════════════════');
         $this->newLine();
 
         try {
-            $platform = Platform::where('name', 'codeforces')->first();
+            $platform = Platform::where('name', 'codechef')->first();
 
             if (!$platform) {
-                $this->error('✗ Codeforces platform not found in database.');
+                $this->error('✗ CodeChef platform not found in database.');
                 return Command::FAILURE;
             }
 
             $limit = (int) $this->option('limit');
+            $contestId = $this->option('contest');
             $force = $this->option('force');
 
             $this->line("Configuration:");
-            $this->line("  • Limit: $limit contests");
+            $this->line("  • Limit: $limit problems");
+            if ($contestId) {
+                $this->line("  • Contest ID: $contestId");
+            }
             $this->line("  • Force: " . ($force ? 'Yes' : 'No'));
             $this->newLine();
 
             $this->line('🔄 Starting sync...');
-            $result = $action->execute($platform, $adapter, $limit);
+            $result = $action->execute($platform, $adapter, $contestId, $limit);
 
             if ($result['success']) {
                 $this->newLine();
@@ -58,8 +54,8 @@ class SyncCodeforcesContests extends Command
                 $platform->refresh();
                 $this->newLine();
                 $this->line("Statistics:");
-                $this->line("  • Total contests: {$platform->contests()->count()}");
-                $this->line("  • Last synced: {$platform->last_contest_sync_at->format('Y-m-d H:i:s')}");
+                $this->line("  • Total problems: {$platform->problems()->count()}");
+                $this->line("  • Last synced: {$platform->last_problem_sync_at->format('Y-m-d H:i:s')}");
 
                 return Command::SUCCESS;
             } else {
@@ -67,7 +63,7 @@ class SyncCodeforcesContests extends Command
                 return Command::FAILURE;
             }
         } catch (\Exception $e) {
-            Log::error('Codeforces contests sync failed', ['error' => $e->getMessage()]);
+            Log::error('CodeChef problems sync failed', ['error' => $e->getMessage()]);
             $this->error("✗ An error occurred: {$e->getMessage()}");
             return Command::FAILURE;
         }

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class SyncPlatformProblemsAction
 {
-    public function execute(Platform $platform, ProblemSyncAdapter $adapter, ?string $contestId = null): array
+    public function execute(Platform $platform, ProblemSyncAdapter $adapter, ?string $contestId = null, int $limit = 200): array
     {
         if (!$adapter->supportsProblems()) {
             return [
@@ -22,7 +22,7 @@ class SyncPlatformProblemsAction
         }
 
         try {
-            $problems = $adapter->fetchProblems(200, $contestId);
+            $problems = $adapter->fetchProblems($limit, $contestId);
             $synced = 0;
             $errors = [];
 

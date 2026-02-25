@@ -54,7 +54,7 @@ class SyncCodeforcesProblems extends Command
             $this->newLine();
 
             $this->line('🔄 Starting sync...');
-            $result = $action->execute($platform, $adapter);
+            $result = $action->execute($platform, $adapter, null, $limit);
 
             if ($result['success']) {
                 $this->newLine();

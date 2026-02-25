@@ -4,39 +4,30 @@ namespace App\Console\Commands;
 
 use App\Actions\SyncPlatformContestsAction;
 use App\Models\Platform;
-use App\Platforms\Codeforces\CodeforcesAdapter;
+use App\Platforms\CodeChef\CodeChefAdapter;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class SyncCodeforcesContests extends Command
+class SyncCodeChefContests extends Command
 {
-    /**
-     * The name and signature of the console command.
-     */
-    protected $signature = 'sync:codeforces-contests
+    protected $signature = 'sync:codechef-contests
                             {--limit=100 : Maximum number of contests to sync}
                             {--force : Force sync even if recently synced}';
 
-    /**
-     * The console command description.
-     */
-    protected $description = 'Sync Codeforces contests to the database';
+    protected $description = 'Sync CodeChef contests to the database';
 
-    /**
-     * Execute the console command.
-     */
-    public function handle(SyncPlatformContestsAction $action, CodeforcesAdapter $adapter): int
+    public function handle(SyncPlatformContestsAction $action, CodeChefAdapter $adapter): int
     {
         $this->info('═════════════════════════════════════════════');
-        $this->info('   Codeforces Contests Sync');
+        $this->info('   CodeChef Contests Sync');
         $this->info('═════════════════════════════════════════════');
         $this->newLine();
 
         try {
-            $platform = Platform::where('name', 'codeforces')->first();
+            $platform = Platform::where('name', 'codechef')->first();
 
             if (!$platform) {
-                $this->error('✗ Codeforces platform not found in database.');
+                $this->error('✗ CodeChef platform not found in database.');
                 return Command::FAILURE;
             }
 
@@ -67,7 +58,7 @@ class SyncCodeforcesContests extends Command
                 return Command::FAILURE;
             }
         } catch (\Exception $e) {
-            Log::error('Codeforces contests sync failed', ['error' => $e->getMessage()]);
+            Log::error('CodeChef contests sync failed', ['error' => $e->getMessage()]);
             $this->error("✗ An error occurred: {$e->getMessage()}");
             return Command::FAILURE;
         }

@@ -46,6 +46,8 @@ class SyncAtCoderContests extends Command
 
             // Check if sync is needed
             $force = $this->option('force');
+            $limit = (int) $this->option('limit');
+
             if (!$force && !$platform->needsContestSync()) {
                 $lastSync = $platform->last_contest_sync_at?->diffForHumans() ?? 'never';
                 $this->info("✓ AtCoder contests were synced {$lastSync}");
@@ -63,7 +65,7 @@ class SyncAtCoderContests extends Command
             $this->info('Fetching contests from AtCoder...');
 
             // Execute sync
-            $result = $action->execute($platform, $adapter);
+            $result = $action->execute($platform, $adapter, $limit);
 
             $this->newLine();
 

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class SyncPlatformContestsAction
 {
-    public function execute(Platform $platform, ContestSyncAdapter $adapter): array
+    public function execute(Platform $platform, ContestSyncAdapter $adapter, int $limit = 100): array
     {
         if (!$adapter->supportsContests()) {
             return [
@@ -22,7 +22,7 @@ class SyncPlatformContestsAction
         }
 
         try {
-            $contests = $adapter->fetchContests();
+            $contests = $adapter->fetchContests($limit);
             $synced = 0;
             $errors = [];
 
