@@ -38,10 +38,25 @@ class HackerRankAdapter implements PlatformAdapter
         $data = $this->client->fetchProfile($handle);
         $ratingGraph = $this->client->fetchRatingGraph($handle);
 
+        $latestRating = null;
+        if (!empty($ratingGraph)) {
+            $latestDate = null;
+            foreach ($ratingGraph as $graph) {
+                if (!empty($graph['data'])) {
+                    foreach ($graph['data'] as $date => $event) {
+                        if (is_null($latestDate) || strtotime($date) > strtotime($latestDate)) {
+                            $latestDate = $date;
+                            $latestRating = $event['rating'] ?? null;
+                        }
+                    }
+                }
+            }
+        }
+
         return new ProfileDTO(
             platform: Platform::HACKERRANK,
             handle: $handle,
-            rating: null, // no global rating
+            rating: $latestRating, // Use the latest rating based on the most recent date
             totalSolved: (int) ($data['total_solved'] ?? 0),
             raw: [
                 'badges' => $data['badges'] ?? null,
