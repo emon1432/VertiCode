@@ -28,6 +28,7 @@ class TestHackerEarthSync extends Command
             $profileDto = $adapter->fetchProfile($handle);
             $this->line("   ✓ Handle: {$profileDto->handle}");
             $this->line("   ✓ Rating: " . ($profileDto->rating ?? 'null'));
+            $this->line("   ✓ Global Rank: " . ($profileDto->raw['ranking'] ?? 'N/A'));
             $this->line("   ✓ Total Solved (from DTO): {$profileDto->totalSolved}");
             $this->line("   ✓ Raw data keys: " . implode(', ', array_keys($profileDto->raw)));
         } catch (\Exception $e) {
@@ -40,6 +41,8 @@ class TestHackerEarthSync extends Command
         $this->info("2. Using rendered profile metrics (Playwright fallback)");
         $metrics = $profileDto->raw['profile_metrics'] ?? [];
         $this->line("   ✓ Problem Solved: " . ((int) ($metrics['problem_solved'] ?? $profileDto->totalSolved)));
+        $this->line("   ✓ Global Rank: " . ((int) ($metrics['global_rank'] ?? 0)));
+        $this->line("   ✓ Country Rank: " . ((int) ($metrics['country_rank'] ?? 0)));
         $this->line("   ✓ Solutions Submitted: " . ((int) ($metrics['solutions_submitted'] ?? 0)));
         $this->line("   ✓ Contest Rating: " . ((int) ($metrics['contest_rating'] ?? 0)));
         $this->newLine();
@@ -83,6 +86,7 @@ class TestHackerEarthSync extends Command
 
                 $this->info("   ✓ Sync completed successfully!");
                 $this->line("   ✓ Rating: " . ($platformProfile->rating ?? 'null'));
+                $this->line("   ✓ Global Rank: " . ($platformProfile->raw['ranking'] ?? 'N/A'));
                 $this->line("   ✓ Total Solved: {$platformProfile->total_solved}");
                 $this->line("   ✓ Last Synced: {$platformProfile->last_synced_at}");
             } catch (\Exception $e) {

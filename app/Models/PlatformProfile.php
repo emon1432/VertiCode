@@ -38,4 +38,31 @@ class PlatformProfile extends Model
     {
         return $query->where('status', 'Active');
     }
+
+    public function getRankingAttribute(): mixed
+    {
+        if (! is_array($this->raw)) {
+            return null;
+        }
+
+        $ranking = data_get($this->raw, 'ranking')
+            ?? data_get($this->raw, 'rank_by_solved')
+            ?? data_get($this->raw, 'rank_by_rating')
+            ?? data_get($this->raw, 'global_rank')
+            ?? data_get($this->raw, 'rank')
+            ?? data_get($this->raw, 'profile.ranking')
+            ?? data_get($this->raw, 'contest_global_ranking')
+            ?? data_get($this->raw, 'profile_metrics.global_rank')
+            ?? data_get($this->raw, 'profile.rank');
+
+        if (is_string($ranking)) {
+            $normalized = trim($ranking);
+
+            if (preg_match('/^(\d+)(st|nd|rd|th)$/i', $normalized, $matches)) {
+                return (int) $matches[1];
+            }
+        }
+
+        return $ranking;
+    }
 }

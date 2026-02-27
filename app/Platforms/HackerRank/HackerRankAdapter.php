@@ -53,12 +53,17 @@ class HackerRankAdapter implements PlatformAdapter
             }
         }
 
+        $normalizedRating = is_numeric($latestRating)
+            ? (int) round((float) $latestRating)
+            : null;
+
         return new ProfileDTO(
             platform: Platform::HACKERRANK,
             handle: $handle,
-            rating: $latestRating, // Use the latest rating based on the most recent date
+            rating: $normalizedRating,
             totalSolved: (int) ($data['total_solved'] ?? 0),
             raw: [
+                'ranking' => $data['ranking'] ?? null,
                 'badges' => $data['badges'] ?? null,
                 'profile' => $data['raw'] ?? [],
                 'rating_graph' => $ratingGraph,

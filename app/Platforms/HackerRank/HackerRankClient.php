@@ -36,36 +36,91 @@ class HackerRankClient
         }
 
         $html = $response->body();
+        $profile = $this->extractProfileData($html, $handle);
 
-        preg_match('/__INITIAL_STATE__\s*=\s*({.*?});/s', $html, $matches);
-
-        if (empty($matches[1])) {
-            return [
-                'total_solved' => null,
-                'badges' => null,
-                'raw' => [],
-            ];
-        }
-
-        $json = json_decode($matches[1], true);
-
-        if (! is_array($json)) {
-            return [
-                'total_solved' => null,
-                'badges' => null,
-                'raw' => [],
-            ];
-        }
-
-        $profile = $json['profile'] ?? [];
         $totalSolved = $profile['solved_challenges'] ?? null;
         $badges = isset($profile['badges']) ? count($profile['badges']) : null;
+        $ranking = $this->extractRanking($profile);
 
         return [
             'total_solved' => is_numeric($totalSolved) ? (int) $totalSolved : null,
             'badges' => $badges,
+            'ranking' => $ranking,
             'raw' => $profile,
         ];
+    }
+
+    private function extractProfileData(string $html, string $handle): array
+    {
+        try {
+            $encodedJson = $this->extractInitialDataScriptContent($html);
+
+            if (is_string($encodedJson) && $encodedJson !== '') {
+                $decodedJson = urldecode($encodedJson);
+                $json = json_decode($decodedJson, true);
+
+                if (is_array($json)) {
+                    $profile = data_get($json, 'community.viewProfiles.' . strtolower($handle))
+                        ?? data_get($json, 'community.viewProfiles.' . $handle)
+                        ?? data_get($json, 'community.profile');
+
+                    if (is_array($profile)) {
+                        return $profile;
+                    }
+                }
+            }
+
+            if (preg_match('/__INITIAL_STATE__\s*=\s*({.*?});/s', $html, $matches)) {
+                $legacy = json_decode($matches[1], true);
+                if (is_array($legacy)) {
+                    $profile = $legacy['profile'] ?? [];
+                    if (is_array($profile)) {
+                        return $profile;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('HackerRank profile parse failed: ' . $e->getMessage());
+        }
+
+        return [];
+    }
+
+    private function extractInitialDataScriptContent(string $html): ?string
+    {
+        $idPos = strpos($html, 'id="initialData"');
+        if ($idPos === false) {
+            return null;
+        }
+
+        $scriptOpenPos = strrpos(substr($html, 0, $idPos), '<script');
+        if ($scriptOpenPos === false) {
+            return null;
+        }
+
+        $contentStart = strpos($html, '>', $scriptOpenPos);
+        if ($contentStart === false) {
+            return null;
+        }
+
+        $contentStart++;
+
+        $scriptClosePos = strpos($html, '</script>', $contentStart);
+        if ($scriptClosePos === false || $scriptClosePos <= $contentStart) {
+            return null;
+        }
+
+        return trim(substr($html, $contentStart, $scriptClosePos - $contentStart));
+    }
+
+    private function extractRanking(array $profile): ?int
+    {
+        $candidate = data_get($profile, 'scores.algorithms.contest.rank')
+            ?? data_get($profile, 'scores.algorithms.practice.rank')
+            ?? data_get($profile, 'scores.general.contest.rank')
+            ?? data_get($profile, 'scores.general.practice.rank');
+
+        return is_numeric($candidate) ? (int) $candidate : null;
     }
 
     /**

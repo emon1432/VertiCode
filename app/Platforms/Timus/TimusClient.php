@@ -5,7 +5,6 @@ namespace App\Platforms\Timus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
-use Carbon\CarbonImmutable;
 
 class TimusClient
 {
@@ -37,7 +36,10 @@ class TimusClient
 
             // Extract all stats from profile page
             $totalSolved = $this->extractTotalSolvedFromHtml($profileHtml);
-            $rating = $this->extractRatingFromHtml($profileHtml);
+            $rankBySolved = $this->extractRankBySolvedFromHtml($profileHtml);
+            $rankByRating = $this->extractRankByRatingFromHtml($profileHtml);
+            $ratingScore = $this->extractRatingScoreFromHtml($profileHtml);
+            $rating = $ratingScore;
             $name = $this->extractNameFromHtml($profileHtml);
 
             return [
@@ -46,6 +48,9 @@ class TimusClient
                 'user_id' => $handle,
                 'total_solved' => $totalSolved,
                 'rating' => $rating,
+                'rank_by_solved' => $rankBySolved,
+                'rank_by_rating' => $rankByRating,
+                'rating_score' => $ratingScore,
                 'profile_url' => $profileUrl,
             ];
         } catch (\Exception $e) {
@@ -116,10 +121,28 @@ class TimusClient
         }
     }
 
+    private function extractRankBySolvedFromHtml(string $html): ?int
+    {
+        return $this->extractStatNumber($html, 'Rank by solved');
+    }
+
+    private function extractRankByRatingFromHtml(string $html): ?int
+    {
+        return $this->extractStatNumber($html, 'Rank by rating');
+    }
+
     /**
-     * Extract rating from profile HTML
+     * Extract Timus rating score (sum of solved problem difficulties)
      */
-    private function extractRatingFromHtml(string $html): ?int
+    private function extractRatingScoreFromHtml(string $html): ?int
+    {
+        return $this->extractStatNumber($html, 'Rating');
+    }
+
+    /**
+     * Extract first number from a given stat label row in author stats table.
+     */
+    private function extractStatNumber(string $html, string $targetLabel): ?int
     {
         try {
             $crawler = new Crawler($html);
@@ -133,8 +156,7 @@ class TimusClient
                     $label = trim($cells->eq(0)->text());
                     $value = trim($cells->eq(1)->text());
 
-                    // Match exactly "Rating" - exclude "Rank by rating"
-                    if (trim($label) === 'Rating') {
+                    if ($label === $targetLabel) {
                         // Extract first number from "1720767 out of 1720767"
                         if (preg_match('/^(\d+)\s+out\s+of/i', $value, $matches)) {
                             return (int) $matches[1];
@@ -148,7 +170,7 @@ class TimusClient
 
             return null;
         } catch (\Exception $e) {
-            Log::warning("Failed to extract rating from HTML: {$e->getMessage()}");
+            Log::warning("Failed to extract Timus stat '{$targetLabel}' from HTML: {$e->getMessage()}");
             return null;
         }
     }

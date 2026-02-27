@@ -4,6 +4,7 @@ namespace App\Platforms\HackerEarth;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Process;
@@ -13,6 +14,7 @@ class HackerEarthClient
 {
     protected string $baseUrl = 'https://www.hackerearth.com';
     protected string $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36';
+    protected int $leaderboardPageSize = 100;
 
     public function profileExists(string $handle): bool
     {
@@ -48,14 +50,231 @@ class HackerEarthClient
         $rating = is_numeric($contestRating)
             ? (int) $contestRating
             : $this->extractLatestRating($ratingGraph);
+        $fallbackRanks = $this->extractRanksFromProfileHtml($handle);
+
+        $globalRank = isset($profileMetrics['global_rank']) && is_numeric($profileMetrics['global_rank'])
+            ? (int) $profileMetrics['global_rank']
+            : ($fallbackRanks['global_rank'] ?? null);
+        $countryRank = isset($profileMetrics['country_rank']) && is_numeric($profileMetrics['country_rank'])
+            ? (int) $profileMetrics['country_rank']
+            : ($fallbackRanks['country_rank'] ?? null);
+
+        if ($globalRank === null) {
+            $globalRank = $this->fetchGlobalRankFromLeaderboard($handle, $rating);
+        }
 
         return [
             'handle' => $handle,
             'rating' => $rating,
+            'ranking' => $globalRank,
+            'global_rank' => $globalRank,
+            'country_rank' => $countryRank,
             'total_solved' => $totalSolved,
             'rating_graph' => $ratingGraph,
             'profile_metrics' => $profileMetrics,
         ];
+    }
+
+    private function fetchGlobalRankFromLeaderboard(string $handle, ?int $rating): ?int
+    {
+        $cacheKey = 'hackerearth_global_rank_' . strtolower($handle);
+
+        return Cache::remember($cacheKey, now()->addHours(6), function () use ($handle, $rating) {
+            $firstPage = $this->fetchLeaderboardPage(1);
+            if ($firstPage === null) {
+                return null;
+            }
+
+            $firstPageRank = $this->extractRankFromItems($firstPage['items'] ?? [], $handle);
+            if ($firstPageRank !== null) {
+                return $firstPageRank;
+            }
+
+            $total = (int) data_get($firstPage, 'meta.total', 0);
+            if ($total <= 0) {
+                return null;
+            }
+
+            $totalPages = (int) ceil($total / $this->leaderboardPageSize);
+            if ($totalPages <= 1) {
+                return null;
+            }
+
+            if ($rating !== null) {
+                $candidatePage = $this->findCandidatePageByRating($rating, $totalPages);
+                if ($candidatePage !== null) {
+                    for ($page = max(1, $candidatePage - 3); $page <= min($totalPages, $candidatePage + 3); $page++) {
+                        $data = $this->fetchLeaderboardPage($page);
+                        if ($data === null) {
+                            continue;
+                        }
+
+                        $rank = $this->extractRankFromItems($data['items'] ?? [], $handle);
+                        if ($rank !== null) {
+                            return $rank;
+                        }
+                    }
+                }
+            }
+
+            $maxLinearPages = min($totalPages, 120);
+            for ($page = 2; $page <= $maxLinearPages; $page++) {
+                $data = $this->fetchLeaderboardPage($page);
+                if ($data === null) {
+                    continue;
+                }
+
+                $rank = $this->extractRankFromItems($data['items'] ?? [], $handle);
+                if ($rank !== null) {
+                    return $rank;
+                }
+            }
+
+            return null;
+        });
+    }
+
+    private function findCandidatePageByRating(int $rating, int $totalPages): ?int
+    {
+        $low = 1;
+        $high = $totalPages;
+
+        while ($low <= $high) {
+            $mid = intdiv($low + $high, 2);
+            $data = $this->fetchLeaderboardPage($mid);
+            if ($data === null || empty($data['items'])) {
+                return null;
+            }
+
+            $items = $data['items'];
+            $topPoints = isset($items[0]['points']) ? (float) $items[0]['points'] : null;
+            $lastItem = end($items);
+            $bottomPoints = isset($lastItem['points']) ? (float) $lastItem['points'] : null;
+
+            if ($topPoints === null || $bottomPoints === null) {
+                return null;
+            }
+
+            if ($rating > $topPoints) {
+                $high = $mid - 1;
+                continue;
+            }
+
+            if ($rating < $bottomPoints) {
+                $low = $mid + 1;
+                continue;
+            }
+
+            return $mid;
+        }
+
+        return null;
+    }
+
+    private function fetchLeaderboardPage(int $page): ?array
+    {
+        $cacheKey = "hackerearth_leaderboard_rated_page_{$page}_size_{$this->leaderboardPageSize}";
+
+        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($page) {
+            try {
+                $url = "{$this->baseUrl}/api/leaderboard/?page={$page}&size={$this->leaderboardPageSize}&type=rated";
+
+                $response = Http::withHeaders([
+                    'User-Agent' => $this->userAgent,
+                    'Accept' => 'application/json',
+                    'Referer' => "{$this->baseUrl}/leaderboard/contests/rated/",
+                ])->timeout(20)->get($url);
+
+                if (! $response->ok()) {
+                    return null;
+                }
+
+                $payload = $response->json();
+
+                return is_array($payload) ? $payload : null;
+            } catch (\Exception $e) {
+                Log::warning("HackerEarth leaderboard page fetch failed (page {$page}): {$e->getMessage()}");
+                return null;
+            }
+        });
+    }
+
+    private function extractRankFromItems(array $items, string $handle): ?int
+    {
+        $target = strtolower($handle);
+
+        foreach ($items as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $username = strtolower((string) ($item['username'] ?? ''));
+            if ($username !== $target) {
+                continue;
+            }
+
+            $rank = $item['rank'] ?? null;
+            if (is_numeric($rank)) {
+                return (int) $rank;
+            }
+        }
+
+        return null;
+    }
+
+    private function extractRanksFromProfileHtml(string $handle): array
+    {
+        try {
+            $url = "{$this->baseUrl}/@{$handle}/";
+            $response = Http::withHeaders([
+                'User-Agent' => $this->userAgent,
+                'Accept' => 'text/html',
+            ])->timeout(20)->get($url);
+
+            if (! $response->ok()) {
+                return [
+                    'global_rank' => null,
+                    'country_rank' => null,
+                ];
+            }
+
+            $html = $response->body();
+
+            return [
+                'global_rank' => $this->extractRankValue($html, 'Global\s+Rank'),
+                'country_rank' => $this->extractRankValue($html, 'Country\s+Rank'),
+            ];
+        } catch (\Exception $e) {
+            Log::warning("HackerEarth rank fallback failed for {$handle}: {$e->getMessage()}");
+            return [
+                'global_rank' => null,
+                'country_rank' => null,
+            ];
+        }
+    }
+
+    private function extractRankValue(string $html, string $labelPattern): ?int
+    {
+        $plainText = preg_replace('/\s+/', ' ', strip_tags($html));
+        if (! is_string($plainText)) {
+            return null;
+        }
+
+        $patterns = [
+            '/([0-9][0-9,]*)\s+' . $labelPattern . '/i',
+            '/' . $labelPattern . '\s*[:\-]?\s*([0-9][0-9,]*)/i',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $plainText, $matches)) {
+                $rank = (int) str_replace(',', '', $matches[1]);
+                if ($rank > 0) {
+                    return $rank;
+                }
+            }
+        }
+
+        return null;
     }
 
     protected function fetchProfileMetricsWithBrowser(string $handle): array
@@ -174,9 +393,9 @@ class HackerEarthClient
                 'Connection' => 'keep-alive',
                 'Upgrade-Insecure-Requests' => '1',
             ])
-            ->timeout(30) // Increased timeout
-            ->retry(2, 1000) // Retry 2 times with 1 second delay
-            ->get($initialUrl);
+                ->timeout(30) // Increased timeout
+                ->retry(2, 1000) // Retry 2 times with 1 second delay
+                ->get($initialUrl);
 
             if ($response->status() === 404) {
                 throw new \RuntimeException('HackerEarth profile not found');
@@ -187,7 +406,6 @@ class HackerEarthClient
             }
 
             $headers = $this->buildAjaxHeaders($response, $initialUrl);
-
         } catch (\Exception $e) {
             // ⚠️ Timeout or connection error - log for future debugging
             \Log::warning("HackerEarth initial page failed for {$handle}: " . $e->getMessage());

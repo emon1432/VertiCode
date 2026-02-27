@@ -48,6 +48,9 @@ class TimusAdapter implements PlatformAdapter
                 'name' => $profileData['name'],
                 'total_solved' => $profileData['total_solved'],
                 'rating' => $profileData['rating'],
+                'rank_by_solved' => $profileData['rank_by_solved'] ?? null,
+                'rank_by_rating' => $profileData['rank_by_rating'] ?? null,
+                'rating_score' => $profileData['rating_score'] ?? null,
             ]
         );
     }

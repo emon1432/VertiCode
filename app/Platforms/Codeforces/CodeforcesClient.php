@@ -3,7 +3,9 @@
 namespace App\Platforms\Codeforces;
 
 use App\Support\Http\BaseHttpClient;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -12,6 +14,7 @@ class CodeforcesClient extends BaseHttpClient
     private const BASE_URL = 'https://codeforces.com/api';
     private const WEB_URL = 'https://codeforces.com';
     private const CACHE_TTL = 86400; // 24 hours for problem tags
+    private const RATING_RANK_CACHE_TTL = 21600; // 6 hours
 
     /**
      * Fetch user information including rating
@@ -74,6 +77,46 @@ class CodeforcesClient extends BaseHttpClient
             Log::warning("Failed to fetch Codeforces contest list: {$e->getMessage()}");
             return [];
         }
+    }
+
+    /**
+     * Fetch global rank by rating using user.ratedList API.
+     * Returns 1-based rank position, or null if handle is unrated/not found.
+     */
+    public function fetchRankByRating(string $handle): ?int
+    {
+        $cacheKey = 'codeforces_rating_rank_' . strtolower($handle);
+
+        return Cache::remember($cacheKey, self::RATING_RANK_CACHE_TTL, function () use ($handle) {
+            try {
+                /** @var Response $apiResponse */
+                $apiResponse = Http::retry(2, 500)
+                    ->timeout(60)
+                    ->get(self::BASE_URL . '/user.ratedList?activeOnly=true&includeRetired=false');
+
+                if (! $apiResponse->ok()) {
+                    return null;
+                }
+
+                $response = $apiResponse->json();
+
+                if (($response['status'] ?? null) !== 'OK') {
+                    return null;
+                }
+
+                $targetHandle = strtolower($handle);
+                foreach ($response['result'] as $index => $user) {
+                    if (strtolower($user['handle'] ?? '') === $targetHandle) {
+                        return $index + 1;
+                    }
+                }
+
+                return null;
+            } catch (\Exception $e) {
+                Log::warning("Failed to fetch Codeforces rating rank for {$handle}: {$e->getMessage()}");
+                return null;
+            }
+        });
     }
 
     /**

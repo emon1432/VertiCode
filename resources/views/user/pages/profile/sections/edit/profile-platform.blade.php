@@ -17,6 +17,15 @@
                             <img src="{{ imageShow($platform->image) }}" alt="{{ $platform->display_name }}"
                                 width="24" height="24" class="me-2">
                             {{ $platform->display_name }}
+                            @if ($platform->name === 'uva')
+                                <span data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="top"
+                                    title="<img src='{{ asset('web/img/uva-user-id.png') }}' alt='{{ $platform->display_name }}' width='500'>">
+                                    (<p class="d-inline-block ms-1 mb-0 text-muted" style="font-size: 0.9em;">
+                                        See example
+                                    </p>
+                                    <i class="bi bi-info-circle"></i>)
+                                </span>
+                            @endif
                         </label>
                         <div class="input-group">
                             <span class="input-group-text bg-light">{{ $platform->profile_url }}</span>
@@ -43,3 +52,14 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+@endpush

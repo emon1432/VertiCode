@@ -28,6 +28,7 @@ class TestHackerRankSync extends Command
             $profile = $adapter->fetchProfile($handle);
 
             $this->line("   ✓ Total Solved: {$profile->totalSolved}");
+            $this->line("   ✓ Ranking: " . ($profile->raw['ranking'] ?? 'N/A'));
             $this->line("   ✓ Badges: " . ($profile->raw['badges'] ?? 'N/A'));
             $this->line("   ✓ Rating Graph Entries: " . count($profile->raw['rating_graph'] ?? []));
             $this->newLine();
@@ -89,6 +90,7 @@ class TestHackerRankSync extends Command
                 $platformProfile->refresh();
                 $this->line("   ✓ Sync completed!");
                 $this->line("   ✓ Total Solved: {$platformProfile->total_solved}");
+                $this->line("   ✓ Ranking: " . ($platformProfile->ranking ?? 'N/A'));
             }
 
             $this->newLine();

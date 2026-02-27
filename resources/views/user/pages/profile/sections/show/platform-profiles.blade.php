@@ -10,6 +10,7 @@
                         <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                             <th class="fw-600 text-white ps-4"><i class="bi bi-trophy me-2"></i>Platform</th>
                             <th class="fw-600 text-white"><i class="bi bi-person me-2"></i>Handle</th>
+                            <th class="fw-600 text-white"><i class="bi bi-bar-chart-line me-2"></i>Ranking</th>
                             <th class="fw-600 text-white"><i class="bi bi-star-fill me-2"></i>Rating</th>
                             <th class="fw-600 text-white"><i class="bi bi-check2-circle me-2"></i>Problems Solved
                             </th>
@@ -48,6 +49,18 @@
                                         </span>
                                     </td>
                                     <td class="py-4">
+                                        @if ($profile->ranking)
+                                            <span class="badge bg-light text-dark"
+                                                style="font-size: 0.85rem; padding: 8px 12px; border-radius: 8px;">
+                                                #{{ $profile->ranking }}
+                                            </span>
+                                        @else
+                                            <span class="text-muted gap-1">
+                                                <i class="bi bi-dash-circle"></i> N/A
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="py-4">
                                         @if ($profile->rating)
                                             <span class="badge bg-light text-dark"
                                                 style="font-size: 0.85rem; padding: 8px 12px; border-radius: 8px;">
@@ -74,7 +87,7 @@
                                         @endif
                                     </td>
                                 @else
-                                    <td class="py-4" colspan="3">
+                                    <td class="py-4" colspan="4">
                                         <span class="text-muted gap-1">
                                             <i class="bi bi-x-circle"></i> Not Connected
                                         </span>
@@ -83,14 +96,14 @@
                                 <td class="py-4">
                                     @if (auth()->id() === $user->id)
                                         <a href="{{ route('user.profile.edit', ['username' => $user->username]) }}#profile-platform"
-                                            title="Edit Platform Profiles" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-pencil-square me-1"></i>
+                                            title="Edit Platform Profiles" class="me-2 text-decoration-none">
+                                            <i class="bi bi-pencil me-1"></i>
                                         </a>
                                     @endif
                                     @if ($profile)
                                         <a href="{{ $profile->profile_url }}" target="_blank" title="View Profile"
-                                            class="btn btn-sm btn-primary">
-                                            <i class="bi bi-box-arrow-up-right me-1"></i>
+                                            class="text-decoration-none">
+                                            <i class="bi bi-arrow-up-right me-1"></i>
                                         </a>
                                     @endif
                                 </td>

@@ -30,6 +30,7 @@ class TestCodeforcesSync extends Command
 
             $this->line("   ✓ Handle: {$profile->handle}");
             $this->line("   ✓ Current Rating: " . ($profile->rating ?? 'N/A'));
+            $this->line("   ✓ Rank by Rating: " . ($profile->raw['ranking'] ?? 'N/A'));
             $this->line("   ✓ Max Rating: " . ($profile->raw['max_rating'] ?? 'N/A'));
             $this->line("   ✓ Rank: " . ($profile->raw['rank'] ?? 'N/A'));
             $this->line("   ✓ Max Rank: " . ($profile->raw['max_rank'] ?? 'N/A'));
@@ -123,6 +124,7 @@ class TestCodeforcesSync extends Command
                 $this->line("   ✓ Sync completed!");
                 $this->line("   ✓ Total Solved: {$platformProfile->total_solved}");
                 $this->line("   ✓ Rating: " . ($platformProfile->rating ?? 'N/A'));
+                $this->line("   ✓ Rank by Rating: " . ($platformProfile->raw['ranking'] ?? 'N/A'));
                 $this->line("   ✓ Max Rating: " . ($platformProfile->raw['max_rating'] ?? 'N/A'));
             }
 

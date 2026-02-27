@@ -32,9 +32,17 @@ const normalizeMetrics = (value) => {
     contest_rating: toInt(value.contest_rating),
     problem_solved: toInt(value.problem_solved),
     solutions_submitted: toInt(value.solutions_submitted),
+    global_rank: toInt(value.global_rank ?? value.rank),
+    country_rank: toInt(value.country_rank),
   };
 
-  if (candidate.problem_solved === null && candidate.solutions_submitted === null && candidate.contest_rating === null) {
+  if (
+    candidate.problem_solved === null
+    && candidate.solutions_submitted === null
+    && candidate.contest_rating === null
+    && candidate.global_rank === null
+    && candidate.country_rank === null
+  ) {
     return null;
   }
 
@@ -119,6 +127,33 @@ const parseSolvedFromDom = async (page) => {
   });
 };
 
+const parseRanksFromDom = async (page) => {
+  return await page.evaluate(() => {
+    const parseNumber = (value) => {
+      if (!value) return null;
+      const normalized = value.replace(/,/g, '').trim();
+      if (!/^\d+$/.test(normalized)) return null;
+      return Number.parseInt(normalized, 10);
+    };
+
+    const text = document.body?.innerText || '';
+
+    const findRank = (label) => {
+      const regex = new RegExp(`([0-9][0-9,]*)\\s+${label}`, 'i');
+      const match = text.match(regex);
+      if (match) {
+        return parseNumber(match[1]);
+      }
+      return null;
+    };
+
+    return {
+      global_rank: findRank('Global\\s+Rank'),
+      country_rank: findRank('Country\\s+Rank'),
+    };
+  });
+};
+
 async function run() {
   let playwright;
   try {
@@ -184,12 +219,16 @@ async function run() {
 
     if (!metrics) {
       const domSolved = await parseSolvedFromDom(page);
-      if (domSolved !== null) {
+      const domRanks = await parseRanksFromDom(page);
+
+      if (domSolved !== null || domRanks.global_rank !== null || domRanks.country_rank !== null) {
         metrics = {
           problem_solved: domSolved,
           solutions_submitted: null,
           contest_rating: null,
           points: null,
+          global_rank: domRanks.global_rank,
+          country_rank: domRanks.country_rank,
         };
       }
     }

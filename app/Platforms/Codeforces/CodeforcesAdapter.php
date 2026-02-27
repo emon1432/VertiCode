@@ -36,6 +36,7 @@ class CodeforcesAdapter implements PlatformAdapter
     public function fetchProfile(string $handle): ProfileDTO
     {
         $userInfo = $this->client->fetchUserInfo($handle);
+        $ratingRank = $this->client->fetchRankByRating($handle);
 
         // Calculate max rating
         $maxRating = $this->client->calculateMaxRating($userInfo);
@@ -49,6 +50,8 @@ class CodeforcesAdapter implements PlatformAdapter
         // Build comprehensive raw data
         $rawData = [
             'user_info' => $userInfo,
+            'ranking' => $ratingRank,
+            'rank_by_rating' => $ratingRank,
             'max_rating' => $maxRating,
             'contest_history' => $contestHistory,
             'rating_graph_data' => $this->buildRatingGraphData($contestHistory),
