@@ -66,6 +66,10 @@
                                                 style="font-size: 0.85rem; padding: 8px 12px; border-radius: 8px;">
                                                 {{ $profile->rating }}
                                             </span>
+                                        @elseif ($platform->name === 'uva')
+                                            <span class="text-muted gap-1" title="UVa Online Judge does not provide a public rating value.">
+                                                <i class="bi bi-info-circle"></i> Not provided by UVa
+                                            </span>
                                         @else
                                             <span class="text-muted gap-1">
                                                 <i class="bi bi-dash-circle"></i> N/A

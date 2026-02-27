@@ -1,5 +1,6 @@
 @extends('user.layouts.app')
 @section('title', $user->name . ' | Profile')
+@section('description', 'View ' . $user->name . '\'s profile, stats, and platform profiles on VertiCode.')
 @push('styles')
     <style>
         .sync-button .bi.spin {

@@ -4,7 +4,7 @@ use App\Http\Controllers\Admin\OthersController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('web.welcome');
+    return view('web.pages.home');
 })->name('home');
 
 Route::controller(OthersController::class)->group(function () {
