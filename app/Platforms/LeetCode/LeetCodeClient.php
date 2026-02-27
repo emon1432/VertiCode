@@ -3,11 +3,69 @@
 namespace App\Platforms\LeetCode;
 
 use App\Support\Http\BaseHttpClient;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Log;
 
 class LeetCodeClient extends BaseHttpClient
 {
     private const GRAPHQL_ENDPOINT = 'https://leetcode.com/graphql';
+    private const RETRIABLE_STATUSES = [403, 429, 499, 503, 504];
+
+    /**
+     * Execute GraphQL request with retries for transient Cloudflare/rate-limit blocks.
+     */
+    private function postGraphQL(array $payload): array
+    {
+        $headers = [
+            'Accept' => 'application/json, text/plain, */*',
+            'Accept-Language' => 'en-US,en;q=0.9',
+            'Content-Type' => 'application/json',
+            'Origin' => 'https://leetcode.com',
+            'Referer' => 'https://leetcode.com/',
+            'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        ];
+
+        $lastException = null;
+
+        foreach ([self::GRAPHQL_ENDPOINT, self::GRAPHQL_ENDPOINT . '/'] as $endpoint) {
+            for ($attempt = 1; $attempt <= 3; $attempt++) {
+                try {
+                    $response = $this->post($endpoint, $payload, $headers)->json();
+
+                    if (is_array($response)) {
+                        return $response;
+                    }
+
+                    throw new \RuntimeException('LeetCode returned invalid JSON response');
+                } catch (RequestException $e) {
+                    $status = $e->response?->status();
+                    $lastException = $e;
+
+                    if (in_array($status, self::RETRIABLE_STATUSES, true) && $attempt < 3) {
+                        usleep((int) ((400 * $attempt + random_int(100, 300)) * 1000));
+                        continue;
+                    }
+
+                    if (! in_array($status, self::RETRIABLE_STATUSES, true)) {
+                        throw $e;
+                    }
+                } catch (\Throwable $e) {
+                    $lastException = $e;
+
+                    if ($attempt < 3) {
+                        usleep((int) ((400 * $attempt + random_int(100, 300)) * 1000));
+                        continue;
+                    }
+                }
+            }
+        }
+
+        throw new \RuntimeException(
+            'LeetCode GraphQL request blocked or unavailable. Please retry after a short delay.',
+            0,
+            $lastException
+        );
+    }
 
     /**
      * Fetch user profile with stats and badges
@@ -50,15 +108,12 @@ query userPublicProfile($username: String!) {
 }
 GQL;
 
-        $response = $this->post(self::GRAPHQL_ENDPOINT, [
+        $response = $this->postGraphQL([
             'query' => $query,
             'variables' => [
                 'username' => $username,
             ],
-        ], [
-            'Content-Type' => 'application/json',
-            'User-Agent' => 'VertiCode/1.0',
-        ])->json();
+        ]);
 
         if (! empty($response['errors'])) {
             throw new \RuntimeException(
@@ -90,16 +145,13 @@ query recentAcSubmissions($username: String!, $limit: Int!) {
 }
 GQL;
 
-            $response = $this->post(self::GRAPHQL_ENDPOINT, [
+            $response = $this->postGraphQL([
                 'query' => $query,
                 'variables' => [
                     'username' => $username,
                     'limit' => 20,
                 ],
-            ], [
-                'Content-Type' => 'application/json',
-                'User-Agent' => 'VertiCode/1.0',
-            ])->json();
+            ]);
 
             if (! empty($response['errors'])) {
                 Log::warning("LeetCode recent submissions GraphQL error for {$username}: " . ($response['errors'][0]['message'] ?? 'unknown'));
@@ -144,15 +196,12 @@ query userContestRankingInfo($username: String!) {
 }
 GQL;
 
-            $response = $this->post(self::GRAPHQL_ENDPOINT, [
+            $response = $this->postGraphQL([
                 'query' => $query,
                 'variables' => [
                     'username' => $username,
                 ],
-            ], [
-                'Content-Type' => 'application/json',
-                'User-Agent' => 'VertiCode/1.0',
-            ])->json();
+            ]);
 
             if (! empty($response['errors'])) {
                 Log::warning("LeetCode contest info GraphQL error for {$username}: " . ($response['errors'][0]['message'] ?? 'unknown'));
@@ -185,15 +234,12 @@ query userProfileCalendar($username: String!) {
 }
 GQL;
 
-            $response = $this->post(self::GRAPHQL_ENDPOINT, [
+            $response = $this->postGraphQL([
                 'query' => $query,
                 'variables' => [
                     'username' => $username,
                 ],
-            ], [
-                'Content-Type' => 'application/json',
-                'User-Agent' => 'VertiCode/1.0',
-            ])->json();
+            ]);
 
             if (! empty($response['errors']) || empty($response['data']['matchedUser'])) {
                 return [];
