@@ -224,63 +224,64 @@
         $(document).on('select2:open', () => {
             document.querySelector('.select2-search__field').focus();
         });
+        @if (auth()->check() && auth()->user()->username === $user->username)
+            $('.select2-ajax').select2({
+                placeholder: 'Search and select...',
+                allowClear: true,
+                ajax: {
+                    url: '{{ route('user.profile.edit', auth()->user()->username) }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term,
+                            type: $(this).data('type'),
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: function(data, params) {
+                        params.page = params.page || 1;
+                        return {
+                            results: data.results,
+                            pagination: {
+                                more: data.pagination.more
+                            }
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 0
+            });
 
-        $('.select2-ajax').select2({
-            placeholder: 'Search and select...',
-            allowClear: true,
-            ajax: {
-                url: '{{ route('user.profile.edit', auth()->user()->username) }}',
-                dataType: 'json',
-                delay: 250,
-                data: function(params) {
-                    return {
-                        q: params.term,
-                        type: $(this).data('type'),
-                        page: params.page || 1
-                    };
+            $('#institute_country').select2({
+                dropdownParent: $('#addInstituteModal'),
+                placeholder: 'Search and select...',
+                allowClear: true,
+                ajax: {
+                    url: '{{ route('user.profile.edit', auth()->user()->username) }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term,
+                            type: $(this).data('type'),
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: function(data, params) {
+                        params.page = params.page || 1;
+                        return {
+                            results: data.results,
+                            pagination: {
+                                more: data.pagination.more
+                            }
+                        };
+                    },
+                    cache: true
                 },
-                processResults: function(data, params) {
-                    params.page = params.page || 1;
-                    return {
-                        results: data.results,
-                        pagination: {
-                            more: data.pagination.more
-                        }
-                    };
-                },
-                cache: true
-            },
-            minimumInputLength: 0
-        });
-
-        $('#institute_country').select2({
-            dropdownParent: $('#addInstituteModal'),
-            placeholder: 'Search and select...',
-            allowClear: true,
-            ajax: {
-                url: '{{ route('user.profile.edit', auth()->user()->username) }}',
-                dataType: 'json',
-                delay: 250,
-                data: function(params) {
-                    return {
-                        q: params.term,
-                        type: $(this).data('type'),
-                        page: params.page || 1
-                    };
-                },
-                processResults: function(data, params) {
-                    params.page = params.page || 1;
-                    return {
-                        results: data.results,
-                        pagination: {
-                            more: data.pagination.more
-                        }
-                    };
-                },
-                cache: true
-            },
-            minimumInputLength: 0
-        });
+                minimumInputLength: 0
+            });
+        @endif
 
         $('#addInstituteForm').on('submit', function(e) {
             e.preventDefault();

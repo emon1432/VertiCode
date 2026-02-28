@@ -12,9 +12,9 @@
 
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-1">
-                <li class="nav-item"><a class="nav-link" href="#">Community</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Problems</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Contests</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('community') }}">Community</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('problems') }}">Problems</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('contests') }}">Contests</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('leaderboard') }}">Leaderboard</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('contact.us') }}">Contact Us</a></li>
             </ul>
@@ -39,7 +39,7 @@
                         <a class="nav-link" href="{{ route('login') }}">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('register') }}">Register</a>
+                        <a class="btn btn-dark rounded-pill px-4 mt-2 mt-lg-0" href="{{ route('register') }}">Register</a>
                     </li>
                 @endauth
             </ul>

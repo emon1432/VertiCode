@@ -9,6 +9,9 @@ Route::controller(WebsiteController::class)->group(function () {
     Route::get('/leaderboard', 'leaderboard')->name('leaderboard');
     Route::get('/contact-us', 'contactUs')->name('contact.us');
     Route::post('/contact-us', 'submitContact')->name('contact.submit');
+    Route::get('/problems', 'problems')->name('problems');
+    Route::get('/contests', 'contests')->name('contests');
+    Route::get('/community', 'community')->name('community');
 });
 
 Route::controller(OthersController::class)->group(function () {

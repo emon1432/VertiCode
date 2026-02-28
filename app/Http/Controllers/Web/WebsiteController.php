@@ -74,6 +74,14 @@ class WebsiteController extends Controller
                 $leaderboardQuery->orderByRaw('COALESCE(leaderboard_profiles.total_rating, 0) desc')
                     ->orderBy('users.username');
                 break;
+            case 'solved_asc':
+                $leaderboardQuery->orderByRaw('COALESCE(leaderboard_profiles.total_solved, 0) asc')
+                    ->orderBy('users.username');
+                break;
+            case 'solved_desc':
+                $leaderboardQuery->orderByRaw('COALESCE(leaderboard_profiles.total_solved, 0) desc')
+                    ->orderBy('users.username');
+                break;
         }
 
         $users = $leaderboardQuery->paginate(20)->withQueryString();
@@ -140,5 +148,20 @@ class WebsiteController extends Controller
         }
 
         return back()->with('success', 'Thanks for contacting us! We have received your message.');
+    }
+
+    public function problems()
+    {
+        return view('web.pages.coming-soon', ['title' => 'Problems']);
+    }
+
+    public function contests()
+    {
+        return view('web.pages.coming-soon', ['title' => 'Contests']);
+    }
+
+    public function community()
+    {
+        return view('web.pages.coming-soon', ['title' => 'Community']);
     }
 }

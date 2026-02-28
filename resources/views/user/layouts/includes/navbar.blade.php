@@ -12,9 +12,9 @@
 
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-1">
-                <li class="nav-item"><a class="nav-link px-3" href="#">Community</a></li>
-                <li class="nav-item"><a class="nav-link px-3" href="#">Problems</a></li>
-                <li class="nav-item"><a class="nav-link px-3" href="#">Contests</a></li>
+                <li class="nav-item"><a class="nav-link px-3" href="{{ route('community') }}">Community</a></li>
+                <li class="nav-item"><a class="nav-link px-3" href="{{ route('problems') }}">Problems</a></li>
+                <li class="nav-item"><a class="nav-link px-3" href="{{ route('contests') }}">Contests</a></li>
                 <li class="nav-item"><a class="nav-link px-3" href="{{ route('leaderboard') }}">Leaderboard</a></li>
                 <li class="nav-item"><a class="nav-link px-3" href="{{ route('contact.us') }}">Contact Us</a></li>
             </ul>
@@ -36,7 +36,8 @@
                             <li><a class="dropdown-item"
                                     href="{{ route('user.profile.show', auth()->user()->username) }}"><i
                                         class="bi bi-person-circle me-2"></i>My Profile</a></li>
-                            <li><a class="dropdown-item" href="{{ route('user.profile.edit', auth()->user()->username) }}"><i
+                            <li><a class="dropdown-item"
+                                    href="{{ route('user.profile.edit', auth()->user()->username) }}"><i
                                         class="bi bi-gear me-2"></i>Settings</a></li>
                             <li>
                                 <hr class="dropdown-divider">

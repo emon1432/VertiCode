@@ -46,52 +46,20 @@
                         </div>
                     </div>
                 </div>
-                <div class="d-flex flex-wrap gap-3 mb-3">
-                    @if ($user->country)
-                        <div class="d-flex align-items-center gap-1">
-                            <i class="bi bi-geo-alt"></i>
-                            <span><img src="https://flagcdn.com/16x12/{{ strtolower($user->country->code) }}.png"
-                                    alt="{{ $user->country->name }} flag"> {{ $user->country->name }}
-                                ({{ $user->country->code }})</span>
-                        </div>
-                    @endif
-                    @if ($user->institute)
-                        <div class="d-flex align-items-center gap-1">
-                            <i class="bi bi-building"></i>
-                            <span>{{ $user->institute->name }}</span>
-                        </div>
-                    @endif
-                </div>
-                <div class="d-flex gap-2 flex-wrap mb-3">
-                    @if ($user->email)
-                        <div class="d-flex align-items-center gap-1">
-                            <i class="bi bi-envelope"></i>
-                            <span><a href="mailto:{{ $user->email }}">{{ $user->email }}</a></span>
-                        </div>
-                    @endif
-                    @if ($user->phone)
-                        <div class="d-flex align-items-center gap-1">
-                            <i class="bi bi-telephone"></i>
-                            <span><a href="tel:{{ $user->phone }}">{{ $user->phone }}</a></span>
-                        </div>
-                    @endif
-                </div>
-                <div class="d-flex gap-2 flex-wrap mb-3">
-                    @if ($user->date_of_birth)
-                        <div class="d-flex align-items-center gap-1">
-                            <i class="bi bi-cake"></i>
-                            <span>{{ Carbon\Carbon::parse($user->date_of_birth)->format('F j, Y') }}
-                                ({{ Carbon\Carbon::parse($user->date_of_birth)->age }} years old)</span>
-                        </div>
-                    @endif
-                    @if ($user->gender)
-                        <div class="d-flex align-items-center gap-1">
-                            <i
-                                class="bi bi-gender-{{ strtolower($user->gender) == 'other' ? 'genderless' : strtolower($user->gender) }}"></i>
-                            <span>{{ $user->gender }}</span>
-                        </div>
-                    @endif
-                </div>
+                @if ($user->country)
+                    <div class="d-flex align-items-center gap-1 mb-2">
+                        <i class="bi bi-geo-alt"></i>
+                        <span><img src="https://flagcdn.com/16x12/{{ strtolower($user->country->code) }}.png"
+                                alt="{{ $user->country->name }} flag"> {{ $user->country->name }}
+                            ({{ $user->country->code }})</span>
+                    </div>
+                @endif
+                @if ($user->institute)
+                    <div class="d-flex align-items-center gap-1">
+                        <i class="bi bi-building"></i>
+                        <span>{{ $user->institute->name }}</span>
+                    </div>
+                @endif
             </div>
             <div class="col-auto flex-grow-1">
                 <div class="d-flex gap-2 flex-wrap justify-content-end m-3">
@@ -131,6 +99,10 @@
                             <i class="bi bi-linkedin"></i>
                         </a>
                     @endif
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle" title="Share Profile"
+                        onclick="navigator.clipboard.writeText('{{ route('user.profile.show', $user->username) }}'); alert('Profile URL copied to clipboard!');">
+                        <i class="bi bi-share"></i>
+                    </button>
                 </div>
                 <div class="mt-4 d-flex gap-2 flex-wrap justify-content-end">
                     @auth

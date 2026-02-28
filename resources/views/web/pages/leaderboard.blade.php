@@ -3,6 +3,8 @@
 @section('title', 'Leaderboard - VertiCode')
 
 @push('styles')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('web/css/custom-select2.css') }}">
     <style>
         .leaderboard-hero {
             background: var(--primary-gradient);
@@ -64,6 +66,14 @@
             font-weight: 600;
             font-size: 0.82rem;
         }
+
+        .leaderboard-filter-card .select2.select2-container {
+            width: 100% !important;
+        }
+
+        .leaderboard-filter-card .select2-container--default .select2-selection--single {
+            min-height: calc(1.5em + 0.75rem + 2px);
+        }
     </style>
 @endpush
 
@@ -102,3 +112,23 @@
         </div>
     </section>
 @endsection
+
+@push('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(function() {
+            $('.js-filter-select2').select2({
+                width: '100%',
+                allowClear: true,
+                placeholder: function() {
+                    return $(this).data('placeholder') || 'Select option';
+                }
+            });
+
+            $(document).on('select2:open', function() {
+                document.querySelector('.select2-search__field')?.focus();
+            });
+        });
+    </script>
+@endpush
