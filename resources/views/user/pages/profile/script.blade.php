@@ -5,6 +5,50 @@
     let syncCountdownInterval = null;
     let syncStatusCheckInterval = null;
 
+    function showProfileToast(message, type = 'success') {
+        const existingContainer = document.getElementById('profile-toast-container');
+        const container = existingContainer || (() => {
+            const newContainer = document.createElement('div');
+            newContainer.id = 'profile-toast-container';
+            newContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+            newContainer.style.zIndex = '1080';
+            document.body.appendChild(newContainer);
+            return newContainer;
+        })();
+
+        const isSuccess = type === 'success';
+        const icon = isSuccess ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+        const borderClass = isSuccess ? 'border-success' : 'border-danger';
+        const textClass = isSuccess ? 'text-success' : 'text-danger';
+        const title = isSuccess ? 'Success' : 'Error';
+
+        const toastEl = document.createElement('div');
+        toastEl.className = `toast align-items-center border ${borderClass}`;
+        toastEl.setAttribute('role', 'alert');
+        toastEl.setAttribute('aria-live', 'assertive');
+        toastEl.setAttribute('aria-atomic', 'true');
+
+        toastEl.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center gap-2">
+                    <i class="bi ${icon} ${textClass}"></i>
+                    <div>
+                        <div class="fw-semibold">${title}</div>
+                        <div>${message}</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+
+        container.appendChild(toastEl);
+        const toast = new bootstrap.Toast(toastEl, {
+            delay: 3500
+        });
+        toast.show();
+        toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+    }
+
     function formatTimeRemaining(seconds) {
         if (seconds <= 0) return 'Sync Now';
 
@@ -139,7 +183,8 @@
                         setTimeout(function() {
                             $button.find('.bi').removeClass('spin');
                             // Start the cooldown timer
-                            const cooldownMinutes = parseInt($button.data('cooldown-minutes')) || 120;
+                            const cooldownMinutes = parseInt($button.data(
+                                'cooldown-minutes')) || 120;
                             const cooldownSeconds = cooldownMinutes * 60;
                             startSyncCountdown(cooldownSeconds);
                         }, 1500);
@@ -151,7 +196,8 @@
                         $button.prop('disabled', false);
 
                         // Show error message
-                        const errorMsg = xhr.responseJSON?.message || 'An error occurred during sync';
+                        const errorMsg = xhr.responseJSON?.message ||
+                            'An error occurred during sync';
                         alert(errorMsg);
 
                         // Reset button after 3 seconds
@@ -239,6 +285,14 @@
         $('#addInstituteForm').on('submit', function(e) {
             e.preventDefault();
 
+            const $form = $(this);
+            const $submitBtn = $('#submitBtn');
+            const originalButtonHtml = $submitBtn.html();
+
+            $submitBtn.prop('disabled', true).html(
+                '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sending Request...'
+            );
+
             const formData = {
                 name: $('#institute_name').val(),
                 country_id: $('#institute_country').val(),
@@ -247,21 +301,21 @@
             };
 
             $.ajax({
-                url: '',
+                url: $form.attr('action'),
                 method: 'POST',
                 data: formData,
                 success: function(response) {
-                    // Add new option to institute select
-                    const newOption = new Option(response.text, response.id, true, true);
-                    $('#institute_id').append(newOption).trigger('change');
-
                     // Reset form and close modal
                     $('#addInstituteForm')[0].reset();
+                    $('#institute_country').val(null).trigger('change');
                     $('#addInstituteModal').modal('hide');
 
                     // Clear error messages
                     $('.invalid-feedback').html('').hide();
                     $('.form-control, .form-select').removeClass('is-invalid');
+
+                    showProfileToast(response.message ||
+                        'Institute request sent successfully.', 'success');
                 },
                 error: function(xhr) {
                     // Handle validation errors
@@ -280,7 +334,14 @@
                                 $('[name="' + field + '"]').addClass('is-invalid');
                             }
                         });
+                    } else {
+                        const errorMsg = xhr.responseJSON?.message ||
+                            'Failed to send institute request. Please try again.';
+                        showProfileToast(errorMsg, 'error');
                     }
+                },
+                complete: function() {
+                    $submitBtn.prop('disabled', false).html(originalButtonHtml);
                 }
             });
         });

@@ -131,7 +131,7 @@
                         </div>
 
                         <div class="col-lg-7">
-                            <form action="{{ route('contact.submit') }}" method="POST" class="contact-form">
+                            <form action="{{ route('contact.submit') }}" method="POST" class="contact-form" id="contactUsForm">
                                 @csrf
 
                                 <div class="row g-3">
@@ -174,8 +174,9 @@
                                     </div>
 
                                     <div class="col-12 mt-3">
-                                        <button type="submit" class="btn btn-primary-gradient">
-                                            <i class="bi bi-send me-2"></i>Send Message
+                                        <button type="submit" class="btn btn-primary-gradient" id="contactSubmitBtn">
+                                            <span class="contact-submit-default"><i class="bi bi-send me-2"></i>Send Message</span>
+                                            <span class="contact-submit-loading d-none"><span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sending Message...</span>
                                         </button>
                                     </div>
                                 </div>
@@ -186,4 +187,24 @@
             </div>
         </div>
     </section>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('contactUsForm');
+                const button = document.getElementById('contactSubmitBtn');
+
+                if (!form || !button) {
+                    return;
+                }
+
+                form.addEventListener('submit', function() {
+                    button.disabled = true;
+                    button.classList.add('disabled');
+                    button.querySelector('.contact-submit-default')?.classList.add('d-none');
+                    button.querySelector('.contact-submit-loading')?.classList.remove('d-none');
+                });
+            });
+        </script>
+    @endpush
 @endsection

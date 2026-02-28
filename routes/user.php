@@ -17,6 +17,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
             ->group(function () {
                 Route::get('/edit', 'edit')->name('edit');
                 Route::put('/', 'update')->name('update');
+                Route::post('/institute-request', 'submitInstituteRequest')->name('institute.request');
             });
 
         Route::post('/sync', [SyncController::class, 'sync'])->name('sync');

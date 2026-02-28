@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ContactMessageMail;
+use App\Models\ContactMessage;
 use App\Models\Country;
 use App\Models\Institute;
 use App\Models\Platform;
@@ -10,6 +12,7 @@ use App\Models\PlatformProfile;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Detection\MobileDetect;
 
@@ -81,6 +84,53 @@ class UserProfileController extends Controller
         if (isset($return)) {
             return $return;
         }
+    }
+
+    public function submitInstituteRequest(Request $request, $username)
+    {
+        $user = User::findOrFail(Auth::id());
+
+        if ($user->username !== $username) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'country_id' => 'required|exists:countries,id',
+            'website' => 'nullable|url|max:255',
+        ]);
+
+        $country = Country::find($validated['country_id']);
+
+        $contactMessage = ContactMessage::create([
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'subject' => 'Institute Request: ' . $validated['name'],
+            'message' => "User requested a new institute to be added.\n\n"
+                . 'Institute Name: ' . $validated['name'] . "\n"
+                . 'Country: ' . ($country?->name ?? 'N/A') . "\n"
+                . 'Website: ' . ($validated['website'] ?? 'N/A') . "\n\n"
+                . 'Requested by: ' . $user->name . ' (@' . $user->username . ')',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'status' => 'new',
+        ]);
+
+        $recipientEmail = 'e.mon143298@gmail.com';
+
+        if (!empty($recipientEmail)) {
+            try {
+                Mail::to($recipientEmail)->send(new ContactMessageMail($contactMessage));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => __('Institute request sent successfully. We will review it soon.'),
+        ]);
     }
 
     protected function countriesAndInstitutes(Request $request)

@@ -231,7 +231,7 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="addInstituteForm">
+            <form id="addInstituteForm" action="{{ route('user.profile.institute.request', auth()->user()->username) }}">
                 <div class="modal-body">
                     @csrf
                     <!-- Institute Name -->
