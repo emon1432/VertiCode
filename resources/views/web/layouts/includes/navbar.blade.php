@@ -15,8 +15,8 @@
                 <li class="nav-item"><a class="nav-link" href="#">Community</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Problems</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Contests</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Leaderboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('leaderboard') }}">Leaderboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('contact.us') }}">Contact Us</a></li>
             </ul>
 
             <ul class="navbar-nav mb-2 mb-lg-0 align-items-lg-center gap-lg-1">

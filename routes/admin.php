@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PlatformController;
 use App\Http\Controllers\Admin\SettingController;
@@ -13,6 +14,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
     });
     Route::resource('platforms', PlatformController::class);
     Route::resource('users', UserController::class)->only(['index', 'show']);
+    Route::resource('contact-messages', ContactMessageController::class)->only(['index', 'show']);
     Route::resource('admins', AdminController::class);
     Route::resource('settings', SettingController::class)->only('index', 'update');
 });

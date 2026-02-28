@@ -45,6 +45,12 @@
                 <div>{{ __('Users') }}</div>
             </a>
         </li>
+        <li class="menu-item">
+            <a href="{{ route('contact-messages.index') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-mail"></i>
+                <div>{{ __('Contact Messages') }}</div>
+            </a>
+        </li>
         <li class="menu-header small">
             <span class="menu-header-text">{{ __('System') }}</span>
         </li>
