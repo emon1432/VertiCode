@@ -1,5 +1,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="{{ asset('web/js/select2-options.js') }}"></script>
 <script>
     // Sync button countdown timer
     let syncCountdownInterval = null;
@@ -221,67 +222,16 @@
 
         $('.select2').select2();
 
-        $(document).on('select2:open', () => {
-            document.querySelector('.select2-search__field').focus();
+        initSelect2AjaxOptions('.select2-ajax', {
+            endpoint: '{{ route('select2.options') }}',
+            placeholder: 'Search and select...'
         });
-        @if (auth()->check() && auth()->user()->username === $user->username)
-            $('.select2-ajax').select2({
-                placeholder: 'Search and select...',
-                allowClear: true,
-                ajax: {
-                    url: '{{ route('user.profile.edit', auth()->user()->username) }}',
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            q: params.term,
-                            type: $(this).data('type'),
-                            page: params.page || 1
-                        };
-                    },
-                    processResults: function(data, params) {
-                        params.page = params.page || 1;
-                        return {
-                            results: data.results,
-                            pagination: {
-                                more: data.pagination.more
-                            }
-                        };
-                    },
-                    cache: true
-                },
-                minimumInputLength: 0
-            });
 
-            $('#institute_country').select2({
-                dropdownParent: $('#addInstituteModal'),
-                placeholder: 'Search and select...',
-                allowClear: true,
-                ajax: {
-                    url: '{{ route('user.profile.edit', auth()->user()->username) }}',
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            q: params.term,
-                            type: $(this).data('type'),
-                            page: params.page || 1
-                        };
-                    },
-                    processResults: function(data, params) {
-                        params.page = params.page || 1;
-                        return {
-                            results: data.results,
-                            pagination: {
-                                more: data.pagination.more
-                            }
-                        };
-                    },
-                    cache: true
-                },
-                minimumInputLength: 0
-            });
-        @endif
+        initSelect2AjaxOptions('#institute_country', {
+            endpoint: '{{ route('select2.options') }}',
+            placeholder: 'Search and select...',
+            dropdownParent: $('#addInstituteModal')
+        });
 
         $('#addInstituteForm').on('submit', function(e) {
             e.preventDefault();

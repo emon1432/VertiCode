@@ -12,27 +12,25 @@
 
             <div class="col-lg-6 col-md-6">
                 <label for="institute_id" class="form-label fw-semibold">Institute</label>
-                <select name="institute_id" id="institute_id" class="form-select js-filter-select2"
-                    data-placeholder="All institutes">
+                <select name="institute_id" id="institute_id" class="form-select js-filter-select2-ajax"
+                    data-type="institute" data-placeholder="All institutes">
                     <option value="">All institutes</option>
-                    @foreach ($institutes as $institute)
-                        <option value="{{ $institute->id }}" @selected((string) request('institute_id') === (string) $institute->id)>
-                            {{ $institute->name }}
-                        </option>
-                    @endforeach
+                    @if ($selectedInstitute)
+                        <option value="{{ $selectedInstitute->id }}" selected>{{ $selectedInstitute->name }}</option>
+                    @endif
                 </select>
             </div>
 
             <div class="col-lg-4 col-md-6">
                 <label for="country_id" class="form-label fw-semibold">Country</label>
-                <select name="country_id" id="country_id" class="form-select js-filter-select2"
-                    data-placeholder="All countries">
+                <select name="country_id" id="country_id" class="form-select js-filter-select2-ajax"
+                    data-type="country" data-placeholder="All countries">
                     <option value="">All countries</option>
-                    @foreach ($countries as $country)
-                        <option value="{{ $country->id }}" @selected((string) request('country_id') === (string) $country->id)>
-                            {{ $country->name }}
+                    @if ($selectedCountry)
+                        <option value="{{ $selectedCountry->id }}" selected>
+                            {{ trim(($selectedCountry->flag ? $selectedCountry->flag . ' ' : '') . $selectedCountry->name) }}
                         </option>
-                    @endforeach
+                    @endif
                 </select>
             </div>
 

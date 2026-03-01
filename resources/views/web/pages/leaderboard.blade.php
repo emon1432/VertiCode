@@ -116,6 +116,7 @@
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{{ asset('web/js/select2-options.js') }}"></script>
     <script>
         $(function() {
             $('.js-filter-select2').select2({
@@ -126,8 +127,9 @@
                 }
             });
 
-            $(document).on('select2:open', function() {
-                document.querySelector('.select2-search__field')?.focus();
+            initSelect2AjaxOptions('.js-filter-select2-ajax', {
+                endpoint: '{{ route('select2.options') }}',
+                placeholder: 'Search and select...'
             });
         });
     </script>

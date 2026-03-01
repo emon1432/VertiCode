@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Mail\ContactMessageMail;
 use App\Models\ContactMessage;
 use App\Models\Country;
-use App\Models\Institute;
 use App\Models\Platform;
 use App\Models\PlatformProfile;
 use App\Models\User;
@@ -32,10 +31,6 @@ class UserProfileController extends Controller
         $user = User::findOrFail(Auth::id());
         if ($user->username !== $username) {
             abort(403, 'Unauthorized action.');
-        }
-
-        if ($request->ajax()) {
-            return $this->countriesAndInstitutes($request);
         }
 
         $countries = collect();
@@ -131,75 +126,6 @@ class UserProfileController extends Controller
             'status' => 200,
             'message' => __('Institute request sent successfully. We will review it soon.'),
         ]);
-    }
-
-    protected function countriesAndInstitutes(Request $request)
-    {
-        $type = $request->get('type');
-        $search = $request->get('q', '');
-        $page = $request->get('page', 1);
-        $perPage = 10;
-        $offset = ($page - 1) * $perPage;
-
-        switch ($type) {
-            case 'countries':
-                $query = Country::where('name', 'like', '%' . $search . '%')
-                    ->orWhere('code', 'like', '%' . $search . '%')
-                    ->orderBy('name');
-
-                $total = $query->count();
-                $results = $query->offset($offset)
-                    ->limit($perPage)
-                    ->get()
-                    ->map(function ($country) {
-                        return [
-                            'id' => $country->id,
-                            'text' => $country->name . ' (' . $country->code . ')'
-                        ];
-                    });
-
-                return response()->json([
-                    'results' => $results,
-                    'pagination' => [
-                        'more' => ($offset + $perPage) < $total
-                    ]
-                ]);
-                break;
-            case 'institutes':
-                $query = Institute::where('name', 'like', '%' . $search . '%')
-                    ->orWhereHas('country', function ($q) use ($search) {
-                        $q->where('name', 'like', '%' . $search . '%');
-                    })
-                    ->orWhere('website', 'like', '%' . $search . '%')
-                    ->orderBy('name');
-
-                $total = $query->count();
-                $results = $query->offset($offset)
-                    ->limit($perPage)
-                    ->get()
-                    ->map(function ($institute) {
-                        return [
-                            'id' => $institute->id,
-                            'text' => $institute->name . ' (' . $institute->country->name . ')' . ' (' . $institute->website . ')'
-                        ];
-                    });
-
-                return response()->json([
-                    'results' => $results,
-                    'pagination' => [
-                        'more' => ($offset + $perPage) < $total
-                    ]
-                ]);
-                break;
-            default:
-                return response()->json([
-                    'results' => [],
-                    'pagination' => [
-                        'more' => false
-                    ]
-                ]);
-                break;
-        }
     }
 
     protected function profileInfo(Request $request, User $user)
