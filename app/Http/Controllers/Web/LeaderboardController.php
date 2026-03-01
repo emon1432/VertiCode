@@ -32,6 +32,12 @@ class LeaderboardController extends Controller
             ->selectRaw('COALESCE(leaderboard_profiles.total_rating, 0) as total_rating')
             ->selectRaw('COALESCE(leaderboard_profiles.total_solved, 0) as total_solved');
 
+        $topUsers = (clone $leaderboardQuery)
+            ->orderByRaw('COALESCE(leaderboard_profiles.total_rating, 0) desc')
+            ->orderBy('users.username')
+            ->limit(3)
+            ->get();
+
         if ($search = trim($request->input('search', ''))) {
             $leaderboardQuery->where(function ($query) use ($search) {
                 $query->where('users.name', 'like', "%{$search}%")
@@ -84,10 +90,6 @@ class LeaderboardController extends Controller
 
             return $user;
         });
-
-        $topUsers = (clone $leaderboardQuery)
-            ->limit(3)
-            ->get();
 
         $platforms = Platform::query()
             ->active()

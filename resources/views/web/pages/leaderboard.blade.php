@@ -37,6 +37,13 @@
             color: white;
         }
 
+        .leaderboard-top-user .leaderboard-meta {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
         .leaderboard-rank-badge {
             min-width: 44px;
             border-radius: 999px;
@@ -74,6 +81,36 @@
         .leaderboard-filter-card .select2-container--default .select2-selection--single {
             min-height: calc(1.5em + 0.75rem + 2px);
         }
+
+        .leaderboard-pagination-wrap {
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            background: #fff;
+        }
+
+        .leaderboard-pagination-wrap .pagination {
+            gap: 0.35rem;
+            flex-wrap: wrap;
+        }
+
+        .leaderboard-pagination-wrap .page-link {
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            min-width: 2.25rem;
+            text-align: center;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .leaderboard-pagination-wrap .page-item.active .page-link {
+            background: var(--primary-gradient);
+            border-color: transparent;
+            color: #fff;
+        }
+
+        .leaderboard-pagination-meta {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
     </style>
 @endpush
 
@@ -106,8 +143,8 @@
 
     <section class="py-5 bg-light">
         <div class="container">
-            @include('web.pages.sections.filter')
             @include('web.pages.sections.performer-card')
+            @include('web.pages.sections.filter')
             @include('web.pages.sections.leaderboard-table')
         </div>
     </section>

@@ -16,8 +16,8 @@
                     ? imageShow($topUser->image)
                     : $topUser->profile_photo_url;
         @endphp
-        <div class="col-lg-4 col-md-6">
-            <div class="leaderboard-top-user p-4 shadow-sm" style="background: {{ $background }};">
+        <div class="col-lg-4 col-md-6 d-flex">
+            <div class="leaderboard-top-user p-4 shadow-sm h-100 d-flex flex-column w-100" style="background: {{ $background }};">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="badge bg-light text-dark leaderboard-rank-badge">#{{ $position }}</span>
                     <span class="small opacity-75">
@@ -53,12 +53,12 @@
                             class="small opacity-75 text-decoration-none text-light">
                             &#64;{{ $topUser->username }}
                         </a>
-                        <div class="small opacity-75"><i class="bi bi-building"></i>
+                        <div class="small opacity-75 leaderboard-meta"><i class="bi bi-building"></i>
                             {{ $topUser->institute ? $topUser->institute->name : 'No institute' }}
                         </div>
                     </div>
                 </div>
-                <div class="mt-3 pt-3 border-top border-light border-opacity-25 d-flex justify-content-between">
+                <div class="mt-3 pt-3 border-top border-light border-opacity-25 d-flex justify-content-between mt-auto">
                     <div>
                         <div class="small opacity-75">Total rating</div>
                         <div class="h4 mb-0 fw-bold">{{ number_format((int) $topUser->total_rating) }}</div>
