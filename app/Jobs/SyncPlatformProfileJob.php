@@ -15,6 +15,12 @@ class SyncPlatformProfileJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $timeout = 240;
+
+    public int $tries = 2;
+
+    public int $backoff = 15;
+
     public function __construct(
         public int $platformProfileId,
         public string $adapterClass

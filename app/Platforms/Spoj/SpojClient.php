@@ -184,10 +184,10 @@ class SpojClient
      */
     private function getViaFlareSolverr(string $url, string $flareSolverrUrl): string
     {
-        $response = Http::timeout(60)->post($flareSolverrUrl . '/v1', [
+        $response = Http::timeout(45)->post($flareSolverrUrl . '/v1', [
             'cmd' => 'request.get',
             'url' => $url,
-            'maxTimeout' => 60000,
+            'maxTimeout' => 45000,
         ]);
 
         if (!$response->successful()) {
@@ -267,7 +267,7 @@ class SpojClient
                 $crawler = new Crawler($html);
                 $tbody = $crawler->filter('tbody');
 
-                if ($tbody->count() === 0 || $tbody->filter('tr')->count() <= 1) {
+                if ($tbody->count() === 0 || $tbody->filter('tr')->count() === 0) {
                     // No more submissions
                     break;
                 }
@@ -275,43 +275,65 @@ class SpojClient
                 $pageSubmissions = [];
                 $currentId = null;
 
-                $tbody->filter('tr')->each(function (Crawler $row, $index) use (&$pageSubmissions, &$currentId, &$prevId, $handle) {
+                $tbody->filter('tr')->each(function (Crawler $row, $index) use (&$pageSubmissions, &$currentId) {
                     try {
                         $cells = $row->filter('td');
-                        if ($cells->count() < 13) {
+                        $columnCount = $cells->count();
+
+                        // Current SPOJ status table has 7 columns:
+                        // ID, DATE, PROBLEM, RESULT, TIME, MEM, LANG
+                        // Legacy layout may have 13 columns.
+                        if ($columnCount < 7) {
                             return;
                         }
 
+                        $idIndex = $columnCount >= 13 ? 1 : 0;
+                        $dateIndex = $columnCount >= 13 ? 3 : 1;
+                        $problemIndex = $columnCount >= 13 ? 5 : 2;
+                        $statusIndex = $columnCount >= 13 ? 6 : 3;
+                        $langIndex = $columnCount >= 13 ? 12 : 6;
+
                         // Submission ID
-                        $subId = trim($cells->eq(1)->text());
+                        $subIdText = trim($cells->eq($idIndex)->text(''));
+                        if (! preg_match('/\d+/', $subIdText, $idMatch)) {
+                            return;
+                        }
+
+                        $subId = $idMatch[0];
                         if ($index === 0) {
                             $currentId = $subId;
-                            if ($currentId === $prevId) {
-                                // Duplicate page, stop
-                                return;
-                            }
                         }
 
                         // Time of submission
-                        $timeText = trim($cells->eq(3)->filter('span')->first()->text());
+                        $timeText = trim($cells->eq($dateIndex)->text(''));
+                        if (empty($timeText)) {
+                            return;
+                        }
+
                         $submittedAt = CarbonImmutable::parse($timeText);
 
                         // Problem
-                        $problemLink = $cells->eq(5)->filter('a');
+                        $problemLink = $cells->eq($problemIndex)->filter('a');
                         if ($problemLink->count() === 0) {
                             return;
                         }
 
-                        $problemName = trim($problemLink->text());
-                        $problemHref = $problemLink->attr('href');
-                        $problemUrl = self::BASE_URL . $problemHref;
+                        $problemName = trim($problemLink->first()->text(''));
+                        $problemHref = $problemLink->first()->attr('href') ?? '';
+                        if (empty($problemName) || empty($problemHref)) {
+                            return;
+                        }
+
+                        $problemUrl = str_starts_with($problemHref, 'http')
+                            ? $problemHref
+                            : self::BASE_URL . '/' . ltrim($problemHref, '/');
 
                         // Status
-                        $statusHtml = $cells->eq(6)->html();
+                        $statusHtml = (string) ($cells->eq($statusIndex)->html() ?? $cells->eq($statusIndex)->text(''));
                         $status = $this->normalizeStatus($statusHtml);
 
                         // Language
-                        $language = trim($cells->eq(12)->filter('span')->first()->text(''));
+                        $language = trim($cells->eq($langIndex)->text(''));
 
                         $pageSubmissions[] = [
                             'submission_id' => $subId,
@@ -325,6 +347,11 @@ class SpojClient
                         // Skip problematic rows
                     }
                 });
+
+                if ($currentId !== null && (string) $currentId === (string) $prevId) {
+                    // Duplicate page, stop pagination
+                    break;
+                }
 
                 if (!empty($pageSubmissions)) {
                     $submissions = array_merge($submissions, $pageSubmissions);

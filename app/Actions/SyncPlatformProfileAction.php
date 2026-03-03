@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Contracts\Platforms\PlatformAdapter;
+use App\Enums\Platform as PlatformEnum;
 use App\Models\PlatformProfile;
 use App\Models\SyncLog;
 use Illuminate\Support\Facades\DB;
@@ -36,11 +37,19 @@ class SyncPlatformProfileAction
                     try {
                         $submissions = $adapter->fetchSubmissions($platformProfile->handle);
 
-                        $totalSolved = $submissions
+                        $calculatedSolved = $submissions
                             ->unique(fn($sub) => $sub->problemId)
                             ->count();
 
-                        Log::info("Sync: Counted {$totalSolved} unique problems from " . $submissions->count() . " submissions for {$platformProfile->handle}");
+                        $totalSolved = $calculatedSolved;
+
+                        // SPOJ profile page exposes authoritative total solved count,
+                        // while status pagination can miss older submissions.
+                        if ($adapter->platform() === PlatformEnum::SPOJ->value) {
+                            $totalSolved = max($profileDto->totalSolved, $calculatedSolved);
+                        }
+
+                        Log::info("Sync: Counted {$calculatedSolved} unique problems from " . $submissions->count() . " submissions for {$platformProfile->handle}");
                     } catch (\Exception $e) {
                         // If submissions fetch fails (e.g., Cloudflare blocks SPOJ),
                         // fall back to profile's total_solved count

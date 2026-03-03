@@ -6,6 +6,7 @@ use App\Actions\SyncPlatformProfileAction;
 use App\Models\User;
 use App\Models\Platform;
 use App\Models\PlatformProfile;
+use App\Enums\Verdict;
 use App\Platforms\Spoj\SpojAdapter;
 use Illuminate\Console\Command;
 
@@ -13,7 +14,7 @@ class TestSpojSync extends Command
 {
     protected $signature = 'test:spoj {handle} {--sync : Run full sync}';
 
-    protected $description = 'Test SPOJ profile fetching (submissions disabled due to Cloudflare)';
+    protected $description = 'Test SPOJ profile and submissions fetching';
 
     public function handle(SpojAdapter $adapter, SyncPlatformProfileAction $syncAction): int
     {
@@ -42,9 +43,19 @@ class TestSpojSync extends Command
             }
             $this->newLine();
 
-            $this->info('2. Submissions:');
-            $this->line("   ℹ Submissions are disabled for SPOJ due to Cloudflare protection.");
-            $this->line("   ℹ Using profile's total_solved count instead.");
+            $this->info('2. Fetching submissions...');
+            try {
+                $submissions = $adapter->fetchSubmissions($handle);
+                $acceptedCount = $submissions->filter(fn ($submission) => $submission->verdict === Verdict::ACCEPTED)->count();
+                $uniqueSolvedCount = $submissions->unique(fn ($submission) => $submission->problemId)->count();
+
+                $this->line("   ✓ Total Submissions Fetched: {$submissions->count()}");
+                $this->line("   ✓ Accepted Submissions: {$acceptedCount}");
+                $this->line("   ✓ Unique Problems Solved: {$uniqueSolvedCount}");
+            } catch (\Exception $e) {
+                $this->warn("   ⚠ Submissions unavailable: {$e->getMessage()}");
+                $this->line("   ℹ Sync will use profile total_solved when submissions fail.");
+            }
             $this->newLine();
 
             // Optionally run full sync

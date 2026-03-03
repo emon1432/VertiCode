@@ -30,9 +30,7 @@ class SpojAdapter implements PlatformAdapter
 
     public function supportsSubmissions(): bool
     {
-        // Submissions parsing is unreliable due to complex HTML structure
-        // Use profile's total_solved instead (fetched via FlareSolverr)
-        return false;
+        return true;
     }
 
     public function fetchProfile(string $handle): ProfileDTO
