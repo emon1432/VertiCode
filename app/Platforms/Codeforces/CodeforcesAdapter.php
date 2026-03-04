@@ -38,6 +38,21 @@ class CodeforcesAdapter implements PlatformAdapter
         $userInfo = $this->client->fetchUserInfo($handle);
         $ratingRank = $this->client->fetchRankByRating($handle);
 
+        $displayName = trim(implode(' ', array_filter([
+            $userInfo['firstName'] ?? null,
+            $userInfo['lastName'] ?? null,
+        ])));
+
+        if ($displayName === '') {
+            $displayName = $userInfo['handle'] ?? $handle;
+        }
+
+        $avatarUrl = $userInfo['titlePhoto']
+            ?? $userInfo['avatar']
+            ?? null;
+
+        $joinedAt = $userInfo['registrationTimeSeconds'] ?? null;
+
         // Calculate max rating
         $maxRating = $this->client->calculateMaxRating($userInfo);
 
@@ -49,6 +64,12 @@ class CodeforcesAdapter implements PlatformAdapter
 
         // Build comprehensive raw data
         $rawData = [
+            'platform_user_id' => $userInfo['handle'] ?? $handle,
+            'name' => $displayName,
+            'avatar_url' => $avatarUrl,
+            'joined_at' => $joinedAt,
+            'country' => $userInfo['country'] ?? null,
+            'organization' => $userInfo['organization'] ?? null,
             'user_info' => $userInfo,
             'ranking' => $ratingRank,
             'rank_by_rating' => $ratingRank,
@@ -62,6 +83,8 @@ class CodeforcesAdapter implements PlatformAdapter
             'friend_count' => $userInfo['friendOfCount'] ?? 0,
             'avatar' => $userInfo['avatar'] ?? null,
             'title_photo' => $userInfo['titlePhoto'] ?? null,
+            'city' => $userInfo['city'] ?? null,
+            'last_online_at' => $userInfo['lastOnlineTimeSeconds'] ?? null,
         ];
 
         return new ProfileDTO(
