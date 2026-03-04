@@ -62,6 +62,9 @@ class SpojClient
         }
 
         $rank = null;
+        $name = $handle;
+        $country = null;
+        $avatarUrl = null;
 
         // Extract rank and points from current profile layout, e.g.
         // "World Rank: #8 (851.6 points)"
@@ -107,11 +110,35 @@ class SpojClient
             $joinDate = $joinMatch[1];
         }
 
+        if ($crawler->filter('#user-profile-left img')->count() > 0) {
+            $img = $crawler->filter('#user-profile-left img')->first();
+            $src = $img->attr('src');
+            if (is_string($src) && trim($src) !== '') {
+                if (str_starts_with($src, 'http://') || str_starts_with($src, 'https://')) {
+                    $avatarUrl = $src;
+                } elseif (str_starts_with($src, '//')) {
+                    $avatarUrl = 'https:' . $src;
+                } else {
+                    $avatarUrl = rtrim(self::BASE_URL, '/') . '/' . ltrim($src, '/');
+                }
+            }
+
+            $alt = $img->attr('alt');
+            if (is_string($alt) && trim($alt) !== '' && !preg_match('/avatar|user/i', $alt)) {
+                $country = trim($alt);
+            }
+        }
+
         // Extract problem list (for later use in submissions)
         $problemSlugs = $this->extractProblemSlugs($html, $handle);
 
         return [
             'handle' => $handle,
+            'platform_user_id' => $handle,
+            'name' => $name,
+            'avatar_url' => $avatarUrl,
+            'joined_at' => $joinDate,
+            'country' => $country,
             'total_solved' => $totalSolved,
             'points' => $points,
             'rank' => $rank,

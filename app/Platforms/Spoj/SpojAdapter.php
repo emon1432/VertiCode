@@ -40,7 +40,12 @@ class SpojAdapter implements PlatformAdapter
 
             // Build raw data
             $rawData = [
+                'platform_user_id' => $profileData['platform_user_id'] ?? $profileData['handle'],
                 'handle' => $profileData['handle'],
+                'name' => $profileData['name'] ?? $profileData['handle'],
+                'avatar_url' => $profileData['avatar_url'] ?? null,
+                'joined_at' => $profileData['joined_at'] ?? null,
+                'country' => $profileData['country'] ?? null,
                 'points' => $profileData['points'],
                 'rank' => $profileData['rank'],
                 'join_date' => $profileData['join_date'],
@@ -66,7 +71,12 @@ class SpojAdapter implements PlatformAdapter
                     rating: null,
                     totalSolved: 0,
                     raw: [
+                        'platform_user_id' => $handle,
                         'handle' => $handle,
+                        'name' => $handle,
+                        'avatar_url' => null,
+                        'joined_at' => null,
+                        'country' => null,
                         'cloudflare_blocked' => true,
                         'error' => 'SPOJ currently blocks automated requests. Sync unavailable.',
                         'last_attempt' => now()->toIso8601String(),
