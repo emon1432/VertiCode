@@ -67,7 +67,7 @@ class ProblemController extends Controller
 
             $problem->name = (new ProblemInfo($problem))->render()->render();
             $problem->platformName = optional($problem->platform)->display_name ?? '-';
-            $problem->difficultyRating = ($problem->difficulty ? $problem->difficulty : '-') . '/' . ($problem->rating ? $problem->rating : '-');
+            $problem->difficultyRating = ($problem->difficulty ? $problem->difficulty : '-') . ' / ' . ($problem->rating ? $problem->rating : '-');
             $problem->contestName = (new ContestInfo($problem->contest))->render()->render();
             return $problem;
         })->toArray();
