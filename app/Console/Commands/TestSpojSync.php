@@ -31,6 +31,10 @@ class TestSpojSync extends Command
             $profile = $adapter->fetchProfile($handle);
 
             $this->line("   ✓ Handle: {$profile->handle}");
+            $this->line("   ✓ Name: " . ($profile->raw['name'] ?? 'N/A'));
+            $this->line("   ✓ Country: " . ($profile->raw['country'] ?? 'N/A'));
+            $this->line("   ✓ Joined At: " . ($profile->raw['joined_at'] ?? 'N/A'));
+            $this->line("   ✓ Avatar URL: " . (!empty($profile->raw['avatar_url']) ? 'available' : 'N/A'));
             $this->line("   ✓ Rating (Points): " . ($profile->rating ?? 'N/A'));
             $this->line("   ✓ Rank: " . ($profile->raw['rank'] ?? 'Unranked'));
             $this->line("   ✓ Total Solved: {$profile->totalSolved}");

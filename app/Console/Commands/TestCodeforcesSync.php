@@ -29,6 +29,9 @@ class TestCodeforcesSync extends Command
             $profile = $adapter->fetchProfile($handle);
 
             $this->line("   ✓ Handle: {$profile->handle}");
+            $this->line("   ✓ Name: " . ($profile->raw['name'] ?? 'N/A'));
+            $this->line("   ✓ Country: " . ($profile->raw['country'] ?? 'N/A'));
+            $this->line("   ✓ Joined At: " . (isset($profile->raw['joined_at']) ? date('Y-m-d', (int) $profile->raw['joined_at']) : 'N/A'));
             $this->line("   ✓ Current Rating: " . ($profile->rating ?? 'N/A'));
             $this->line("   ✓ Rank by Rating: " . ($profile->raw['ranking'] ?? 'N/A'));
             $this->line("   ✓ Max Rating: " . ($profile->raw['max_rating'] ?? 'N/A'));
